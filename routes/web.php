@@ -33,6 +33,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin,teacher']
     Route::get('/articles/create',[ArticleController::class,'create'])->name('articles.create');
     Route::post('/articles',[ArticleController::class,'store'])->name('articles.store');
     Route::get('/articles/reviews',[ArticleController::class,'reviews'])->middleware('role:admin')->name('articles.reviews');
+    Route::get('/articles/{article}/preview',[ArticleController::class,'preview'])->middleware('role:admin')->name('articles.preview');
     Route::post('/articles/{article}/review',[ArticleController::class,'review'])->middleware('role:admin')->name('articles.review');
     Route::post('/articles/{article}/unpublish',[ArticleController::class,'unpublish'])->middleware('role:admin')->name('articles.unpublish');
     Route::post('/articles/media',[ArticleController::class,'uploadImage'])->name('articles.media');

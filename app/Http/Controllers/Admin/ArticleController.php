@@ -28,6 +28,7 @@ class ArticleController extends Controller
         return view('admin.articles.index',['articles'=>$query->paginate(20)]);
     }
     public function reviews(): View { return view('admin.articles.reviews',['articles'=>Article::with(['author','category'])->where('status','pending')->latest()->paginate(20)]); }
+    public function preview(Article $article): View { abort_unless(request()->user()->isAdmin(),403);return view('admin.articles.preview',compact('article')); }
     public function create(): View { return view('admin.articles.form',['article'=>new Article(),'categories'=>Category::orderBy('name')->get()]); }
     public function edit(Article $article): View { Gate::authorize('update',$article);return view('admin.articles.form',compact('article')+['categories'=>Category::orderBy('name')->get()]); }
 
@@ -51,7 +52,7 @@ class ArticleController extends Controller
 
     public function destroy(Article $article): RedirectResponse
     {
-        Gate::authorize('delete',$article);$title=$article->title;$id=$article->id;$article->delete();
+        Gate::authorize('delete',$article);$title=$article->title;$id=$article->id;if($article->cover_image){Storage::disk('public')->delete($article->cover_image);MediaAsset::where('path',$article->cover_image)->delete();}$article->delete();
         ActivityLog::create(['user_id'=>request()->user()->id,'action'=>'hapus artikel','detail'=>$title]);
         return redirect()->route('admin.articles.index')->with('success','Artikel dihapus.');
     }
@@ -95,8 +96,8 @@ class ArticleController extends Controller
         $data['excerpt']=$data['excerpt']??'';$data['body']=app(ArticleHtml::class)->clean($data['body']);
         if(trim(strip_tags($data['body']))===''&& !str_contains($data['body'],'<img'))throw ValidationException::withMessages(['body'=>'Isi artikel wajib diisi.']);
         $article=$request->route('article');$cover=$article instanceof Article?$article->cover_image:null;
-        if(($data['remove_cover']??false)&&$cover){Storage::disk('public')->delete($cover);$cover=null;}
-        if($request->hasFile('cover')){$new=$request->file('cover')->storePublicly('media','public');if($cover)Storage::disk('public')->delete($cover);$cover=$new;}
+        if(($data['remove_cover']??false)&&$cover){Storage::disk('public')->delete($cover);MediaAsset::where('path',$cover)->delete();$cover=null;}
+        if($request->hasFile('cover')){$file=$request->file('cover');$new=$file->storePublicly('media','public');MediaAsset::create(['uploaded_by'=>$request->user()->id,'path'=>$new,'mime_type'=>$file->getMimeType(),'size'=>$file->getSize(),'alt_text'=>$data['title']]);if($cover){Storage::disk('public')->delete($cover);MediaAsset::where('path',$cover)->delete();}$cover=$new;}
         unset($data['cover'],$data['remove_cover']);$data['cover_image']=$cover;
         return $data;
     }

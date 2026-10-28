@@ -44,7 +44,7 @@ class ContentEntryController extends Controller
     public function destroy(string $type,ContentEntry $entry): RedirectResponse
     {
         $this->assertType($type);abort_unless($entry->type===$type,404);
-        foreach([$entry->image_path,$entry->document_path] as $path)if($path)Storage::disk('public')->delete($path);
+        foreach([$entry->image_path,$entry->document_path] as $path)if($path){Storage::disk('public')->delete($path);MediaAsset::where('path',$path)->delete();}
         $title=$entry->title;$entry->delete();ActivityLog::create(['user_id'=>request()->user()->id,'action'=>'hapus '.$type,'detail'=>$title]);
         return back()->with('success',self::TYPES[$type].' dihapus.');
     }
@@ -67,7 +67,7 @@ class ContentEntryController extends Controller
         if(!$request->hasFile($field)){$data[$column]=$entry?->{$column};return;}
         $old=$entry?->{$column};$file=$request->file($field);$path=$file->storePublicly($directory,'public');$data[$column]=$path;
         MediaAsset::create(['uploaded_by'=>$request->user()->id,'path'=>$path,'mime_type'=>$file->getMimeType(),'size'=>$file->getSize()]);
-        if($old)Storage::disk('public')->delete($old);
+        if($old){Storage::disk('public')->delete($old);MediaAsset::where('path',$old)->delete();}
     }
 
     private function assertType(string $type): void { abort_unless(array_key_exists($type,self::TYPES),404); }

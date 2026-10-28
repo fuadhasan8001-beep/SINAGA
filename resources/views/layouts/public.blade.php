@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#166534">
+    <meta name="theme-color" content="var(--color-primary)">
     <meta name="description" content="Website informasi dan profil sekolah. Temukan informasi profil, program, kegiatan, berita, dan layanan sekolah.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $settings['school_name'] ?? 'Nama Sekolah' }} — Website Resmi">

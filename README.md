@@ -1,43 +1,70 @@
-# Website Sekolah SINAGA
+# SINAGA — Website Sekolah dengan Laravel
 
-Situs publik tetap berupa HTML, CSS, dan JavaScript, serta dapat diterbitkan melalui GitHub Pages. Repository ini kini juga menyertakan panel CMS Admin/Guru berbasis Express dan SQLite. Fitur CMS membutuhkan server Node.js; GitHub Pages sendiri tidak menjalankan backend.
+Website sekolah kini berjalan di Laravel 13 dan memakai Blade untuk tampilan publik dan panel pengelola. Struktur HTML, palet hijau, CSS, tipografi sistem, breakpoint responsif, dan interaksi menu dari situs sebelumnya dipertahankan. HTML lama disimpan sebagai referensi di `resources/legacy/website-original.html`; tidak ada data resmi sekolah yang ditambahkan.
 
-## Menjalankan CMS secara lokal
+Laravel 13 memerlukan PHP 8.3 atau lebih baru. Ekstensi PHP yang dipakai di lingkungan lokal: `pdo_sqlite`, `sqlite3`, `fileinfo`, `gd`, `mbstring`, `xml`, dan `zip`.
 
-Persyaratan: Node.js 22.12 atau lebih baru dan npm.
+## Instalasi lokal
 
 ```sh
-npm install
+composer install
+npm ci
 cp .env.example .env
 ```
 
-Isi `ADMIN_EMAIL`, `ADMIN_PASSWORD` (minimal 12 karakter), serta `SESSION_SECRET` acak minimal 32 karakter di `.env`. Kemudian:
+Atur `APP_NAME`, `APP_URL`, `DB_CONNECTION=sqlite`, serta `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD` di `.env`. Kata sandi Admin awal harus unik dan sedikitnya 12 karakter; gunakan pembuat kata sandi acak. Kredensial awal tidak disimpan di repository.
+
+Siapkan aplikasi dan database:
 
 ```sh
-npm start
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+php artisan serve
 ```
 
-Buka `http://localhost:3000/admin/`. Akun Admin pertama dibuat saat server mulai jika belum ada akun Admin. Buat akun Guru melalui menu **Akun Guru**. Kata sandi awal diberikan saat akun dibuat; sistem menyimpan hash kata sandi dan tidak menyediakan cara untuk membacanya kembali.
+Buka `http://127.0.0.1:8000` untuk website dan `/login` untuk panel. Seeder membuat akun Admin dari variabel `.env` hanya jika email tersebut belum terdaftar. Menjalankan ulang seeder tidak mengganti kata sandi akun yang ada. Buat akun Guru dari menu **Akun Guru**.
 
-Database, sesi, dan unggahan disimpan di `data/` (dapat dipindah dengan `DATA_DIR`). Cadangkan folder data secara berkala. Jangan menghapus database lama saat memperbarui aplikasi.
+SQLite berada di `database/database.sqlite`; unggahan berada di `storage/app/public`. Backup database dan direktori storage sebelum deployment atau perubahan skema. Migrasi tambahan mempertahankan tabel pengguna Laravel yang sudah ada.
 
-## Hosting
+## Fitur
 
-GitHub Pages dapat tetap menerbitkan folder repository untuk situs publik, tetapi panel Admin dan API tidak akan berfungsi di Pages. Untuk mengaktifkan CMS produksi, jalankan `npm start` pada host Node.js dan gunakan domain HTTPS dengan penyimpanan persisten untuk `DATA_DIR`. Atur variabel `NODE_ENV=production`, `SESSION_SECRET`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD` saat pertama kali menyiapkan database. Di hosting dengan reverse proxy TLS, Express mempercayai satu proxy.
+- Beranda satu halaman mempertahankan desain lama. Rute `/profil`, `/akademik`, `/berita`, `/pengumuman`, `/ekstrakurikuler`, `/ppdb`, `/galeri`, dan `/kontak` membuka bagian yang sesuai. Artikel terbit memiliki halaman `/berita/{slug}`.
+- Halaman publik membaca artikel, pengumuman, agenda, profil guru, ekstrakurikuler, prestasi, galeri, dokumen, kontak, dan pengaturan dari database. Jika belum ada data sekolah, halaman tetap menampilkan placeholder.
+- Login memakai autentikasi dan sesi Laravel, regenerasi sesi, rate limiting, CSRF, validasi server, serta middleware peran Admin/Guru. Registrasi publik dimatikan.
+- Admin mengelola artikel semua penulis, kategori, pengumuman, agenda, guru, ekstrakurikuler, prestasi, galeri, dokumen, pesan kontak, dan pengaturan website. Admin dapat menerbitkan, membatalkan publikasi, meminta revisi, atau menolak artikel.
+- Guru membuat draf dan mengirim artikel untuk persetujuan. Guru hanya dapat membaca atau mengubah artikel miliknya sendiri; artikel pending dan terbit tidak dapat diedit oleh Guru.
+- Editor mendukung heading, bold/italic/underline, daftar, tautan, kutipan, undo/redo, pratinjau, gambar inline, foto sampul, teks alternatif, dan keterangan.
+- Impor Word `.docx` mempertahankan teks, heading, daftar, tautan, dan gambar tertanam sesuai kemampuan konversi PHPWord. Gambar diekstrak ke Laravel Storage, bukan disimpan sebagai Base64 di database.
+- HTML artikel disanitasi dengan HTML Purifier. Unggahan gambar divalidasi tipe dan ukuran; dokumen dibatasi ke format kantor yang didukung.
 
-Untuk situs dan CMS pada host yang sama, aplikasi Express melayani `index.html`, `/admin/`, `/api/`, `/uploads/`, dan halaman artikel `/artikel/:slug`; daftar berita di halaman depan akan mengambil artikel yang telah terbit. Jika situs publik tetap di GitHub Pages, CMS beroperasi pada host terpisah. Isi `content` pada meta `sinaga-api-base` di `index.html` dengan origin backend (contoh `https://cms.sekolah.id`) dan set `PUBLIC_ORIGIN` pada backend ke origin Pages yang persis (contoh `https://sekolah.github.io`) agar daftar berita bisa dimuat lintas domain. Tautan artikel akan mengarah ke backend CMS.
+## Database dan data awal
 
-## Fitur CMS
+Skema dibuat oleh Laravel migrations: pengguna/peran, kategori, artikel, konten terkelola, metadata media, pengaturan, aktivitas, pesan kontak, sesi, dan password reset. Relasi artikel mengarah ke penulis dan kategori; foreign key menggunakan cascade atau set-null yang sesuai.
 
-- Login Admin/Guru dengan sesi HTTP-only, batas percobaan login, hash PBKDF2, token CSRF, dan otorisasi backend.
-- Dashboard dan statistik, profil, manajemen artikel, kategori, akun Guru, riwayat aktivitas, persetujuan, catatan revisi, penolakan, dan publikasi.
-- Guru hanya dapat membaca/mengubah artikelnya sendiri; pengiriman Guru selalu masuk status menunggu persetujuan.
-- Editor rich text untuk judul, ringkasan, kategori, sampul, heading, daftar, tautan, kutipan, undo/redo, pratinjau, dan gambar inline dengan teks alternatif serta keterangan.
-- Impor `.docx` mengonversi paragraf, heading, daftar, tautan, dan gambar tertanam ke editor. Hasil konversi disanitasi dan dapat diperiksa sebelum disimpan.
-- Unggahan gambar dibatasi 5 MB, dokumen Word 10 MB. Gambar diperiksa berdasarkan signature file, nama file dibuat acak, dan file disimpan di disk, bukan di database.
+Seeder hanya menambahkan kategori dasar dan akun Admin dari `.env`; tidak menambahkan berita, agenda, guru, atau identitas sekolah fiktif.
 
-## Verifikasi
+## Pengujian dan aset
 
-Jalankan `npm test` untuk uji integrasi autentikasi, otorisasi peran dan kepemilikan artikel, alur persetujuan, unggahan tidak valid, impor Word, serta endpoint artikel publik. Jalankan `npm audit` untuk laporan advisori dependensi.
+```sh
+php artisan test
+composer audit
+npm audit
+```
 
-Workflow GitHub Pages yang sudah ada tetap menerbitkan situs statis dengan alur yang sama.
+CSS publik yang dipindahkan ke `resources/css/site.css` berasal dari desain sebelumnya. CSS panel berada di `resources/css/admin.css`; Vite membangun keduanya bersama JavaScript tanpa mengganti desain dengan Tailwind.
+
+## Deployment
+
+GitHub Pages hanya melayani file statis dan tidak menjalankan Laravel/PHP. Workflow penerbitan Pages lama sudah diganti dengan workflow CI Laravel. Untuk menjalankan situs, gunakan host PHP yang document root-nya menunjuk ke direktori `public/`, siapkan PHP 8.3+, Composer, Node.js untuk build aset, database SQLite/MySQL, dan storage persisten. Jangan mengekspos root repository atau file `.env` ke web.
+
+Pada production:
+
+1. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` HTTPS, kredensial database, dan `SESSION_SECURE_COOKIE=true`.
+2. Jalankan `composer install --no-dev --optimize-autoloader`, `npm ci && npm run build`, `php artisan migrate --force`, dan `php artisan storage:link`.
+3. Seed Admin pertama dari variabel rahasia `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD`, lalu hapus variabel kata sandi dari lingkungan deployment jika kebijakan host mengharuskan.
+4. Pastikan `storage/` dan `bootstrap/cache/` dapat ditulis oleh PHP dan memiliki backup terjadwal.
+
+File `CNAME` lama dipertahankan sebagai catatan domain. Arahkan DNS/domain ke host Laravel yang digunakan; file itu sendiri tidak mengaktifkan backend pada GitHub Pages.

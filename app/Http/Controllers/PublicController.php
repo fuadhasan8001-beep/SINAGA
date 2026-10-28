@@ -41,7 +41,7 @@ class PublicController extends Controller
     {
         $entries=ContentEntry::visible()->orderBy('sort_order')->orderBy('starts_at')->get()->groupBy('type');
         return [
-            'articles'=>Article::published()->with(['author','category'])->latest('published_at')->limit(10)->get(),
+            'articles'=>Article::published()->with(['author','category'])->latest('published_at')->get(),
             'announcements'=>$entries->get('announcement',collect()),'events'=>$entries->get('event',collect()),
             'teachers'=>$entries->get('teacher',collect()),'extracurriculars'=>$entries->get('extracurricular',collect()),
             'achievements'=>$entries->get('achievement',collect()),'gallery'=>$entries->get('gallery',collect()),

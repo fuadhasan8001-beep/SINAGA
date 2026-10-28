@@ -24,6 +24,8 @@ class CmsWorkflowTest extends TestCase
         $this->post(route('login.store'),['email'=>$admin->email,'password'=>'password'])->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
         $this->get(route('admin.users.index'))->assertOk();
+        $this->post(route('admin.users.store'),['name'=>'Guru Baru','email'=>'baru@example.test','password'=>'Initial-Teacher-123'])->assertRedirect();
+        $this->assertDatabaseHas('users',['email'=>'baru@example.test','role'=>'teacher','active'=>1]);
         $this->post(route('logout'))->assertRedirect(route('login'));
 
         $article=Article::create(['author_id'=>$teacher->id,'title'=>'Draf Guru Uji','slug'=>'draf-guru-uji','body'=>'<p>Isi.</p>','status'=>'draft']);
@@ -95,6 +97,12 @@ class CmsWorkflowTest extends TestCase
         $this->assertStringContainsString('Judul dari Word',$html);$this->assertStringContainsString('Paragraf setelah gambar',$html);
         $this->assertMatchesRegularExpression('~src="/storage/media/[a-f0-9-]+\.png"~',$html);
         $image=MediaAsset::firstOrFail();$this->assertTrue(Storage::disk('public')->exists($image->path));
+        $this->post(route('admin.articles.store'),['title'=>'Hasil Impor Word','body'=>$html,'intent'=>'review'])->assertRedirect();
+        $article=Article::where('title','Hasil Impor Word')->firstOrFail();
+        $this->assertSame('pending',$article->status);$this->assertStringContainsString('/storage/media/',$article->body);
+        $admin=User::factory()->create(['role'=>'admin','active'=>true]);
+        $this->actingAs($admin)->post(route('admin.articles.review',$article),['action'=>'publish'])->assertRedirect();
+        $this->get(route('article.show',$article->slug))->assertOk()->assertSee('/storage/media/');
         $bad=new UploadedFile(tempnam(sys_get_temp_dir(),'bad-docx'),'bad.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document',null,true);
         $this->postJson(route('admin.articles.import'),['file'=>$bad])->assertUnprocessable();
     }
