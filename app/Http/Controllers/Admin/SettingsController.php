@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
-    private const FIELDS=['school_name'=>'Nama sekolah','school_tagline'=>'Slogan','address'=>'Alamat','phone'=>'Telepon','email'=>'Email','office_hours'=>'Jam pelayanan','principal'=>'Nama kepala sekolah','vision'=>'Visi','mission'=>'Misi','ppdb_url'=>'Tautan PPDB'];
+    private const FIELDS=['school_name'=>'Nama sekolah','school_tagline'=>'Slogan','address'=>'Alamat','phone'=>'Telepon','email'=>'Email','office_hours'=>'Jam pelayanan','principal'=>'Nama kepala sekolah','history'=>'Sejarah sekolah','vision'=>'Visi','mission'=>'Misi','academic_intro'=>'Pengantar akademik','curriculum'=>'Kurikulum','learning_program'=>'Program pembelajaran','academic_calendar'=>'Kalender akademik','ppdb_summary'=>'Ringkasan PPDB','ppdb_url'=>'Tautan PPDB'];
     public function edit(): View
     {
         $settings=SiteSetting::all()->keyBy('key')->map(fn($item)=>json_decode($item->value,true)??$item->value);
