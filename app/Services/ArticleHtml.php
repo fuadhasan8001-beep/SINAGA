@@ -13,6 +13,12 @@ class ArticleHtml
         $config->set('HTML.Allowed','p,br,h1,h2,h3,h4,strong,b,em,i,u,s,ul,ol,li,a[href|target|rel],blockquote,img[src|alt|title|width|height],figure,figcaption,hr');
         $config->set('Attr.AllowedFrameTargets',['_blank']);
         $config->set('URI.AllowedSchemes',['http'=>true,'https'=>true,'mailto'=>true]);
+        $config->set('HTML.DefinitionID','sinaga-rich-text');
+        $config->set('HTML.DefinitionRev',1);
+        if($definition=$config->maybeGetRawHTMLDefinition()){
+            $definition->addElement('figure','Block','Flow','Common');
+            $definition->addElement('figcaption','Block','Flow','Common');
+        }
         $purifier=new HTMLPurifier($config);
         $safe=$purifier->purify($html);
         $doc=new \DOMDocument('1.0','UTF-8');
