@@ -43,6 +43,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin,teacher']
     Route::put('/articles/{article}',[ArticleController::class,'update'])->name('articles.update');
     Route::delete('/articles/{article}',[ArticleController::class,'destroy'])->name('articles.destroy');
     Route::middleware('role:admin')->group(function(){
+        Route::get('/website/articles/{slug}',[PublicController::class,'article'])->name('website.article');
         Route::get('/photos/{placement}/edit',[PhotoController::class,'edit'])->name('photos.edit');
         Route::put('/photos/{placement}',[PhotoController::class,'update'])->name('photos.update');
         Route::get('/categories',[CategoryController::class,'index'])->name('categories.index');

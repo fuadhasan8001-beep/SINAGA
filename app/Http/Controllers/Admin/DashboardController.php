@@ -15,7 +15,18 @@ class DashboardController extends Controller
     public function __invoke(): View
     {
         $user=request()->user();
-        if($user->isAdmin()) return view('public.home',[...app(PublicController::class)->publicData(),'adminMode'=>true]);
+        if($user->isAdmin()) {
+            $section = request()->query('section');
+            $scrollTarget = is_string($section) && in_array($section, ['profil', 'program', 'berita', 'ekskul', 'galeri', 'kontak', 'layanan'], true)
+                ? $section
+                : null;
+
+            return view('public.home', [
+                ...app(PublicController::class)->publicData(),
+                'adminMode' => true,
+                'scrollTarget' => $scrollTarget,
+            ]);
+        }
         $query=Article::query();
         $counts=['total'=>(clone $query)->count(),'draft'=>(clone $query)->where('status','draft')->count(),'pending'=>(clone $query)->where('status','pending')->count(),'revision'=>(clone $query)->where('status','revision')->count(),'published'=>(clone $query)->where('status','published')->count(),'teachers'=>User::where('role','teacher')->where('active',true)->count(),'content'=>ContentEntry::count()];
         if($user->isAdmin()){

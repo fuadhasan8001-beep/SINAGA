@@ -23,10 +23,12 @@ class CmsWorkflowTest extends TestCase
         $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
         $this->post(route('login.store'),['email'=>$admin->email,'password'=>'password'])->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
+        $this->get(route('admin.dashboard'))->assertOk()->assertSee('admin-preview')->assertSee('site-admin-toggle');
         $this->get(route('admin.users.index'))->assertOk();
         $this->post(route('admin.users.store'),['name'=>'Guru Baru','email'=>'baru@example.test','password'=>'Initial-Teacher-123'])->assertRedirect();
         $this->assertDatabaseHas('users',['email'=>'baru@example.test','role'=>'teacher','active'=>1]);
         $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
 
         $article=Article::create(['author_id'=>$teacher->id,'title'=>'Draf Guru Uji','slug'=>'draf-guru-uji','body'=>'<p>Isi.</p>','status'=>'draft']);
         $this->actingAs($teacher)->get(route('admin.users.index'))->assertForbidden();
@@ -82,7 +84,7 @@ class CmsWorkflowTest extends TestCase
         $this->assertTrue(Storage::disk('public')->exists($gallery->image_path));
         $this->assertDatabaseHas('media_assets',['path'=>$gallery->image_path]);
         $this->get(route('admin.dashboard'))->assertOk();
-        $this->get(route('home'))->assertOk()->assertSee('photo-admin-action')->assertSee('site-admin-toggle');
+        $this->get(route('home'))->assertOk()->assertDontSee('photo-admin-action')->assertDontSee('site-admin-toggle');
         $oldImage=$gallery->image_path;
         $this->put(route('admin.content.update',['gallery',$gallery]),['title'=>'Foto kegiatan','excerpt'=>'Dokumentasi sekolah diperbarui.','published'=>'1','image'=>UploadedFile::fake()->image('foto-baru.jpg',800,600)])->assertRedirect(route('admin.content.index','gallery'))->assertSessionHas('success');
         $gallery->refresh();
@@ -93,8 +95,8 @@ class CmsWorkflowTest extends TestCase
         $this->post(route('admin.content.store','gallery'),['title'=>'File tidak sah','published'=>'1','image'=>UploadedFile::fake()->create('fake.svg',10,'image/svg+xml')])->assertSessionHasErrors('image');
         auth()->logout();
         $this->get(route('home'))->assertOk()->assertDontSee('photo-admin-action')->assertDontSee('site-admin-toggle');
-        $this->get(route('profile'))->assertOk()->assertSee('Profil sekolah');
-        $this->get(route('academics'))->assertOk();$this->get(route('announcements'))->assertOk();$this->get(route('ppdb'))->assertOk();$this->get(route('gallery'))->assertOk();$this->get(route('contact'))->assertOk();
+        $this->get(route('profile'))->assertOk()->assertSee('Profil sekolah')->assertDontSee('photo-admin-action')->assertDontSee('site-admin-toggle');
+        $this->get(route('academics'))->assertOk();$this->get(route('announcements'))->assertOk();$this->get(route('ppdb'))->assertOk();$this->get(route('gallery'))->assertOk()->assertDontSee('site-admin-toggle');$this->get(route('contact'))->assertOk()->assertDontSee('site-admin-toggle');
         $this->assertSame(1,ContactMessage::count());$this->assertSame(1,MediaAsset::count());
     }
 
@@ -104,9 +106,23 @@ class CmsWorkflowTest extends TestCase
         $this->actingAs($admin);
 
         foreach (['home', 'profile', 'academics', 'news', 'extracurriculars', 'gallery', 'contact'] as $route) {
-            $this->get(route($route))->assertOk()->assertSee('site-admin-toggle');
+            $this->get(route($route))->assertOk()->assertDontSee('site-admin-toggle')->assertDontSee('photo-admin-action');
         }
         $this->get(route('gallery'))->assertSee('Galeri');
+
+        $this->get(route('admin.dashboard'))->assertOk()->assertSee('admin-preview')->assertSee('site-admin-toggle')
+            ->assertSee(route('admin.dashboard', ['section' => 'profil']), false)
+            ->assertSee(route('admin.dashboard', ['section' => 'program']), false)
+            ->assertSee(route('admin.dashboard', ['section' => 'berita']), false)
+            ->assertSee(route('admin.dashboard', ['section' => 'ekskul']), false)
+            ->assertSee(route('admin.dashboard', ['section' => 'galeri']), false)
+            ->assertSee(route('admin.dashboard', ['section' => 'kontak']), false);
+
+        foreach (['profil', 'program', 'berita', 'ekskul', 'galeri', 'kontak'] as $section) {
+            $this->get(route('admin.dashboard', ['section' => $section]))->assertOk()
+                ->assertSee('admin-preview')->assertSee('site-admin-toggle')
+                ->assertSee('data-scroll-target="'.$section.'"', false);
+        }
 
         foreach (['hero', 'profile'] as $placement) {
             $this->get(route('admin.photos.edit', $placement))->assertOk()
@@ -138,6 +154,12 @@ class CmsWorkflowTest extends TestCase
         $viewer = User::factory()->create(['role' => 'teacher', 'active' => true]);
         $this->actingAs($viewer)->get(route('admin.photos.edit', 'hero'))->assertForbidden();
         $this->get(route('home'))->assertOk()->assertDontSee('site-admin-toggle');
+        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->get(route('admin.photos.edit', 'hero'))->assertRedirect(route('login'));
+        $this->put(route('admin.photos.update', 'hero'), [
+            'image' => UploadedFile::fake()->image('tanpa-sesi.jpg'),
+        ])->assertRedirect(route('login'));
+        $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
     }
 
     public function test_docx_import_preserves_text_and_embedded_images_and_rejects_bad_files(): void

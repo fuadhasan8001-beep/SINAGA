@@ -27,7 +27,9 @@ class PublicController extends Controller
     public function article(string $slug): View
     {
         $article=Article::published()->with(['author','category'])->where('slug',$slug)->firstOrFail();
-        return view('public.article',['article'=>$article,'adminMode'=>request()->user()?->isAdmin() ?? false]);
+        $adminMode = request()->routeIs('admin.website.article') && request()->user()?->isAdmin();
+
+        return view('public.article',['article'=>$article,'adminMode'=>$adminMode]);
     }
 
     public function contact(Request $request): RedirectResponse
@@ -53,6 +55,6 @@ class PublicController extends Controller
 
     private function publicViewData(): array
     {
-        return [...$this->publicData(),'adminMode'=>request()->user()?->isAdmin() ?? false];
+        return [...$this->publicData(),'adminMode'=>false];
     }
 }
