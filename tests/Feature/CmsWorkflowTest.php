@@ -81,10 +81,63 @@ class CmsWorkflowTest extends TestCase
         $gallery=ContentEntry::where('type','gallery')->firstOrFail();
         $this->assertTrue(Storage::disk('public')->exists($gallery->image_path));
         $this->assertDatabaseHas('media_assets',['path'=>$gallery->image_path]);
+        $this->get(route('admin.dashboard'))->assertOk();
+        $this->get(route('home'))->assertOk()->assertSee('photo-admin-action')->assertSee('site-admin-toggle');
+        $oldImage=$gallery->image_path;
+        $this->put(route('admin.content.update',['gallery',$gallery]),['title'=>'Foto kegiatan','excerpt'=>'Dokumentasi sekolah diperbarui.','published'=>'1','image'=>UploadedFile::fake()->image('foto-baru.jpg',800,600)])->assertRedirect(route('admin.content.index','gallery'))->assertSessionHas('success');
+        $gallery->refresh();
+        $this->assertNotSame($oldImage,$gallery->image_path);
+        $this->assertFalse(Storage::disk('public')->exists($oldImage));
+        $this->assertTrue(Storage::disk('public')->exists($gallery->image_path));
+        $this->get(route('admin.dashboard'))->assertOk()->assertSee(Storage::disk('public')->url($gallery->image_path),false);
         $this->post(route('admin.content.store','gallery'),['title'=>'File tidak sah','published'=>'1','image'=>UploadedFile::fake()->create('fake.svg',10,'image/svg+xml')])->assertSessionHasErrors('image');
+        auth()->logout();
+        $this->get(route('home'))->assertOk()->assertDontSee('photo-admin-action')->assertDontSee('site-admin-toggle');
         $this->get(route('profile'))->assertOk()->assertSee('Profil sekolah');
         $this->get(route('academics'))->assertOk();$this->get(route('announcements'))->assertOk();$this->get(route('ppdb'))->assertOk();$this->get(route('gallery'))->assertOk();$this->get(route('contact'))->assertOk();
         $this->assertSame(1,ContactMessage::count());$this->assertSame(1,MediaAsset::count());
+    }
+
+    public function test_admin_public_navigation_and_photo_editor_keep_the_admin_context(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $this->actingAs($admin);
+
+        foreach (['home', 'profile', 'academics', 'news', 'extracurriculars', 'gallery', 'contact'] as $route) {
+            $this->get(route($route))->assertOk()->assertSee('site-admin-toggle');
+        }
+        $this->get(route('gallery'))->assertSee('Galeri');
+
+        foreach (['hero', 'profile'] as $placement) {
+            $this->get(route('admin.photos.edit', $placement))->assertOk()
+                ->assertSee('Pilih foto baru')->assertSee('Simpan Foto')->assertSee('Batal')
+                ->assertDontSee('title"')->assertDontSee('excerpt');
+        }
+
+        Storage::fake('public');
+        foreach (['hero', 'profile'] as $placement) {
+            $this->put(route('admin.photos.update', $placement), [
+                'image' => UploadedFile::fake()->image($placement.'.jpg', 640, 420),
+            ])->assertRedirect(route('admin.dashboard'))->assertSessionHas('success');
+            $key = $placement.'_photo_path';
+            $path = json_decode(SiteSetting::findOrFail($key)->value, true);
+            $this->assertTrue(Storage::disk('public')->exists($path));
+            $this->assertDatabaseHas('media_assets', ['path' => $path]);
+            $this->get(route('home'))->assertOk()->assertSee(Storage::disk('public')->url($path), false);
+        }
+
+        $heroPath = json_decode(SiteSetting::findOrFail('hero_photo_path')->value, true);
+        $profilePath = json_decode(SiteSetting::findOrFail('profile_photo_path')->value, true);
+        $this->assertNotSame($heroPath, $profilePath);
+        $this->put(route('admin.photos.update', 'hero'), [
+            'image' => UploadedFile::fake()->create('invalid.svg', 10, 'image/svg+xml'),
+        ])->assertSessionHasErrors('image');
+        $this->assertSame($heroPath, json_decode(SiteSetting::findOrFail('hero_photo_path')->value, true));
+        $this->get(route('admin.dashboard'))->assertOk();
+
+        $viewer = User::factory()->create(['role' => 'teacher', 'active' => true]);
+        $this->actingAs($viewer)->get(route('admin.photos.edit', 'hero'))->assertForbidden();
+        $this->get(route('home'))->assertOk()->assertDontSee('site-admin-toggle');
     }
 
     public function test_docx_import_preserves_text_and_embedded_images_and_rejects_bad_files(): void

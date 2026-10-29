@@ -3,12 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="var(--color-primary)">
+    <meta name="theme-color" content="#F0FAF3">
     <meta name="description" content="Website informasi dan profil sekolah. Temukan informasi profil, program, kegiatan, berita, dan layanan sekolah.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $settings['school_name'] ?? 'Nama Sekolah' }} — Website Resmi">
     <meta property="og:description" content="Informasi profil, program, kegiatan, berita, dan layanan sekolah.">
     <title>@yield('title', ($settings['school_name'] ?? 'Nama Sekolah').' — Website Resmi')</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/site.css','resources/js/site.js'])
     @if($adminMode ?? false) @vite(['resources/css/site-admin.css','resources/js/admin.js']) @endif
 </head>

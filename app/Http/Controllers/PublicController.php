@@ -15,19 +15,19 @@ class PublicController extends Controller
 {
     public function home(): View
     {
-        return view('public.home', $this->publicData());
+        return view('public.home', $this->publicViewData());
     }
 
     public function section(string $section): View
     {
         abort_unless(in_array($section,['profil','akademik','berita','pengumuman','ekskul','ppdb','galeri','kontak'],true),404);
-        return view('public.home', [...$this->publicData(),'scrollTarget'=>match($section){'pengumuman','ppdb'=>'layanan','galeri'=>'galeri','ekskul'=>'ekskul','akademik'=>'program','kontak'=>'kontak',default=>$section}]);
+        return view('public.home', [...$this->publicViewData(),'scrollTarget'=>match($section){'pengumuman','ppdb'=>'layanan','galeri'=>'galeri','ekskul'=>'ekskul','akademik'=>'program','kontak'=>'kontak',default=>$section}]);
     }
 
     public function article(string $slug): View
     {
         $article=Article::published()->with(['author','category'])->where('slug',$slug)->firstOrFail();
-        return view('public.article',compact('article'));
+        return view('public.article',['article'=>$article,'adminMode'=>request()->user()?->isAdmin() ?? false]);
     }
 
     public function contact(Request $request): RedirectResponse
@@ -49,5 +49,10 @@ class PublicController extends Controller
             'settings'=>SiteSetting::query()->pluck('value','key')->map(fn($v)=>json_decode($v,true)??$v),
             'categories'=>Category::orderBy('name')->get(),
         ];
+    }
+
+    private function publicViewData(): array
+    {
+        return [...$this->publicData(),'adminMode'=>request()->user()?->isAdmin() ?? false];
     }
 }

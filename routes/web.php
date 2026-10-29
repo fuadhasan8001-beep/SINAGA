@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\ContentEntryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PhotoController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
@@ -42,6 +43,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin,teacher']
     Route::put('/articles/{article}',[ArticleController::class,'update'])->name('articles.update');
     Route::delete('/articles/{article}',[ArticleController::class,'destroy'])->name('articles.destroy');
     Route::middleware('role:admin')->group(function(){
+        Route::get('/photos/{placement}/edit',[PhotoController::class,'edit'])->name('photos.edit');
+        Route::put('/photos/{placement}',[PhotoController::class,'update'])->name('photos.update');
         Route::get('/categories',[CategoryController::class,'index'])->name('categories.index');
         Route::post('/categories',[CategoryController::class,'store'])->name('categories.store');
         Route::put('/categories/{category}',[CategoryController::class,'update'])->name('categories.update');
