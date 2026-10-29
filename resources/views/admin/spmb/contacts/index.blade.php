@@ -1,0 +1,7 @@
+@extends('layouts.admin')
+@section('title','Contact Person SPMB')
+@section('heading','Contact Person SPMB')
+@section('subtitle','Hanya kontak yang ditandai Tayang akan terlihat di halaman publik.')
+@section('content')
+<div class="panel"><div class="panel-head"><h2>Kontak resmi ({{ $contacts->count() }})</h2><a class="primary" href="{{ route('admin.spmb.contacts.create') }}">＋ Tambah contact person</a></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Telepon</th><th>Status</th><th>Tindakan</th></tr></thead><tbody>@forelse($contacts as $contact)<tr><td class="title-cell">{{ $contact->name }}<span class="subline">{{ $contact->role }}</span></td><td>{{ $contact->phone }}</td><td><span class="pill {{ $contact->published?'published':'draft' }}">{{ $contact->published?'Tayang':'Draf' }}</span></td><td><div class="row-actions"><a class="tiny" href="{{ route('admin.spmb.contacts.edit',$contact) }}">Edit</a><form method="post" action="{{ route('admin.spmb.contacts.destroy',$contact) }}" onsubmit="return confirm('Hapus contact person ini?')">@csrf @method('DELETE')<button class="tiny deny" type="submit">Hapus</button></form></div></td></tr>@empty<tr><td colspan="4" class="empty">Belum ada contact person SPMB.</td></tr>@endforelse</tbody></table></div></div><a class="secondary" href="{{ route('admin.spmb.dashboard') }}">Kembali ke Dashboard SPMB</a>
+@endsection

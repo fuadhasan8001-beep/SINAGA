@@ -19,6 +19,9 @@ class EnsureRole
             return redirect()->route('login');
         }
         abort_unless(in_array($user->role,$roles,true),403);
-        return $next($request);
+        $response=$next($request);
+        $response->headers->set('Cache-Control','no-store, private, max-age=0, must-revalidate');
+        $response->headers->set('Pragma','no-cache');
+        return $response;
     }
 }

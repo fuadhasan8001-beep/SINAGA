@@ -1,4 +1,3 @@
-<div class="topline"><div class="container"><span>Selamat datang di website sekolah</span><span class="top-extra"><a href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'kontak']) : route('contact') }}">Hubungi kami</a></span></div></div>
 <header class="nav-wrap"><nav class="nav container" aria-label="Navigasi utama">
     <a class="brand" href="{{ ($adminMode ?? false) ? route('admin.dashboard') : route('home') }}" aria-label="{{ $settings['school_name'] ?? 'Nama Sekolah' }}, beranda"><span class="brand-mark" aria-label="Tempat logo sekolah">Logo</span><span class="brand-name">{{ $settings['school_name'] ?? 'Nama Sekolah' }}<small>{{ $settings['school_tagline'] ?? 'Informasi dan layanan sekolah' }}</small></span></a>
     <div class="nav-links" id="navLinks">
@@ -10,5 +9,5 @@
         <a class="{{ request()->routeIs('gallery') || request()->query('section') === 'galeri' ? 'active' : '' }}" href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'galeri']) : route('gallery') }}">Galeri</a>
         <a class="{{ request()->routeIs('contact') || request()->query('section') === 'kontak' ? 'active' : '' }}" href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'kontak']) : route('contact') }}">Kontak</a>
     </div>
-    <a class="btn nav-cta" href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'layanan']) : route('ppdb') }}">Informasi PPDB</a><button class="menu-btn" id="menuBtn" aria-label="Buka menu" aria-expanded="false">☰</button>
+    <a class="btn nav-cta" href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'layanan']) : route('spmb.public') }}">SPMB</a><button class="menu-btn" id="menuBtn" aria-label="Buka menu" aria-expanded="false">☰</button>
 </nav></header>

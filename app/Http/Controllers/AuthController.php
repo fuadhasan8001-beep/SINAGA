@@ -15,9 +15,10 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials=$request->validate(['email'=>['required','email','max:254'],'password'=>['required','string','max:200']]);
-        if(!Auth::attempt([...$credentials,'active'=>true],$request->boolean('remember'))){
-            throw ValidationException::withMessages(['email'=>'Email atau kata sandi salah, atau akun sedang dinonaktifkan.']);
+        $credentials=$request->validate(['username'=>['required','string','max:254'],'password'=>['required','string','max:200']]);
+        $identityField=str_contains($credentials['username'],'@')?'email':'username';
+        if(!Auth::attempt([$identityField=>$credentials['username'],'password'=>$credentials['password'],'active'=>true],$request->boolean('remember'))){
+            throw ValidationException::withMessages(['username'=>'Username atau kata sandi salah, atau akun sedang dinonaktifkan.']);
         }
         $request->session()->regenerate();
         ActivityLog::create(['user_id'=>Auth::id(),'action'=>'login','detail'=>'Masuk ke panel']);

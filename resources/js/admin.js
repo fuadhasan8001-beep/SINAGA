@@ -1,9 +1,21 @@
 const sidebarToggle=document.querySelector('.sidebar-toggle,.site-admin-toggle'),sidebarCloses=document.querySelectorAll('[data-sidebar-close]');
 const setSidebar=open=>{document.body.classList.toggle('sidebar-open',open);sidebarToggle?.setAttribute('aria-expanded',String(open));sidebarToggle?.setAttribute('aria-label',open?'Tutup menu pengelolaan':'Buka menu pengelolaan');};
+const sidebarLabel=sidebarToggle?.querySelector('span:last-child');
+if(sidebarLabel)sidebarLabel.textContent='Kelola Website';
 sidebarToggle?.addEventListener('click',()=>setSidebar(!document.body.classList.contains('sidebar-open')));
 sidebarCloses.forEach(button=>button.addEventListener('click',()=>{setSidebar(false);sidebarToggle?.focus()}));
 document.querySelectorAll('.sidebar a').forEach(link=>link.addEventListener('click',()=>setSidebar(false)));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('sidebar-open')){setSidebar(false);sidebarToggle?.focus()}});
+const adminNav=document.querySelector('.sidebar .nav');
+const isAdmin=document.querySelector('.user-chip small')?.textContent.trim()==='Administrator';
+if(isAdmin&&adminNav){
+    const link=document.createElement('a');
+    link.href='/admin/spmb';
+    link.className=`spmb-nav-link${location.pathname.startsWith('/admin/spmb')?' active':''}`;
+    link.innerHTML='<span aria-hidden="true">▤</span> SPMB';
+    const contentHeading=[...adminNav.querySelectorAll('.nav-title')].find(item=>item.textContent.trim()==='KELOLA KONTEN');
+    adminNav.insertBefore(link,contentHeading||null);
+}
 if(document.body.classList.contains('admin-preview')){
     const contextualLinks={profil:['/admin/settings','Edit profil'],program:['/admin/settings','Edit akademik'],layanan:['/admin/content/announcement/create','Tambah pengumuman'],berita:['/admin/articles/create','Tulis artikel'],ekskul:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings','Edit informasi kontak']};
     Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
@@ -40,4 +52,15 @@ if(editorForm){
     editorForm.addEventListener('submit',()=>bodyField.value=editor.innerHTML);
     editorForm.elements.title.addEventListener('input',()=>{slugPreview.value=editorForm.elements.title.value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/[\s_-]+/g,'-').replace(/^-|-$/g,'')});
     document.getElementById('previewBtn')?.addEventListener('click',()=>{const preview=document.getElementById('preview');if(preview.hidden){preview.innerHTML=`<h2>${editorForm.elements.title.value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))||'Pratinjau artikel'}</h2>${safeHtml(editor.innerHTML)}`;preview.hidden=false}else preview.hidden=true});
+}
+const spmbPosterInput=document.getElementById('spmbPoster');
+if(spmbPosterInput){
+    const preview=document.querySelector('#spmbPosterPreview'),image=preview?.querySelector('img');
+    let previewUrl=null;
+    spmbPosterInput.addEventListener('change',()=>{
+        const file=spmbPosterInput.files?.[0];
+        if(previewUrl)URL.revokeObjectURL(previewUrl);
+        previewUrl=file?URL.createObjectURL(file):null;
+        if(preview&&image){preview.hidden=!previewUrl;if(previewUrl)image.src=previewUrl;}
+    });
 }

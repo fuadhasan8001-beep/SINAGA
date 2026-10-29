@@ -12,7 +12,7 @@ npm ci
 cp .env.example .env
 ```
 
-Atur `APP_NAME`, `APP_URL`, `DB_CONNECTION=sqlite`, serta `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD` di `.env`. Kata sandi Admin awal harus unik dan sedikitnya 12 karakter; gunakan pembuat kata sandi acak. Kredensial awal tidak disimpan di repository.
+Atur `APP_NAME`, `APP_URL`, `DB_CONNECTION=sqlite`, dan `ADMIN_PASSWORD` di `.env`. Username awal Admin adalah `admin.sinaga`; email internal default `admin.sinaga@local.invalid` dapat diganti melalui `ADMIN_EMAIL`. Password dibaca hanya dari `.env`, di-hash saat provisioning, dan tidak disimpan di repository. Login menerima username untuk Admin serta email untuk akun Guru yang sudah ada.
 
 Siapkan aplikasi dan database:
 
@@ -31,10 +31,11 @@ SQLite berada di `database/database.sqlite`; unggahan berada di `storage/app/pub
 
 ## Fitur
 
-- Beranda satu halaman mempertahankan desain lama. Rute `/profil`, `/akademik`, `/berita`, `/pengumuman`, `/ekstrakurikuler`, `/ppdb`, `/galeri`, dan `/kontak` membuka bagian yang sesuai. Artikel terbit memiliki halaman `/berita/{slug}`.
+- Beranda satu halaman mempertahankan desain lama. Rute `/profil`, `/akademik`, `/berita`, `/pengumuman`, `/ekstrakurikuler`, `/galeri`, dan `/kontak` membuka bagian yang sesuai. SPMB publik berada di `/spmb` (`/ppdb` tetap alias untuk kompatibilitas). Artikel terbit memiliki halaman `/berita/{slug}`.
 - Halaman publik membaca artikel, pengumuman, agenda, profil guru, ekstrakurikuler, prestasi, galeri, dokumen, kontak, dan pengaturan dari database. Jika belum ada data sekolah, halaman tetap menampilkan placeholder.
 - Login memakai autentikasi dan sesi Laravel, regenerasi sesi, rate limiting, CSRF, validasi server, serta middleware peran Admin/Guru. Registrasi publik dimatikan.
 - Admin mengelola artikel semua penulis, kategori, pengumuman, agenda, guru, ekstrakurikuler, prestasi, galeri, dokumen, pesan kontak, dan pengaturan website. Admin dapat menerbitkan, membatalkan publikasi, meminta revisi, atau menolak artikel.
+- Modul SPMB memiliki dashboard, pengaturan informasi/jadwal/persyaratan, poster tersendiri, contact person, pengumuman draft/terbit, serta halaman publik `/spmb` (`/ppdb` tetap menjadi alias).
 - Guru membuat draf dan mengirim artikel untuk persetujuan. Guru hanya dapat membaca atau mengubah artikel miliknya sendiri; artikel pending dan terbit tidak dapat diedit oleh Guru.
 - Editor mendukung heading, bold/italic/underline, daftar, tautan, kutipan, undo/redo, pratinjau, gambar inline, foto sampul, teks alternatif, dan keterangan.
 - Impor Word `.docx` mempertahankan teks, heading, daftar, tautan, dan gambar tertanam sesuai kemampuan konversi PHPWord. Gambar diekstrak ke Laravel Storage, bukan disimpan sebagai Base64 di database.
