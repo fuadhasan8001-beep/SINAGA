@@ -5,6 +5,7 @@ if(menuBtn&&navLinks){
     navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{navLinks.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');menuBtn.textContent='☰'}));
 }
 const target=document.body.dataset.scrollTarget;
-if(target) document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'});
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(target) document.getElementById(target)?.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
 const upBtn=document.getElementById('upBtn');
-if(upBtn){window.addEventListener('scroll',()=>upBtn.classList.toggle('show',window.scrollY>500));upBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}
+if(upBtn){window.addEventListener('scroll',()=>upBtn.classList.toggle('show',window.scrollY>500));upBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'}));}
