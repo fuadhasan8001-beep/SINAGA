@@ -14,6 +14,7 @@
 .site-admin-sidebar nav{display:grid;gap:4px}
 .site-admin-sidebar nav a{padding:10px;border-radius:4px;color:#36513d;font-size:.92rem;font-weight:600;text-decoration:none}
 .site-admin-sidebar nav a:hover{background:#f0fdf4;color:#166534}
+.site-admin-sidebar nav a.active{background:#d9f5e5;color:#28563a;font-weight:750}
 .site-admin-label{margin-top:11px;padding:8px 10px 3px;color:#718578;font-size:.72rem;font-weight:750;letter-spacing:.1em}
 .site-admin-foot{display:grid;gap:5px;margin-top:22px;padding-top:14px;border-top:1px solid #e3ece5}
 .site-admin-foot a,.site-admin-foot button{min-height:42px;padding:9px 10px;border:0;border-radius:4px;background:transparent;color:#526a59;text-align:left;font-size:.9rem;text-decoration:none;cursor:pointer}
@@ -42,3 +43,63 @@
 .site-admin-head button:hover,.site-admin-sidebar nav a:hover,.site-admin-foot a:hover,.site-admin-foot button:hover{background:#edf8f0;color:#28563a}
 .photo-admin-action{border-color:#fff;background:#65bd89;color:#26372e}
 .photo-admin-action:hover{background:#70c995}
+.site-admin-sidebar nav a.spmb-nav-link{border:1px solid #c6dfcc;background:linear-gradient(110deg,#eaf7ed,#f8fcf8);color:#14532d;font-weight:750}
+.site-admin-sidebar nav a.spmb-nav-link.active{border-color:#83b493;background:#dff1e3;color:#14532d}
+.admin-save-notice{position:fixed;z-index:28;top:16px;right:18px;max-width:min(480px,calc(100vw - 40px));padding:12px 16px;border:1px solid #b8d8c0;border-left:4px solid #4faf79;border-radius:5px;background:#f0faf3;color:#28563a;font:600 .9rem/1.45 "Plus Jakarta Sans",system-ui,sans-serif;box-shadow:0 6px 22px rgba(20,50,30,.12)}
+@media(max-width:650px){.admin-save-notice{top:92px;right:12px;left:12px;max-width:none}}
+.admin-manage{min-height:100vh;background:#edf8f0;color:#26372e;font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.admin-manage .site-admin-toggle{top:18px;left:20px}
+.admin-manage .admin-content{max-width:1600px;min-height:100vh;margin:0 auto;padding:82px clamp(20px,4vw,58px) 48px}
+.admin-manage .topbar{align-items:flex-start;margin:0 0 26px}
+.admin-manage .topbar h1{font-family:"Epilogue","Plus Jakarta Sans",system-ui,sans-serif;color:#25352d}
+.admin-manage .topbar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.admin-manage.sidebar-open{overflow:hidden}
+@media(max-width:650px){.admin-manage .site-admin-toggle{top:10px;left:12px}.admin-manage .admin-content{padding:68px 16px 32px}.admin-manage .topbar{align-items:stretch;flex-direction:column;gap:10px}.admin-manage .topbar-actions{align-self:stretch}.admin-manage .topbar-actions .back-dashboard,.admin-manage .topbar-actions .view-site{flex:1}.admin-manage .user-chip{margin-left:auto}}
+
+/* Softer, clearer Kelola drawer shared by the admin website and edit pages. */
+:root{--admin-forest:#17442c;--admin-leaf:#3e8b5d;--admin-mint:#e6f5e9;--admin-border:#dce9de;--admin-shadow:0 18px 48px rgba(18,49,29,.18);--admin-radius:14px}
+.site-admin-toggle{top:39px;left:18px;min-height:46px;padding:9px 15px;border-color:#c5dfcc;border-radius:14px;background:linear-gradient(135deg,#fff,#f2faf3);color:var(--admin-forest);box-shadow:0 6px 18px rgba(20,50,30,.13);transition:transform .18s cubic-bezier(.2,.7,.25,1),box-shadow .18s,background .18s}
+.site-admin-toggle:hover{background:linear-gradient(135deg,#e8f7ec,#fff);box-shadow:0 9px 22px rgba(20,50,30,.17);transform:translateY(-1px)}
+.site-admin-scrim{backdrop-filter:blur(3px);background:rgba(15,38,23,.38)!important}
+.site-admin-sidebar{width:min(360px,90vw);padding:22px 18px 20px;border-right:1px solid #d6e5d9;border-radius:0 24px 24px 0;background:linear-gradient(180deg,#fff 0%,#fbfdfb 100%);box-shadow:var(--admin-shadow);overscroll-behavior:contain}
+.site-admin-head{gap:12px;padding:0 2px 18px;border-bottom-color:#e4eee5}
+.site-admin-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.site-admin-mark{display:grid;width:44px;height:44px;flex:0 0 44px;place-items:center;border:1px solid #cfe5d3;border-radius:15px;background:linear-gradient(145deg,#dff3e4,#f8fcf7);color:var(--admin-forest);font:800 1.15rem/1 "Epilogue","Plus Jakarta Sans",sans-serif;box-shadow:inset 0 1px #fff}
+.site-admin-head strong{display:block;color:var(--admin-forest);font:750 1rem/1.3 "Epilogue","Plus Jakarta Sans",sans-serif}
+.site-admin-brand small{display:block;margin-top:3px;color:#718178;font-size:.72rem;font-weight:550}
+.site-admin-head button{width:42px;height:42px;flex:0 0 42px;border-color:#e2ebe3;border-radius:13px;background:#f8fbf8;transition:background .18s,transform .18s,color .18s}
+.site-admin-head button:hover{background:#e8f6eb;color:var(--admin-forest);transform:rotate(4deg)}
+.site-admin-sidebar>p{margin:14px 3px 17px;color:#66776a;font-size:.82rem;line-height:1.55}
+.site-admin-sidebar nav{gap:4px}
+.site-admin-label{margin:13px 0 3px;padding:9px 10px 5px;color:#829187;font-size:.66rem;letter-spacing:.13em}
+.site-admin-sidebar nav a{position:relative;display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 12px;border:1px solid transparent;border-radius:13px;color:#46584b;font-size:.85rem;font-weight:600;line-height:1.35;transition:background .17s,color .17s,border-color .17s,transform .17s}
+.site-admin-sidebar nav a:hover{border-color:#e2eee4;background:#f2f9f3;color:var(--admin-forest);transform:translateX(2px)}
+.site-admin-sidebar nav a.active{border-color:#d4ead8;background:linear-gradient(100deg,#e1f3e5,#f3faf4);color:var(--admin-forest);font-weight:750;box-shadow:inset 3px 0 #4a9a67}
+.site-admin-icon{display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border-radius:9px;background:#f0f6f1;color:#71877a;font-size:.92rem;transition:background .17s,color .17s}
+.site-admin-sidebar nav a:hover .site-admin-icon,.site-admin-sidebar nav a.active .site-admin-icon{background:#d8efde;color:#2e7248}
+.site-admin-sidebar nav a.spmb-nav-link{margin:5px 0;border:1px solid #c6dfcc;border-radius:14px;background:linear-gradient(115deg,#e7f6e9,#fbfdf7);color:#17442c;font-weight:750}
+.site-admin-sidebar nav a.spmb-nav-link .site-admin-icon{background:#cfead5;color:#245d39}
+.site-admin-sidebar nav a.spmb-nav-link small{margin-left:auto;padding:4px 8px;border:1px solid #c3dfca;border-radius:999px;background:#fff;color:#2c7046;font-size:.63rem;font-weight:800;letter-spacing:.08em}
+.site-admin-sidebar nav a.spmb-nav-link.active{border-color:#79b88a;background:linear-gradient(115deg,#d7f0dc,#eff9ed);box-shadow:inset 3px 0 #39865a,0 5px 13px rgba(40,108,61,.08)}
+.site-admin-foot{gap:5px;margin-top:16px;padding:13px 4px 0;border-top-color:#e3ece5}
+.site-admin-foot a,.site-admin-foot button{min-height:44px;border-radius:12px;font-size:.84rem;transition:background .17s,color .17s}
+.site-admin-foot a:hover,.site-admin-foot button:hover{background:#edf7ef;color:var(--admin-forest)}
+.admin-context-edit{min-height:42px;padding:9px 14px;border-color:#c9dfce;border-radius:13px;background:rgba(255,255,255,.9);color:var(--admin-forest);box-shadow:0 4px 12px rgba(25,65,38,.06);transition:transform .18s,background .18s,box-shadow .18s}
+.admin-context-edit:hover{background:#eef8f0;box-shadow:0 7px 16px rgba(25,65,38,.1);transform:translateY(-1px)}
+.photo-admin-action{border-radius:14px;background:linear-gradient(120deg,#71c990,#a5e2b3);box-shadow:0 7px 18px rgba(15,40,23,.2);transition:transform .18s,box-shadow .18s,filter .18s}
+.photo-admin-action:hover{background:linear-gradient(120deg,#71c990,#a5e2b3);filter:saturate(1.08);transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,40,23,.24)}
+.admin-save-notice{border-radius:14px;box-shadow:0 10px 26px rgba(20,50,30,.14)}
+.admin-manage .back-dashboard,.admin-manage .view-site{min-height:46px;padding:10px 15px;border-radius:14px;transition:transform .18s,box-shadow .18s,background .18s}
+.admin-manage .back-dashboard{background:linear-gradient(120deg,#68c389,#9fdfae);border-color:#68c389;color:#183e28;box-shadow:0 5px 14px rgba(49,125,75,.13)}
+.admin-manage .back-dashboard:hover{background:linear-gradient(120deg,#5ab67c,#90d8a1);transform:translateY(-1px);box-shadow:0 8px 18px rgba(49,125,75,.18)}
+.admin-manage .view-site{border-color:#d0e2d3;border-radius:14px;background:#fff;color:#345d40}
+.admin-manage .view-site:hover{background:#f0f8f1;transform:translateY(-1px)}
+.admin-manage .panel{overflow:hidden;border-color:#dfebe1;border-radius:20px;background:rgba(255,255,255,.96);box-shadow:0 10px 28px rgba(27,69,43,.055)}
+.admin-manage .profile-form{border-top:3px solid #70c995}
+.admin-manage .primary,.admin-manage .secondary,.admin-manage .danger{border-radius:13px;transition:transform .18s,box-shadow .18s,background .18s}
+.admin-manage .primary:hover,.admin-manage .secondary:hover,.admin-manage .danger:hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(27,69,43,.1)}
+.admin-manage .tiny{min-height:36px;border-radius:10px}
+.admin-manage input,.admin-manage textarea,.admin-manage select{border-radius:12px}
+.admin-manage .actions{align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:650px){.site-admin-toggle{top:42px;left:12px;min-height:44px;border-radius:13px}.admin-manage .site-admin-toggle{top:10px}.site-admin-sidebar{border-radius:0 20px 20px 0}.site-admin-sidebar nav a{min-height:46px}}
+@media(prefers-reduced-motion:reduce){.site-admin-toggle,.site-admin-head button,.site-admin-sidebar nav a,.site-admin-icon,.site-admin-foot a,.site-admin-foot button,.admin-context-edit,.photo-admin-action,.admin-manage .back-dashboard,.admin-manage .view-site{transition:none!important;transform:none!important}}

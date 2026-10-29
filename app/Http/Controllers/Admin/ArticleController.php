@@ -38,7 +38,8 @@ class ArticleController extends Controller
         $status=$submit==='review'?($user->isAdmin()?'published':'pending'):'draft';
         $article=Article::create([...$data,'author_id'=>$user->id,'slug'=>$this->uniqueSlug($data['title']),'status'=>$status,'published_at'=>$status==='published'?now():null]);
         $this->log($article,$submit==='review'?'kirim artikel':'buat draf');
-        return redirect()->route('admin.articles.edit',$article)->with('success',$status==='pending'?'Artikel dikirim untuk persetujuan.':($status==='published'?'Artikel diterbitkan.':'Draf disimpan.'));
+        $destination = $status === 'published' ? 'admin.dashboard' : 'admin.articles.edit';
+        return redirect()->route($destination, $status === 'published' ? [] : [$article])->with('success',$status==='pending'?'Artikel dikirim untuk persetujuan.':($status==='published'?'Artikel diterbitkan.':'Draf disimpan.'));
     }
 
     public function update(Request $request, Article $article, ArticleHtml $sanitizer): RedirectResponse
@@ -47,7 +48,8 @@ class ArticleController extends Controller
         $status=$user->isAdmin()?($submit==='review'?'published':($request->input('status')==='published'?'published':'draft')):($submit==='review'?'pending':'draft');
         $article->update([...$data,'slug'=>$this->uniqueSlug($data['title'],$article->id),'status'=>$status,'revision_note'=>null,'published_at'=>$status==='published'?($article->published_at??now()):null]);
         $this->log($article,$status==='pending'?'kirim ulang artikel':($status==='published'?'perbarui artikel terbit':'perbarui artikel'));
-        return redirect()->route('admin.articles.edit',$article)->with('success',$status==='pending'?'Artikel dikirim ulang untuk persetujuan.':($status==='published'?'Artikel diterbitkan.':'Perubahan disimpan sebagai draf.'));
+        $destination = $status === 'published' ? 'admin.dashboard' : 'admin.articles.edit';
+        return redirect()->route($destination, $status === 'published' ? [] : [$article])->with('success',$status==='pending'?'Artikel dikirim ulang untuk persetujuan.':($status==='published'?'Artikel diterbitkan.':'Perubahan disimpan sebagai draf.'));
     }
 
     public function destroy(Article $article): RedirectResponse
@@ -65,14 +67,15 @@ class ArticleController extends Controller
         $status=match($data['action']){'publish'=>'published','revision'=>'revision','reject'=>'rejected'};
         $article->update(['status'=>$status,'revision_note'=>in_array($status,['revision','rejected'],true)?$data['note']:null,'published_at'=>$status==='published'?now():null]);
         $this->log($article,match($status){'published'=>'setujui dan terbitkan','revision'=>'minta revisi','rejected'=>'tolak artikel'},$data['note']??'');
-        return back()->with('success',match($status){'published'=>'Artikel diterbitkan.','revision'=>'Catatan revisi dikirim.','rejected'=>'Artikel ditolak.'});
+        $response = $status === 'published' ? redirect()->route('admin.dashboard') : back();
+        return $response->with('success',match($status){'published'=>'Artikel diterbitkan.','revision'=>'Catatan revisi dikirim.','rejected'=>'Artikel ditolak.'});
     }
 
     public function unpublish(Article $article): RedirectResponse
     {
         abort_unless(request()->user()->isAdmin(),403);abort_unless($article->status==='published',422);
         $article->update(['status'=>'draft','published_at'=>null]);$this->log($article,'batalkan publikasi');
-        return back()->with('success','Publikasi dibatalkan.');
+        return redirect()->route('admin.dashboard')->with('success','Publikasi dibatalkan.');
     }
 
     public function uploadImage(Request $request): JsonResponse

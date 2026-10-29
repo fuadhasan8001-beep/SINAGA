@@ -1,0 +1,19 @@
+.nav a.spmb-nav-link{margin-block:5px;border:1px solid #c6dfcc;background:linear-gradient(110deg,#eaf7ed,#f8fcf8);color:#14532d;font-weight:750}
+.nav a.spmb-nav-link span{color:#166534}
+.nav a.spmb-nav-link.active{border-color:#83b493;background:#dff1e3;color:#14532d}
+.spmb-intro{align-items:center}
+.spmb-status{font-size:1.15rem!important}
+.spmb-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 22px;margin:6px 0 28px;border-top:1px solid #dfe8e1}
+.spmb-shortcuts a{display:grid;gap:4px;padding:16px 0;border-bottom:1px solid #dfe8e1}
+.spmb-shortcuts strong{color:#203b28;font-size:.92rem}
+.spmb-shortcuts span{color:#64748b;font-size:.78rem}
+.spmb-shortcuts a:hover strong{color:#166534}
+.spmb-form,.spmb-poster-panel{max-width:780px}
+.spmb-poster-panel{padding-bottom:18px}
+.spmb-poster-preview{display:block;width:min(100% - 36px,520px);max-height:520px;margin:18px auto 0;object-fit:contain;background:#f8fafc}
+.spmb-poster-empty{display:grid;min-height:160px;place-items:center;color:#64748b}
+.spmb-upload-preview{display:grid;gap:8px;color:#64748b;font-size:.8rem}
+.spmb-upload-preview img{width:min(100%,360px);max-height:320px;object-fit:contain;background:#f8fafc}
+.spmb-photo-thumb{display:inline-block;width:64px;height:48px;margin-right:10px;vertical-align:middle;object-fit:cover}.spmb-photo-preview{display:block;max-width:min(100%,500px);max-height:420px;object-fit:contain}
+@media(max-width:800px){.spmb-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.spmb-shortcuts{grid-template-columns:1fr}.spmb-intro .quick-actions{width:100%}.spmb-intro .quick-actions a{flex:1;text-align:center}}

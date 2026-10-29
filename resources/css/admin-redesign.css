@@ -59,6 +59,7 @@ button:disabled,.primary:disabled{cursor:not-allowed;opacity:.58;box-shadow:none
   table{font-size:.88rem}
 }
 @media(prefers-reduced-motion:reduce){.sidebar,.back-dashboard,.view-site{transition:none}}
+@media(max-width:680px){.sidebar .nav{display:grid;gap:2px;overflow-x:hidden;overflow-y:auto}.sidebar .nav-title,.sidebar .side-bottom{display:block}}
 
 /* Match the school brand to the fresh, warmer public palette. */
 :root{--color-primary:#86d9a5;--color-primary-hover:#a7e8bd;--color-primary-soft:#f0faf3;--color-page:#f5f7f5;--color-muted:#64746a;--color-text:#25352d;--color-border:#e5e7eb;--color-info-soft:#dbeafe;--color-warm-soft:#fff8e8}

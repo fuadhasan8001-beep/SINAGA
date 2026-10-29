@@ -1,0 +1,7 @@
+@extends('layouts.admin')
+@section('title','Pengumuman SPMB')
+@section('heading','Pengumuman SPMB')
+@section('subtitle','Pengumuman penerimaan dikelola terpisah dari berita website sekolah.')
+@section('content')
+<div class="panel"><div class="panel-head"><h2>Daftar pengumuman</h2><a class="primary" href="{{ route('admin.spmb.announcements.create') }}">＋ Tambah pengumuman</a></div><div class="table-wrap"><table><thead><tr><th>Judul</th><th>Status</th><th>Tanggal</th><th>Tindakan</th></tr></thead><tbody>@forelse($announcements as $announcement)<tr><td class="title-cell">{{ $announcement->title }}<span class="subline">{{ Str::limit($announcement->body,110) }}</span></td><td><span class="pill {{ $announcement->published?'published':'draft' }}">{{ $announcement->published?'Tayang':'Draf' }}</span></td><td>{{ $announcement->starts_at?->format('d M Y H:i')??'—' }}</td><td><div class="row-actions"><a class="tiny" href="{{ route('admin.spmb.announcements.edit',$announcement) }}">Edit</a><form method="post" action="{{ route('admin.spmb.announcements.destroy',$announcement) }}" onsubmit="return confirm('Hapus pengumuman ini?')">@csrf @method('DELETE')<button class="tiny deny" type="submit">Hapus</button></form></div></td></tr>@empty<tr><td colspan="4" class="empty">Belum ada pengumuman SPMB.</td></tr>@endforelse</tbody></table></div></div>{{ $announcements->links() }}<a class="secondary" href="{{ route('admin.spmb.dashboard') }}">Kembali ke Dashboard SPMB</a>
+@endsection

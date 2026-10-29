@@ -13,10 +13,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/site.css','resources/js/site.js'])
+    @if(request()->routeIs('spmb.public','ppdb')) @vite(['resources/css/spmb.css']) @endif
     @if($adminMode ?? false) @vite(['resources/css/site-admin.css','resources/js/admin.js']) @endif
 </head>
 <body class="{{ ($adminMode ?? false)?'admin-preview':'' }}" @if(!empty($scrollTarget)) data-scroll-target="{{ $scrollTarget }}" @endif>
     @if($adminMode ?? false) @include('public.partials.admin-tools') @endif
+    @if(($adminMode ?? false) && session('success'))<div class="admin-save-notice" role="status">{{ session('success') }}</div>@endif
     @include('public.partials.nav')
     <main>@yield('content')</main>
     @include('public.partials.footer')

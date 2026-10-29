@@ -23,6 +23,6 @@ class SettingsController extends Controller
         $data=$request->validate($rules);
         foreach(self::FIELDS as $key=>$label)SiteSetting::updateOrCreate(['key'=>$key],['value'=>json_encode($data['settings'][$key]??'',JSON_UNESCAPED_UNICODE)]);
         ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'perbarui pengaturan website','detail'=>'Informasi sekolah']);
-        return back()->with('success','Pengaturan website disimpan.');
+        return redirect()->route('admin.dashboard')->with('success','Pengaturan website disimpan.');
     }
 }

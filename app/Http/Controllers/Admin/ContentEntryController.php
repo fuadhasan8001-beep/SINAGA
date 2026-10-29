@@ -31,14 +31,14 @@ class ContentEntryController extends Controller
         $this->assertType($type);$data=$this->validateData($request,$type);
         $entry=ContentEntry::create([...$data,'type'=>$type,'author_id'=>$request->user()->id,'slug'=>Str::slug($data['title']).'-'.Str::lower(Str::random(5))]);
         ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'buat '.$type,'detail'=>$entry->title]);
-        return redirect()->route('admin.content.index',$type)->with('success',self::TYPES[$type].' berhasil ditambahkan.');
+        return redirect()->route('admin.dashboard')->with('success',self::TYPES[$type].' berhasil ditambahkan.');
     }
 
     public function update(Request $request,string $type,ContentEntry $entry): RedirectResponse
     {
         $this->assertType($type);abort_unless($entry->type===$type,404);$data=$this->validateData($request,$type,$entry);
         $entry->update($data);ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'perbarui '.$type,'detail'=>$entry->title]);
-        return redirect()->route('admin.content.index',$type)->with('success',self::TYPES[$type].' diperbarui.');
+        return redirect()->route('admin.dashboard')->with('success',self::TYPES[$type].' diperbarui.');
     }
 
     public function destroy(string $type,ContentEntry $entry): RedirectResponse

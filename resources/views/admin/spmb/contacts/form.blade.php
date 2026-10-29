@@ -1,0 +1,9 @@
+@extends('layouts.admin')
+@section('title',$contact->exists?'Edit Contact Person':'Tambah Contact Person')
+@section('heading',$contact->exists?'Edit Contact Person':'Tambah Contact Person')
+@section('subtitle','Gunakan hanya nomor dan informasi kontak yang disetujui untuk dipublikasikan.')
+@section('content')
+<form class="panel profile-form spmb-form" method="post" action="{{ $contact->exists?route('admin.spmb.contacts.update',$contact):route('admin.spmb.contacts.store') }}">@csrf @if($contact->exists)@method('PUT')@endif
+<label>Nama<input name="name" required minlength="2" maxlength="120" value="{{ old('name',$contact->name) }}"></label><label>Jabatan atau peran<input name="role" maxlength="120" value="{{ old('role',$contact->role) }}"></label><label>Nomor telepon / WhatsApp<input name="phone" type="tel" autocomplete="tel" required maxlength="40" value="{{ old('phone',$contact->phone) }}">@error('phone')<small class="error">{{ $message }}</small>@enderror</label><label>Jam layanan<input name="office_hours" maxlength="180" value="{{ old('office_hours',$contact->office_hours) }}"></label><label>Keterangan<textarea name="note" rows="3" maxlength="1000">{{ old('note',$contact->note) }}</textarea></label><label>Urutan tampil<input type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$contact->sort_order??0) }}"></label><label class="remember"><input type="checkbox" name="published" value="1" @checked(old('published',$contact->published))> Tampilkan di halaman publik</label>
+<div class="actions"><a class="secondary" href="{{ route('admin.spmb.contacts.index') }}">Batal</a><span class="grow"></span><button class="primary" type="submit">Simpan contact person</button></div></form>
+@endsection
