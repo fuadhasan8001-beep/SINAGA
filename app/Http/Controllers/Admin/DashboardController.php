@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\PublicController;
 use App\Models\ActivityLog;
 use App\Models\Article;
 use App\Models\ContentEntry;
@@ -13,8 +14,14 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
-        $user=request()->user();$query=Article::query();if(!$user->isAdmin())$query->where('author_id',$user->id);
+        $user=request()->user();
+        if($user->isAdmin()) return view('public.home',[...app(PublicController::class)->publicData(),'adminMode'=>true]);
+        $query=Article::query();
         $counts=['total'=>(clone $query)->count(),'draft'=>(clone $query)->where('status','draft')->count(),'pending'=>(clone $query)->where('status','pending')->count(),'revision'=>(clone $query)->where('status','revision')->count(),'published'=>(clone $query)->where('status','published')->count(),'teachers'=>User::where('role','teacher')->where('active',true)->count(),'content'=>ContentEntry::count()];
+        if($user->isAdmin()){
+            $contentCounts=ContentEntry::selectRaw('type, count(*) as aggregate')->groupBy('type')->pluck('aggregate','type');
+            foreach(['announcement','gallery','extracurricular'] as $type)$counts[$type]=(int)($contentCounts[$type]??0);
+        }
         $articles=(clone $query)->with(['author','category'])->latest('updated_at')->limit(8)->get();
         $activity=ActivityLog::with('user')->latest()->limit(12)->get();
         return view('admin.dashboard',compact('counts','articles','activity'));

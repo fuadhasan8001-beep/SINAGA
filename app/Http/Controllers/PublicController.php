@@ -37,7 +37,7 @@ class PublicController extends Controller
         return back()->with('success','Pesan Anda sudah diterima. Terima kasih.');
     }
 
-    private function publicData(): array
+    public function publicData(): array
     {
         $entries=ContentEntry::visible()->orderBy('sort_order')->orderBy('starts_at')->get()->groupBy('type');
         return [

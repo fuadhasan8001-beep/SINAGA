@@ -10,8 +10,10 @@
     <meta property="og:description" content="Informasi profil, program, kegiatan, berita, dan layanan sekolah.">
     <title>@yield('title', ($settings['school_name'] ?? 'Nama Sekolah').' — Website Resmi')</title>
     @vite(['resources/css/site.css','resources/js/site.js'])
+    @if($adminMode ?? false) @vite(['resources/css/site-admin.css','resources/js/admin.js']) @endif
 </head>
-<body @if(!empty($scrollTarget)) data-scroll-target="{{ $scrollTarget }}" @endif>
+<body class="{{ ($adminMode ?? false)?'admin-preview':'' }}" @if(!empty($scrollTarget)) data-scroll-target="{{ $scrollTarget }}" @endif>
+    @if($adminMode ?? false) @include('public.partials.admin-tools') @endif
     @include('public.partials.nav')
     <main>@yield('content')</main>
     @include('public.partials.footer')

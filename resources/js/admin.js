@@ -1,3 +1,13 @@
+const sidebarToggle=document.querySelector('.sidebar-toggle,.site-admin-toggle'),sidebarClose=document.querySelector('[data-sidebar-close]');
+const setSidebar=open=>{document.body.classList.toggle('sidebar-open',open);sidebarToggle?.setAttribute('aria-expanded',String(open));};
+sidebarToggle?.addEventListener('click',()=>setSidebar(!document.body.classList.contains('sidebar-open')));
+sidebarClose?.addEventListener('click',()=>setSidebar(false));
+document.querySelectorAll('.sidebar a').forEach(link=>link.addEventListener('click',()=>setSidebar(false)));
+if(document.body.classList.contains('admin-preview')){
+    const contextualLinks={profil:['/admin/settings','Edit profil'],program:['/admin/settings','Edit akademik'],layanan:['/admin/content/announcement/create','Tambah pengumuman'],berita:['/admin/articles/create','Tulis artikel'],ekskul:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi']};
+    Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
+    [...document.querySelectorAll('.section-head')].find(head=>head.querySelector('h2')?.textContent.trim()==='Galeri sekolah')?.append(Object.assign(document.createElement('a'),{className:'admin-context-edit',href:'/admin/content/gallery/create',textContent:'Tambah foto'}));
+}
 const editorForm=document.getElementById('articleForm');
 if(editorForm){
     const editor=document.getElementById('editorBody'),bodyField=document.getElementById('articleBody'),csrf=document.querySelector('meta[name="csrf-token"]')?.content||'',slugPreview=document.getElementById('slugPreview');
