@@ -4,19 +4,18 @@
     <div class="site-admin-head"><div class="site-admin-brand"><span class="site-admin-mark" aria-hidden="true">S</span><div><strong>Kelola Website</strong><small>SINAGA · Panel Admin</small></div></div><button type="button" data-sidebar-close aria-label="Tutup menu">×</button></div>
     <p>{{ request()->routeIs('admin.dashboard') ? 'Kelola website dan kembali ke tampilan viewer kapan saja.' : 'Pilih menu untuk mengelola website. Kembali ke tampilan website melalui tombol di bagian atas.' }}</p>
     <nav>
-        <span class="site-admin-label">KELOLA UTAMA</span>
-        <a class="{{ request()->routeIs('admin.settings.*') || (request()->routeIs('admin.dashboard') && request()->query('section') === 'profil') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}"><span class="site-admin-icon" aria-hidden="true">▣</span>Profil & informasi sekolah</a>
-        <a class="{{ (request()->routeIs('admin.articles.*') && !request()->routeIs('admin.articles.reviews')) || (request()->routeIs('admin.dashboard') && request()->query('section') === 'berita') ? 'active' : '' }}" href="{{ route('admin.articles.index') }}"><span class="site-admin-icon" aria-hidden="true">▤</span>Artikel & berita</a>
-        <a class="{{ request()->routeIs('admin.articles.reviews') ? 'active' : '' }}" href="{{ route('admin.articles.reviews') }}"><span class="site-admin-icon" aria-hidden="true">✓</span>Persetujuan artikel</a>
-        <span class="site-admin-label">SEMUA KONTEN</span>
-        @foreach(\App\Http\Controllers\Admin\ContentEntryController::TYPES as $type=>$label)<a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === $type ? 'active' : '' }}" href="{{ route('admin.content.index',$type) }}"><span class="site-admin-icon" aria-hidden="true">{{ match($type){'announcement'=>'◉','event'=>'◷','teacher'=>'♙','extracurricular'=>'◇','achievement'=>'★','gallery'=>'▧','document'=>'▱'} }}</span>{{ $label }}</a>@endforeach
-        <span class="site-admin-label">PENERIMAAN</span>
-        <a class="spmb-nav-link {{ request()->routeIs('admin.spmb.*') ? 'active' : '' }}" href="{{ route('admin.spmb.dashboard') }}"><span class="site-admin-icon" aria-hidden="true">▤</span>Kelola SPMB <small>SPMB</small></a>
-        <a class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}"><span class="site-admin-icon" aria-hidden="true">▦</span>Kategori artikel</a>
+        <span class="site-admin-label">MANAJEMEN KONTEN WEBSITE</span>
+        <a class="{{ request()->routeIs('admin.settings.*') && request()->query('section', 'profile') === 'profile' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'profile','edit'=>1]) }}"><span class="site-admin-icon" aria-hidden="true">▣</span>Profil Sekolah</a>
+        <a class="{{ request()->routeIs('admin.settings.*') && request()->query('section') === 'academic' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'academic','edit'=>1]) }}"><span class="site-admin-icon" aria-hidden="true">◫</span>Akademik</a>
+        <a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === 'announcement' ? 'active' : '' }}" href="{{ route('admin.content.index','announcement') }}"><span class="site-admin-icon" aria-hidden="true">◉</span>Pengumuman</a>
+        <a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === 'extracurricular' ? 'active' : '' }}" href="{{ route('admin.content.index','extracurricular') }}"><span class="site-admin-icon" aria-hidden="true">◇</span>Ekstrakurikuler</a>
+        <a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === 'gallery' ? 'active' : '' }}" href="{{ route('admin.content.index','gallery') }}"><span class="site-admin-icon" aria-hidden="true">▧</span>Galeri</a>
+        <a class="{{ request()->routeIs('admin.settings.*') && request()->query('section') === 'contact' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'contact']) }}"><span class="site-admin-icon" aria-hidden="true">⌁</span>Kontak</a>
+        <span class="site-admin-label">MANAJEMEN PESAN</span>
+        <a class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}" href="{{ route('admin.messages.index') }}"><span class="site-admin-icon" aria-hidden="true">✉</span>Pesan Kontak</a>
+        <span class="site-admin-label">MANAJEMEN AKUN</span>
+        <a class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" href="{{ route('admin.profile.edit') }}"><span class="site-admin-icon" aria-hidden="true">◌</span>Profil Akun</a>
         <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="site-admin-icon" aria-hidden="true">♙</span>Akun Guru</a>
-        <a class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}" href="{{ route('admin.messages.index') }}"><span class="site-admin-icon" aria-hidden="true">✉</span>Pesan kontak</a>
-        <a class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}"><span class="site-admin-icon" aria-hidden="true">⚙</span>Pengaturan Website</a>
-        <a class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" href="{{ route('admin.profile.edit') }}"><span class="site-admin-icon" aria-hidden="true">◌</span>Profil akun</a>
     </nav>
     <div class="site-admin-foot"><a href="{{ route('home') }}">Mode pengunjung</a><form method="post" action="{{ route('logout') }}">@csrf<button>Keluar</button></form></div>
 </aside>

@@ -16,6 +16,26 @@ use Tests\TestCase;
 
 class CmsWorkflowTest extends TestCase
 {
+    public function test_academic_management_route_shows_the_sidebar_academic_sections_and_returns_there(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $this->actingAs($admin);
+
+        $academicUrl = route('admin.settings.edit', ['section' => 'academic', 'edit' => 1]);
+        $this->get($academicUrl)->assertOk()->assertViewIs('admin.settings')
+            ->assertSee('Kegiatan Pembelajaran')
+            ->assertSee('Kalender Pendidikan')
+            ->assertSee('Program Kokurikuler')
+            ->assertSee('Asesmen Akademik')
+            ->assertDontSee('Kelola identitas, informasi pimpinan, visi misi, dan sambutan yang tampil pada bagian profil.');
+
+        $this->post(route('admin.content.store', 'learning_activity'), ['body' => '<p>Kegiatan uji</p>'])
+            ->assertRedirect($academicUrl);
+        $entry = ContentEntry::where('type', 'learning_activity')->firstOrFail();
+        $this->get(route('admin.content.edit', ['learning_activity', $entry]))
+            ->assertOk()->assertSee(str_replace('&', '&amp;', $academicUrl), false)->assertSee('Kembali');
+    }
+
     public function test_laravel_auth_and_role_access_are_enforced(): void
     {
         $admin=User::factory()->create(['role'=>'admin','active'=>true]);
@@ -89,7 +109,7 @@ class CmsWorkflowTest extends TestCase
         $this->get(route('admin.dashboard'))->assertOk();
         $this->get(route('home'))->assertOk()->assertDontSee('photo-admin-action')->assertDontSee('site-admin-toggle');
         $oldImage=$gallery->image_path;
-        $this->put(route('admin.content.update',['gallery',$gallery]),['title'=>'Foto kegiatan','excerpt'=>'Dokumentasi sekolah diperbarui.','published'=>'1','image'=>UploadedFile::fake()->image('foto-baru.jpg',800,600)])->assertRedirect(route('admin.dashboard'))->assertSessionHas('success');
+        $this->put(route('admin.content.update',['gallery',$gallery]),['title'=>'Foto kegiatan','excerpt'=>'Dokumentasi sekolah diperbarui.','published'=>'1','image'=>UploadedFile::fake()->image('foto-baru.jpg',800,600)])->assertRedirect(route('admin.content.index','gallery'))->assertSessionHas('success');
         $gallery->refresh();
         $this->assertNotSame($oldImage,$gallery->image_path);
         $this->assertFalse(Storage::disk('public')->exists($oldImage));
@@ -116,17 +136,19 @@ class CmsWorkflowTest extends TestCase
         $this->get(route('admin.dashboard'))->assertOk()->assertViewIs('public.home')
             ->assertSee('admin-preview')->assertSee('site-admin-toggle')->assertDontSee('Ringkasan Konten')
             ->assertSee(route('admin.dashboard'), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'profil']), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'program']), false)
+            ->assertSee(str_replace('&', '&amp;', route('admin.settings.edit', ['section' => 'profile', 'edit' => 1])), false)
+            ->assertSee(str_replace('&', '&amp;', route('admin.settings.edit', ['section' => 'academic', 'edit' => 1])), false)
             ->assertSee(route('admin.dashboard', ['section' => 'berita']), false)
             ->assertSee(route('admin.dashboard', ['section' => 'ekskul']), false)
             ->assertSee(route('admin.dashboard', ['section' => 'galeri']), false)
             ->assertSee(route('admin.dashboard', ['section' => 'kontak']), false)
             ->assertSee(route('admin.settings.edit'), false)
-            ->assertSee(route('admin.articles.index'), false)
-            ->assertSee(route('admin.content.index', 'event'), false)
+            ->assertDontSee(route('admin.articles.index'), false)
+            ->assertDontSee(route('admin.articles.reviews'), false)
+            ->assertDontSee(route('admin.content.index', 'event'), false)
+            ->assertSee(route('admin.content.index', 'announcement'), false)
+            ->assertSee(route('admin.content.index', 'extracurricular'), false)
             ->assertSee(route('admin.content.index', 'gallery'), false)
-            ->assertSee(route('admin.spmb.dashboard'), false)
             ->assertSee(route('admin.users.index'), false)
             ->assertSee('Akun Guru');
 
@@ -142,17 +164,21 @@ class CmsWorkflowTest extends TestCase
 
         foreach ($managementPages as [$routeName, $view]) {
             $response = $this->get(route($routeName));
-            $response->assertOk()->assertViewIs($view)
-                ->assertSee('id="admin-sidebar"', false)->assertSee('class="active"', false);
+            $response->assertOk()->assertViewIs($view)->assertSee('id="admin-sidebar"', false);
+            if (in_array($routeName, ['admin.settings.edit', 'admin.users.index', 'admin.messages.index', 'admin.profile.edit'], true)) {
+                $response->assertSee('class="active"', false);
+            }
             $this->assertSame(1, substr_count($response->getContent(), 'id="admin-sidebar"'));
             $response->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
         }
 
         foreach (array_keys(\App\Http\Controllers\Admin\ContentEntryController::TYPES) as $type) {
             $response = $this->get(route('admin.content.index', $type));
-            $response->assertOk()->assertViewIs('admin.content.index')
-                ->assertSee('id="admin-sidebar"', false)->assertSee('class="active"', false)
+            $response->assertOk()->assertViewIs('admin.content.index')->assertSee('id="admin-sidebar"', false)
                 ->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
+            if (in_array($type, ['announcement', 'extracurricular', 'gallery'], true)) {
+                $response->assertSee('class="active"', false);
+            }
             $this->assertSame(1, substr_count($response->getContent(), 'id="admin-sidebar"'));
         }
 
@@ -162,17 +188,17 @@ class CmsWorkflowTest extends TestCase
                 ->assertSee('data-scroll-target="'.$section.'"', false);
         }
 
-        foreach (['hero', 'profile'] as $placement) {
+        foreach (['hero', 'profile', 'principal'] as $placement) {
             $this->get(route('admin.photos.edit', $placement))->assertOk()
                 ->assertSee('Pilih foto baru')->assertSee('Simpan Foto')->assertSee('Batal')
                 ->assertDontSee('title"')->assertDontSee('excerpt');
         }
 
         Storage::fake('public');
-        foreach (['hero', 'profile'] as $placement) {
+        foreach (['hero', 'profile', 'principal'] as $placement) {
             $this->put(route('admin.photos.update', $placement), [
                 'image' => UploadedFile::fake()->image($placement.'.jpg', 640, 420),
-            ])->assertRedirect(route('admin.dashboard'))->assertSessionHas('success');
+            ])->assertRedirect($placement === 'hero' ? route('admin.dashboard') : route('admin.settings.edit',['section'=>'profile']))->assertSessionHas('success');
             $key = $placement.'_photo_path';
             $path = json_decode(SiteSetting::findOrFail($key)->value, true);
             $this->assertTrue(Storage::disk('public')->exists($path));
@@ -182,7 +208,9 @@ class CmsWorkflowTest extends TestCase
 
         $heroPath = json_decode(SiteSetting::findOrFail('hero_photo_path')->value, true);
         $profilePath = json_decode(SiteSetting::findOrFail('profile_photo_path')->value, true);
+        $principalPath = json_decode(SiteSetting::findOrFail('principal_photo_path')->value, true);
         $this->assertNotSame($heroPath, $profilePath);
+        $this->assertNotSame($profilePath, $principalPath);
         $this->put(route('admin.photos.update', 'hero'), [
             'image' => UploadedFile::fake()->create('invalid.svg', 10, 'image/svg+xml'),
         ])->assertSessionHasErrors('image');

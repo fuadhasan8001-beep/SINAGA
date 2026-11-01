@@ -5,8 +5,9 @@ sidebarCloses.forEach(button=>button.addEventListener('click',()=>{setSidebar(fa
 document.querySelectorAll('.sidebar a').forEach(link=>link.addEventListener('click',()=>setSidebar(false)));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('sidebar-open')){setSidebar(false);sidebarToggle?.focus()}});
 if(document.body.classList.contains('admin-preview')){
-    const contextualLinks={profil:['/admin/settings','Edit profil'],program:['/admin/settings','Edit akademik'],layanan:['/admin/content/announcement/create','Tambah pengumuman'],berita:['/admin/articles/create','Tulis artikel'],ekskul:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings','Edit informasi kontak']};
-    Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
+    const academicManagementUrl=document.querySelector('#admin-sidebar a[href*="section=academic"]')?.href;
+    const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],program:[academicManagementUrl,'Edit akademik'],layanan:['/admin/content/announcement/create','Tambah pengumuman'],berita:['/admin/articles/create','Tulis artikel'],ekskul:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
+    Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head||!href)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
     [...document.querySelectorAll('.section-head')].find(head=>head.querySelector('h2')?.textContent.trim()==='Galeri sekolah')?.append(Object.assign(document.createElement('a'),{className:'admin-context-edit',href:'/admin/content/gallery',textContent:'Kelola Galeri'}));
 }
 const photoForm=document.getElementById('photoEditForm');

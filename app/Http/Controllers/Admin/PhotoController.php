@@ -30,6 +30,18 @@ class PhotoController extends Controller
             'title' => 'Edit Foto Profil Sekolah',
             'label' => 'Foto profil sekolah',
         ],
+        'logo' => [
+            'setting' => 'school_logo_path',
+            'type' => 'teacher',
+            'title' => 'Edit Logo Sekolah',
+            'label' => 'Logo sekolah',
+        ],
+        'principal' => [
+            'setting' => 'principal_photo_path',
+            'type' => 'teacher',
+            'title' => 'Edit Foto Kepala Sekolah',
+            'label' => 'Foto kepala sekolah',
+        ],
     ];
 
     public function edit(string $placement): View
@@ -98,7 +110,9 @@ class PhotoController extends Controller
             MediaAsset::where('path', $oldManagedPath)->delete();
         }
 
-        return redirect()->route('admin.dashboard')->with('success', $details['label'].' berhasil diperbarui.');
+        return $placement === 'hero'
+            ? redirect()->route('admin.dashboard')->with('success', $details['label'].' berhasil diperbarui.')
+            : redirect()->route('admin.settings.edit',['section'=>'profile'])->with('success', $details['label'].' berhasil diperbarui.');
     }
 
     private function placement(string $placement): array
@@ -114,6 +128,10 @@ class PhotoController extends Controller
 
         if ($savedPath) {
             return $savedPath;
+        }
+
+        if (in_array($placement, ['principal', 'logo'], true)) {
+            return null;
         }
 
         $entry = ContentEntry::visible()
