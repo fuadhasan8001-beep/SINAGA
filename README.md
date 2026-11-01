@@ -29,6 +29,30 @@ Buka `http://127.0.0.1:8000` untuk website dan `/login` untuk panel. Seeder memb
 
 SQLite berada di `database/database.sqlite`; unggahan berada di `storage/app/public`. Backup database dan direktori storage sebelum deployment atau perubahan skema. Migrasi tambahan mempertahankan tabel pengguna Laravel yang sudah ada.
 
+## Foto dan sinkronisasi antar anggota tim
+
+Foto publik disimpan pada disk Laravel `public`, yaitu `storage/app/public`. Repository hanya menyimpan direktori aset yang digunakan aplikasi: `media/` (artikel, pengumuman, akademik, ekstrakurikuler, dan galeri), `school-photos/` (logo serta foto sekolah), dan `spmb/` (poster/dokumentasi SPMB). Direktori `storage` lainnya tetap diabaikan agar log, cache, sesi, dan file privat tidak ikut masuk Git.
+
+Setelah menarik perubahan yang berisi foto, jalankan:
+
+```sh
+git pull
+php artisan storage:link
+```
+
+`public/storage` sengaja tidak disimpan di Git karena itu symbolic link yang bergantung pada lokasi proyek di setiap komputer. Perintah di atas membuat link `public/storage` ke `storage/app/public` pada komputer masing-masing. Jika link lama rusak, hapus hanya link `public/storage`, lalu jalankan kembali perintah tersebut.
+
+Path foto juga tersimpan di database (`content_entries.image_path`, `articles.cover_image`, `site_settings` untuk logo/foto sekolah, serta tabel SPMB). Karena file SQLite dan `.env` tidak di-version control, clone baru memerlukan salinan database yang sesuai dengan aset. Untuk SQLite, tutup aplikasi lalu salin backup `database/database.sqlite` dari anggota tim yang memiliki data; jangan menjalankan `migrate:fresh`. Untuk MySQL/MariaDB, ekspor dan impor database aplikasi yang sama atau ekspor tabel data terkait (`site_settings`, `media_assets`, `content_entries`, `articles`, `spmb_settings`, dan `spmb_photos`) ke database yang sudah ada. Gunakan kredensial melalui `.env` lokal—jangan commit `.env` atau dump yang berisi rahasia.
+
+Saat menambahkan foto baru yang memang harus tersedia bagi tim, periksa lalu commit aset dan perubahan data yang diperlukan bersama-sama:
+
+```sh
+git status -- storage/app/public
+git add storage/app/public/media storage/app/public/school-photos storage/app/public/spmb
+```
+
+Untuk deployment atau unggahan yang besar/sering berubah, gunakan storage bersama seperti S3 dan backup database/storage, bukan Git sebagai media sinkronisasi utama.
+
 ## Fitur
 
 - Beranda satu halaman mempertahankan desain lama. Rute `/profil`, `/akademik`, `/berita`, `/pengumuman`, `/ekstrakurikuler`, `/ppdb`, `/galeri`, dan `/kontak` membuka bagian yang sesuai. Artikel terbit memiliki halaman `/berita/{slug}`.

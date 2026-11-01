@@ -1,2 +1,11 @@
 *
 !.gitignore
+
+# Aset publik yang direferensikan oleh path relatif di database. Jangan
+# versioning direktori storage lain (log, cache, sesi, atau unggahan privat).
+!media/
+!media/**
+!school-photos/
+!school-photos/**
+!spmb/
+!spmb/**
