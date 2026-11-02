@@ -20,7 +20,6 @@ class PhotoController extends Controller
     private const PLACEMENTS = [
         'hero' => [
             'setting' => 'hero_photo_path',
-            'type' => 'gallery',
             'title' => 'Edit Foto Lingkungan Sekolah',
             'label' => 'Foto lingkungan sekolah',
         ],
@@ -134,21 +133,15 @@ class PhotoController extends Controller
             return null;
         }
 
+        if ($placement === 'hero') {
+            return null;
+        }
+
         $entry = ContentEntry::visible()
             ->where('type', $details['type'])
             ->orderBy('sort_order')
             ->orderBy('starts_at')
             ->first();
-
-        if ($placement === 'hero' && ! filled($entry?->image_path)) {
-            $entry = ContentEntry::visible()
-                ->where('type', 'gallery')
-                ->whereNotNull('image_path')
-                ->where('image_path', '!=', '')
-                ->orderBy('sort_order')
-                ->orderBy('starts_at')
-                ->first();
-        }
 
         return $entry?->image_path;
     }

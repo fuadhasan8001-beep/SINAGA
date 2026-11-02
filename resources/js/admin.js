@@ -6,9 +6,9 @@ document.querySelectorAll('.sidebar a').forEach(link=>link.addEventListener('cli
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('sidebar-open')){setSidebar(false);sidebarToggle?.focus()}});
 if(document.body.classList.contains('admin-preview')){
     const academicManagementUrl=document.querySelector('#admin-sidebar a[href*="section=academic"]')?.href;
-    const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],program:[academicManagementUrl,'Edit akademik'],layanan:['/admin/content/announcement/create','Tambah pengumuman'],berita:['/admin/articles/create','Tulis artikel'],ekskul:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
+    const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],akademik:[academicManagementUrl,'Edit akademik'],pengumuman:['/admin/content/announcement/create','Tambah pengumuman'],ekstrakurikuler:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
     Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head||!href)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
-    [...document.querySelectorAll('.section-head')].find(head=>head.querySelector('h2')?.textContent.trim()==='Galeri sekolah')?.append(Object.assign(document.createElement('a'),{className:'admin-context-edit',href:'/admin/content/gallery',textContent:'Kelola Galeri'}));
+    [...document.querySelectorAll('.section-head')].find(head=>head.querySelector('h2')?.textContent.trim()==='Galeri Sekolah')?.append(Object.assign(document.createElement('a'),{className:'admin-context-edit',href:'/admin/content/gallery',textContent:'Kelola Galeri'}));
 }
 const photoForm=document.getElementById('photoEditForm');
 if(photoForm){
@@ -16,6 +16,89 @@ if(photoForm){
     let previewUrl=null;
     fileInput?.addEventListener('change',()=>{const file=fileInput.files?.[0];if(!file)return;fileName.textContent=file.name;previewUrl&&URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);preview.src=previewUrl;preview.hidden=false;if(emptyPreview)emptyPreview.hidden=true;});
     photoForm.addEventListener('submit',()=>{const button=photoForm.querySelector('[type="submit"]');if(button){button.disabled=true;button.textContent='Menyimpan foto…';}});
+}
+const extracurricularImage=document.getElementById('extracurricularImage');
+if(extracurricularImage){
+    const preview=document.getElementById('extracurricularPreview'),placeholder=document.getElementById('extracurricularPlaceholder');
+    let previewUrl=null;
+    extracurricularImage.addEventListener('change',()=>{
+        const file=extracurricularImage.files?.[0];
+        if(!file)return;
+        if(previewUrl)URL.revokeObjectURL(previewUrl);
+        previewUrl=URL.createObjectURL(file);
+        preview.src=previewUrl;
+        preview.hidden=false;
+        if(placeholder)placeholder.hidden=true;
+    });
+}
+const galleryImage=document.getElementById('galleryImage');
+if(galleryImage){
+    const zone=document.getElementById('galleryUploadZone'),preview=document.getElementById('galleryUploadPreview'),placeholder=document.getElementById('galleryUploadPlaceholder');
+    let previewUrl=null;
+    const showFile=file=>{
+        if(!file)return;
+        if(previewUrl)URL.revokeObjectURL(previewUrl);
+        previewUrl=URL.createObjectURL(file);
+        preview.src=previewUrl;
+        preview.hidden=false;
+        if(placeholder)placeholder.hidden=true;
+    };
+    galleryImage.addEventListener('change',()=>showFile(galleryImage.files?.[0]));
+    zone?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();galleryImage.click();}});
+    ['dragenter','dragover'].forEach(name=>zone?.addEventListener(name,event=>{event.preventDefault();zone.classList.add('is-dragging');}));
+    ['dragleave','drop'].forEach(name=>zone?.addEventListener(name,event=>{event.preventDefault();zone.classList.remove('is-dragging');}));
+    zone?.addEventListener('drop',event=>{
+        const file=event.dataTransfer?.files?.[0];
+        if(!file)return;
+        const transfer=new DataTransfer();transfer.items.add(file);galleryImage.files=transfer.files;showFile(file);
+    });
+}
+const galleryAdmin=document.getElementById('galleryAdmin'),galleryGrid=document.getElementById('galleryAdminGrid');
+if(galleryAdmin&&galleryGrid){
+    const status=document.getElementById('galleryOrderStatus'),csrf=document.querySelector('meta[name="csrf-token"]')?.content||'';
+    let dragged=null,dragStartOrder=null,dropCommitted=false;
+    const cards=()=>[...galleryGrid.querySelectorAll('[data-gallery-card]')];
+    const ids=()=>cards().map(card=>Number(card.dataset.entryId));
+    const paintOrder=()=>cards().forEach((card,index)=>{const number=card.querySelector('[data-order-number]');if(number)number.textContent=String(index+1);});
+    const restoreOrder=order=>{const byId=new Map(cards().map(card=>[Number(card.dataset.entryId),card]));order.forEach(id=>{const card=byId.get(id);if(card)galleryGrid.append(card);});paintOrder();};
+    const persistOrder=async oldOrder=>{
+        const orderedIds=ids();
+        paintOrder();
+        if(status)status.textContent='Menyimpan urutan…';
+        galleryAdmin.classList.add('is-saving-order');
+        try{
+            const response=await fetch(galleryAdmin.dataset.orderUrl,{method:'PATCH',credentials:'same-origin',headers:{'X-CSRF-TOKEN':csrf,'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify({ordered_ids:orderedIds})});
+            const result=await response.json();
+            if(!response.ok)throw new Error(result.message||'Urutan foto gagal disimpan.');
+            if(status)status.textContent=result.message||'Urutan galeri tersimpan.';
+        }catch(error){
+            if(oldOrder)restoreOrder(oldOrder);
+            if(status)status.textContent=`${error.message} Urutan sebelumnya dipulihkan.`;
+        }finally{galleryAdmin.classList.remove('is-saving-order');}
+    };
+    galleryGrid.addEventListener('dragstart',event=>{
+        const card=event.target.closest('[data-gallery-card]');
+        if(!card||event.target.closest('a,button,form')){event.preventDefault();return;}
+        dragged=card;dragStartOrder=ids();dropCommitted=false;card.classList.add('is-dragging');
+        event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',card.dataset.entryId);
+    });
+    galleryGrid.addEventListener('dragover',event=>{
+        if(!dragged)return;
+        event.preventDefault();
+        const target=event.target.closest('[data-gallery-card]');
+        if(!target||target===dragged)return;
+        const box=target.getBoundingClientRect(),after=event.clientY>box.top+box.height/2;
+        galleryGrid.insertBefore(dragged,after?target.nextElementSibling:target);
+    });
+    galleryGrid.addEventListener('drop',event=>{if(!dragged)return;event.preventDefault();dropCommitted=true;persistOrder(dragStartOrder);});
+    galleryGrid.addEventListener('dragend',()=>{if(dragged&&!dropCommitted&&dragStartOrder)restoreOrder(dragStartOrder);dragged?.classList.remove('is-dragging');dragged=null;dragStartOrder=null;});
+    galleryGrid.addEventListener('click',event=>{
+        const button=event.target.closest('[data-order-move]');if(!button)return;
+        const card=button.closest('[data-gallery-card]'),oldOrder=ids();
+        if(button.dataset.orderMove==='up'&&card.previousElementSibling)galleryGrid.insertBefore(card,card.previousElementSibling);
+        if(button.dataset.orderMove==='down'&&card.nextElementSibling)galleryGrid.insertBefore(card.nextElementSibling,card);
+        if(ids().some((id,index)=>id!==oldOrder[index]))persistOrder(oldOrder);
+    });
 }
 const editorForm=document.getElementById('articleForm');
 if(editorForm){

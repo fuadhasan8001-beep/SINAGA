@@ -1,12 +1,10 @@
 @extends('layouts.public')
 
 @section('content')
-@include('public.partials.academic-media')
 @php
-    $heroPhoto = $gallery->first(fn ($photo) => filled($photo->image_path));
-    $heroPhotoPath = filled($settings['hero_photo_path'] ?? null) ? $settings['hero_photo_path'] : $heroPhoto?->image_path;
-    $heroPhotoTitle = $heroPhoto && $heroPhoto->image_path === $heroPhotoPath ? $heroPhoto->title : 'Foto lingkungan sekolah';
-    $heroSecondary = $gallery->first(fn ($photo) => filled($photo->image_path) && $photo->image_path !== $heroPhotoPath);
+    $heroPhotoPath = filled($settings['hero_photo_path'] ?? null) ? $settings['hero_photo_path'] : null;
+    $heroPhotoTitle = 'Lingkungan '.($settings['school_name'] ?? 'SMPN 1 Gondang');
+    $galleryPhotos = $gallery->filter(fn ($photo) => filled($photo->image_path))->values();
     $profilePhotoEntry = $teachers->first();
     $profilePhotoPath = filled($settings['profile_photo_path'] ?? null) ? $settings['profile_photo_path'] : $profilePhotoEntry?->image_path;
     $principalPhotoPath = filled($settings['principal_photo_path'] ?? null) ? $settings['principal_photo_path'] : null;
@@ -14,27 +12,159 @@
         ? ($profilePhotoEntry->metadata['alt'] ?? $profilePhotoEntry->title)
         : 'Foto profil sekolah';
 @endphp
-<section class="hero" id="beranda"><div class="container hero-grid"><div class="hero-copy"><span class="eyebrow">Website resmi sekolah</span><h1>Selamat datang&nbsp;di<br><span class="hero-title-mark">{{ $settings['school_name'] ?? 'Nama Sekolah' }}</span></h1></div><div class="hero-visual">@if($heroPhotoPath)<figure class="hero-photo-main"><img src="{{ Storage::disk('public')->url($heroPhotoPath) }}" alt="{{ $heroPhotoTitle }}" fetchpriority="high" decoding="async"><figcaption>{{ $heroPhotoTitle }}</figcaption></figure>@if($heroSecondary)<figure class="hero-photo-secondary"><img src="{{ Storage::disk('public')->url($heroSecondary->image_path) }}" alt="{{ $heroSecondary->metadata['alt'] ?? $heroSecondary->title }}" loading="lazy" decoding="async"><figcaption>{{ $heroSecondary->title }}</figcaption></figure>@endif @else<div class="photo-placeholder"><svg class="school-illustration" viewBox="0 0 180 150" fill="none" aria-hidden="true"><path class="school-outline" d="M20 66 90 15l78 52M76 136V92h28v44M39 82h20v20H39zm82 0h20v20h-20z"/><path d="M90 15V5m0 0h32l-8 10H90"/><path d="M10 139h160"/></svg><div><strong>Tempat foto lingkungan sekolah</strong><span>Foto resmi sekolah dapat ditambahkan melalui pengelolaan galeri.</span></div></div>@endif @if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.photos.edit','hero') }}">Edit Foto</a>@endif</div></div></section>
+<section class="hero" id="beranda"><div class="container hero-grid"><div class="hero-copy"><span class="eyebrow">Website resmi sekolah</span><h1>Selamat datang di <span class="hero-title-mark">{{ $settings['school_name'] ?? 'Nama Sekolah' }}</span></h1><p>Ruang informasi sekolah untuk mengenal lingkungan, program, kegiatan, dan layanan SMPN 1 Gondang.</p><div class="hero-actions">@if($adminMode ?? false)<a class="btn" href="{{ route('admin.content.index','announcement') }}">Kelola Pengumuman</a>@else<a class="btn" href="#profil">Profil Sekolah</a>@endif<a class="btn btn-outline" href="#galeri">Jelajahi Galeri</a></div></div><div class="hero-visual">@if($heroPhotoPath)<figure class="hero-photo-main"><img src="{{ Storage::disk('public')->url($heroPhotoPath) }}" alt="{{ $heroPhotoTitle }}" width="1200" height="900" fetchpriority="high" decoding="async"><figcaption>{{ $heroPhotoTitle }}</figcaption></figure>@else<div class="photo-placeholder"><svg class="school-illustration" viewBox="0 0 180 150" fill="none" aria-hidden="true"><path class="school-outline" d="M20 66 90 15l78 52M76 136V92h28v44M39 82h20v20H39zm82 0h20v20h-20z"/><path d="M90 15V5m0 0h32l-8 10H90"/><path d="M10 139h160"/></svg><div><strong>Lingkungan SMPN 1 Gondang</strong><span>Foto lingkungan sekolah dapat ditambahkan melalui pengaturan foto Beranda.</span></div></div>@endif <span class="hero-photo-label"><span aria-hidden="true">✳</span> Belajar, tumbuh, berprestasi</span>@if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.photos.edit','hero') }}">Edit Foto Beranda</a>@endif</div></div></section>
 
 <section class="section" id="profil"><div class="container welcome-grid"><div class="welcome-image profile-image-stack">@if($profilePhotoPath)<img src="{{ Storage::disk('public')->url($profilePhotoPath) }}" alt="{{ $profilePhotoAlt }}" style="max-width:100%;max-height:250px;object-fit:cover">@else<div class="photo-placeholder"><strong>Tempat foto sekolah atau kegiatan resmi</strong><span>Dokumentasi profil sekolah dapat ditambahkan oleh pengelola.</span></div>@endif @if($principalPhotoPath)<figure class="principal-photo"><img src="{{ Storage::disk('public')->url($principalPhotoPath) }}" alt="Foto kepala sekolah"><figcaption>{{ $settings['principal'] ?? 'Kepala Sekolah' }}</figcaption></figure>@endif @if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.settings.edit',['section'=>'profile']) }}">Kelola Profil</a>@endif</div><div class="welcome-copy"><span class="eyebrow">Profil sekolah</span><h2>Mengenal sekolah lebih dekat</h2><p>{{ $settings['history'] ?? 'Tambahkan ringkasan sejarah dan identitas sekolah setelah informasi resmi tersedia.' }}</p>@if(filled($settings['vision'] ?? null))<h3>Visi Sekolah</h3><p>{{ $settings['vision'] }}</p>@endif @if(!empty($settings['mission']))<h3>Misi Sekolah</h3><ol class="mission-list">@foreach(is_array($settings['mission']) ? $settings['mission'] : preg_split('/\\r?\\n/', $settings['mission']) as $mission)@if(filled($mission))<li>{{ $mission }}</li>@endif @endforeach</ol>@endif<div class="person"><b>Kepala Sekolah</b><small>{{ $settings['principal'] ?? 'Nama kepala sekolah — perbarui dengan data resmi' }}</small></div>@if(filled($settings['principal_greeting'] ?? null))<article class="greeting-card"><span class="eyebrow">{{ $settings['principal_greeting_title'] ?? 'Sambutan Kepala Sekolah' }}</span><h3>{{ $settings['principal'] ?? 'Kepala Sekolah' }}</h3><p>{!! nl2br(e($settings['principal_greeting'])) !!}</p></article>@endif</div></div></section>
 
-<section class="section soft" id="program"><div class="container"><div class="section-head"><span class="eyebrow">Akademik</span><h2>Informasi pembelajaran</h2><p>{{ $settings['academic_intro'] ?? 'Informasi kurikulum dan program akademik sekolah.' }}</p></div><div class="program-list"><div class="program-row"><h3>Kurikulum</h3><p>{{ $settings['curriculum'] ?? 'Tambahkan informasi kurikulum sekolah yang telah dikonfirmasi.' }}</p></div><div class="program-row"><h3>Penerapan kurikulum</h3><p>{{ $settings['curriculum_summary'] ?? 'Ringkasan penerapan kurikulum akan ditambahkan oleh pengelola.' }}</p></div><div class="program-row"><h3>Program pembelajaran</h3><p>{{ $settings['learning_program'] ?? 'Jelaskan program belajar dan pengembangan kompetensi siswa.' }}</p></div><div class="program-row"><h3>Sistem pembelajaran</h3><p>{{ $settings['learning_system'] ?? 'Informasi sistem pembelajaran akan diperbarui oleh pengelola.' }}</p></div><div class="program-row"><h3>Program unggulan</h3><p>{{ $settings['academic_excellence'] ?? 'Program unggulan akademik akan ditambahkan setelah dikonfirmasi.' }}</p></div><div class="program-row"><h3>Informasi pendukung</h3><p>{{ $settings['academic_support'] ?? 'Informasi pendukung kegiatan akademik akan ditambahkan setelah tersedia.' }}</p></div><div class="program-row"><h3>Kalender akademik</h3><p>{{ $settings['academic_calendar'] ?? 'Informasi agenda akademik akan ditambahkan setelah tersedia.' }}</p></div></div></div></section>
-@if($learningActivities->isNotEmpty() || $educationCalendar->isNotEmpty() || $academicPrograms->isNotEmpty() || $academicAssessments->isNotEmpty())<section class="section" id="akademik-detail"><div class="container"><div class="section-head"><span class="eyebrow">Akademik</span><h2>Kegiatan dan layanan akademik</h2></div>@if($learningActivities->isNotEmpty())<h3>Kegiatan Pembelajaran</h3><div class="clubs">@foreach($learningActivities as $entry)<article class="club-card"><h3>{{ $entry->title }}</h3><p>{{ $entry->excerpt }}</p><p>{!! $entry->body !!}</p></article>@endforeach</div>@endif @if($educationCalendar->isNotEmpty())<h3>Kalender Pendidikan</h3><div class="program-list">@foreach($educationCalendar as $entry)<div class="program-row"><h3>{{ $entry->title }}</h3><p>{{ $entry->starts_at?->translatedFormat('d F Y') }}@if($entry->metadata['ends_at'] ?? null) – {{ \Carbon\Carbon::parse($entry->metadata['ends_at'])->translatedFormat('d F Y') }}@endif</p><p>{{ $entry->excerpt }}</p></div>@endforeach</div>@endif @if($academicPrograms->isNotEmpty())<h3>Program Kokurikuler dan Ekstrakurikuler</h3><div class="clubs">@foreach($academicPrograms as $entry)<article class="club-card">@if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="{{ $entry->title }}">@endif<h3>{{ $entry->title }}</h3><small>{{ ucfirst($entry->metadata['program_category'] ?? 'Program') }}</small><p>{{ $entry->excerpt }}</p><p>{!! $entry->body !!}</p></article>@endforeach</div>@endif @if($academicAssessments->isNotEmpty())<h3>Informasi Asesmen Akademik</h3><div class="program-list">@foreach($academicAssessments as $entry)<div class="program-row"><h3>{{ $entry->title }}</h3><p>{{ $entry->metadata['assessment_type'] ?? '' }} {{ $entry->starts_at ? '· '.$entry->starts_at->translatedFormat('d F Y') : '' }}</p><p>{!! $entry->body !!}</p></div>@endforeach</div>@endif</div></section>@endif
-
-<section class="section warm" id="layanan"><div class="container"><div class="section-head"><span class="eyebrow">Pengumuman</span><h2>Pengumuman dan agenda</h2><p>Informasi kegiatan untuk siswa, orang tua, dan warga sekolah.</p></div><div class="notice-grid"><article class="notice-feature"><div>@if($events->first())<span class="pill">Agenda sekolah</span><h3>{{ $events->first()->title }}</h3><p>{{ $events->first()->excerpt }}</p><p class="detail">{{ $events->first()->starts_at?->translatedFormat('l, d F Y H:i') }} @if($events->first()->location) · {{ $events->first()->location }} @endif</p>@elseif($announcements->first())<span class="pill">Pengumuman sekolah</span><h3>{{ $announcements->first()->title }}</h3><p>{{ $announcements->first()->excerpt }}</p>@else<span class="pill">Informasi sekolah</span><h3>Belum ada pengumuman terbaru</h3><p>Pengumuman dan agenda akan ditampilkan setelah diterbitkan oleh pengelola sekolah.</p>@endif</div><a href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'layanan']) : route('announcements') }}">Lihat semua pengumuman dan agenda</a></article><div class="notice-list">
-@forelse($announcements as $item)<article class="notice-item"><span class="datebox">{{ $item->starts_at?->translatedFormat('d M Y') ?? 'Pengumuman' }}</span><h3>{{ $item->title }}</h3><p>{{ $item->excerpt }}</p></article>@empty<article class="notice-item"><span class="datebox">Layanan PPDB</span><h3>Informasi penerimaan siswa baru</h3><p>{{ $settings['ppdb_summary'] ?? 'Jadwal, persyaratan, dan tautan pendaftaran akan ditambahkan setelah dikonfirmasi.' }}</p>@if(!empty($settings['ppdb_url']))<a href="{{ $settings['ppdb_url'] }}">Informasi PPDB</a>@endif</article><article class="notice-item"><span class="datebox">Dokumen</span><h3>Unduhan untuk siswa dan orang tua</h3><p>Tautan dokumen resmi akan muncul di sini setelah diterbitkan.</p></article>@endforelse
-@foreach($documents as $document)<article class="notice-item"><span class="datebox">Dokumen</span><h3>{{ $document->title }}</h3><p>{{ $document->excerpt }}</p>@if($document->document_path)<a href="{{ Storage::disk('public')->url($document->document_path) }}">Unduh dokumen</a>@endif</article>@endforeach
-</div></div></div></section>
-
-@if($articles->isNotEmpty() || $announcements->isNotEmpty())<section class="section soft" id="berita"><div class="container"><div class="section-head"><span class="eyebrow">Berita sekolah</span><h2>Kabar dan informasi</h2><p>Berita dan pengumuman terbaru dari sekolah.</p></div><div class="news-list">
-@forelse($articles as $article)<article class="news-item">@if($article->cover_image)<a class="news-image" href="{{ ($adminMode ?? false) ? route('admin.website.article',$article->slug) : route('article.show',$article->slug) }}" aria-label="Baca {{ $article->title }}"><img src="{{ Storage::disk('public')->url($article->cover_image) }}" alt="Foto sampul: {{ $article->title }}" loading="lazy" decoding="async"></a>@endif<div class="news-date">{{ $article->published_at?->translatedFormat('d M Y') }}</div><div class="news-body"><div class="news-meta">{{ $article->category?->name ?? 'Berita sekolah' }} · {{ $article->author->name }}</div><h3><a href="{{ ($adminMode ?? false) ? route('admin.website.article',$article->slug) : route('article.show',$article->slug) }}">{{ $article->title }}</a></h3><p>{{ $article->excerpt }}</p></div></article>@empty @foreach($announcements as $item)<article class="news-item"><div class="news-date">{{ $item->starts_at?->translatedFormat('d M Y') ?? 'Pengumuman' }}</div><div class="news-body"><div class="news-meta">Pengumuman sekolah</div><h3>{{ $item->title }}</h3><p>{{ $item->excerpt }}</p></div></article>@endforeach @endforelse
-</div></div></section>@endif
-
-<section class="section" id="ekskul"><div class="container"><div class="section-head"><span class="eyebrow">Kegiatan siswa</span><h2>Ekstrakurikuler dan organisasi</h2><p>Informasi kegiatan siswa yang dikelola oleh sekolah.</p></div><div class="clubs">
-@forelse($extracurriculars as $entry)<article class="club-card">@if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="{{ $entry->metadata['alt'] ?? $entry->title }}" loading="lazy" decoding="async">@endif<h3>{{ $entry->title }}</h3><p>{{ $entry->excerpt }}</p></article>@empty<article class="club-card"><h3>Informasi ekstrakurikuler</h3><p>Daftar kegiatan dan organisasi akan diperbarui setelah data sekolah tersedia.</p></article>@endforelse
+@php
+    $academicGroups = [
+        'Kegiatan Pembelajaran' => $learningActivities,
+        'Kalender Pendidikan' => $educationCalendar,
+        'Program Ekstrakurikuler' => $academicPrograms,
+        'Informasi Asesmen Akademik' => $academicAssessments,
+    ];
+    $academicCarouselEntries = collect();
+    foreach ($academicGroups as $categoryName => $entries) {
+        foreach ($entries as $entry) {
+            $entry->academic_category = $categoryName;
+            $academicCarouselEntries->push($entry);
+        }
+    }
+    $academicSettings = [
+        'Kurikulum' => $settings['curriculum'] ?? null,
+        'Penerapan kurikulum' => $settings['curriculum_summary'] ?? null,
+        'Program pembelajaran' => $settings['learning_program'] ?? null,
+        'Sistem pembelajaran' => $settings['learning_system'] ?? null,
+        'Program unggulan' => $settings['academic_excellence'] ?? null,
+        'Informasi pendukung' => $settings['academic_support'] ?? null,
+        'Kalender akademik' => $settings['academic_calendar'] ?? null,
+    ];
+    $hasAcademicSettings = collect($academicSettings)->contains(fn ($description) => filled($description));
+@endphp
+<section class="section soft" id="akademik">
+    <div class="container">
+        <div class="section-head activity-section-head">
+            <div><span class="eyebrow">Akademik</span><h2>Kegiatan Pembelajaran</h2><p>Berbagai kegiatan pembelajaran untuk mendukung potensi dan prestasi siswa.</p></div>
+            @if($academicCarouselEntries->isNotEmpty())
+                <div class="activity-carousel-controls" data-academic-carousel-controls>
+                    <button type="button" data-academic-prev aria-label="Kategori akademik sebelumnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>←</button>
+                    <span data-academic-status aria-live="polite">1 / {{ $academicCarouselEntries->count() }}</span>
+                    <button type="button" data-academic-next aria-label="Kategori akademik berikutnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>→</button>
+                </div>
+            @endif
+        </div>
+        @if($academicCarouselEntries->isNotEmpty())
+            <div class="activity-carousel" data-activity-carousel>
+                <div class="activity-carousel-viewport" id="academicCarousel" role="region" aria-label="Kategori akademik" tabindex="0">
+                    <div class="activity-carousel-track" data-academic-track>
+                        @foreach($academicCarouselEntries as $entry)
+                            @php
+                                $cardTitle = $entry->title;
+                            @endphp
+                            <div class="activity-slide">
+                                <button class="learning-activity-card" type="button" data-academic-detail="academic-detail-{{ $entry->id }}" aria-haspopup="dialog" aria-controls="academicDetailModal" aria-label="Lihat detail {{ $cardTitle }}">
+                                    <span class="learning-activity-panel"><span class="learning-activity-title">{{ $cardTitle }}</span><span class="activity-card-indicator" aria-hidden="true">↗</span></span>
+                                    <span class="learning-activity-photo">@if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ $cardTitle }}" loading="lazy" decoding="async">@else<span class="activity-photo-placeholder" role="img" aria-label="Gambar {{ $cardTitle }} belum tersedia"><span aria-hidden="true">▧</span></span>@endif</span>
+                                </button>
+                            </div>
+                            <template id="academic-detail-{{ $entry->id }}">
+                                <article class="academic-detail-view">
+                                    <span class="eyebrow">{{ $entry->academic_category }}</span>
+                                    <h2 id="academicDetailTitle">{{ $cardTitle }}</h2>
+                                    @if($entry->image_path)<img class="academic-detail-image" src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ $cardTitle }}">@endif
+                                    @if(filled($entry->excerpt))<p class="academic-detail-excerpt">{{ $entry->excerpt }}</p>@endif
+                                    @if(filled(strip_tags($entry->body ?? '')) && trim(strip_tags($entry->body)) !== trim($entry->excerpt ?? ''))<div class="academic-detail-body">{!! $entry->body !!}</div>@endif
+                                    @if($entry->starts_at || filled($entry->location))<div class="activity-detail-meta">@if($entry->starts_at)<span>{{ $entry->starts_at->translatedFormat('d F Y') }}</span>@endif @if(filled($entry->location))<span>{{ $entry->location }}</span>@endif</div>@endif
+                                    @unless(filled($entry->excerpt) || filled(strip_tags($entry->body ?? '')))<p class="activity-detail-empty">Belum ada ringkasan kegiatan yang ditambahkan.</p>@endunless
+                                </article>
+                            </template>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="academic-empty"><strong>Belum ada kategori Akademik yang ditayangkan.</strong><span>Konten akan muncul setelah dipublikasikan oleh sekolah.</span></div>
+        @endif
+        @if($hasAcademicSettings)<div class="program-list academic-settings-list">@foreach($academicSettings as $title => $description)@if(filled($description))<div class="program-row"><h3>{{ $title }}</h3><p>{{ $description }}</p></div>@endif @endforeach</div>@endif
+    </div>
+</section>
+<dialog class="academic-detail-dialog" id="academicDetailModal" aria-labelledby="academicDetailTitle">
+    <button class="academic-detail-close" type="button" data-academic-close aria-label="Tutup detail">×</button>
+    <div class="academic-detail-dialog-content" data-academic-detail-content></div>
+</dialog>
+@php
+    $featuredAnnouncement = $events->isEmpty() ? $announcements->first() : null;
+    $listedAnnouncements = $featuredAnnouncement ? $announcements->skip(1) : $announcements;
+    $hasNoticeListItems = $listedAnnouncements->isNotEmpty() || $documents->isNotEmpty();
+@endphp
+<section class="section warm" id="pengumuman"><div class="container"><div class="section-head"><span class="eyebrow">Pengumuman</span><h2>Pengumuman dan agenda</h2><p>Informasi kegiatan untuk siswa, orang tua, dan warga sekolah.</p></div><div class="notice-grid{{ $hasNoticeListItems ? '' : ' notice-grid--single' }}">
+    <article class="notice-feature">
+        @if($events->first())<span class="pill">Agenda sekolah</span><h3>{{ $events->first()->title }}</h3><p>{{ $events->first()->excerpt }}</p><p class="detail">{{ $events->first()->starts_at?->translatedFormat('l, d F Y H:i') }} @if($events->first()->location) · {{ $events->first()->location }} @endif</p>
+        @elseif($featuredAnnouncement)<span class="pill">Pengumuman terbaru</span><h3>{{ $featuredAnnouncement->title }}</h3><p>{{ $featuredAnnouncement->excerpt }}</p><p class="detail">{{ $featuredAnnouncement->starts_at?->translatedFormat('d F Y') ?? $featuredAnnouncement->created_at?->translatedFormat('d F Y') }}</p>
+        @else<span class="notice-empty-icon" aria-hidden="true">▤</span><span class="pill">Informasi sekolah</span><h3>Belum ada pengumuman terbaru</h3><p>Pengumuman dan agenda akan ditampilkan setelah diterbitkan oleh pengelola sekolah.</p>@endif
+    </article>
+    @if($hasNoticeListItems)<div class="notice-list">
+        @foreach($listedAnnouncements as $item)<article class="notice-item"><span class="datebox">{{ $item->starts_at?->translatedFormat('d M Y') ?? $item->created_at?->translatedFormat('d M Y') ?? 'Pengumuman' }}</span><h3>{{ $item->title }}</h3><p>{{ $item->excerpt }}</p></article>@endforeach
+        @foreach($documents as $document)<article class="notice-item"><span class="datebox">Dokumen</span><h3>{{ $document->title }}</h3><p>{{ $document->excerpt }}</p>@if($document->document_path)<a href="{{ Storage::disk('public')->url($document->document_path) }}">Unduh dokumen</a>@endif</article>@endforeach
+    </div>@endif
 </div></div></section>
 
-<section class="section" id="galeri"><div class="container"><div class="section-head"><span class="eyebrow">Dokumentasi</span><h2>Galeri sekolah</h2><p>Foto dokumentasi yang telah diizinkan untuk dipublikasikan.</p></div>@if($gallery->isNotEmpty())<div class="gallery-grid">@foreach($gallery as $photo)<article class="club-card gallery-item{{ $photo->image_path ? ' has-photo' : '' }}">@if($photo->image_path)<img src="{{ Storage::disk('public')->url($photo->image_path) }}" alt="{{ $photo->metadata['alt'] ?? $photo->title }}" loading="lazy" decoding="async">@endif<h3>{{ $photo->title }}</h3><p>{{ $photo->excerpt }}</p></article>@endforeach</div>@else<div class="gallery-placeholder"><div><strong>Galeri sekolah</strong>Foto resmi akan ditampilkan setelah diunggah melalui panel pengelola.</div>@if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.content.create','gallery') }}">Tambah Foto</a>@endif</div>@endif</div></section>
+<section class="section" id="ekstrakurikuler">
+    <div class="container">
+        <div class="section-head extracurricular-section-head">
+            <div><span class="eyebrow">Kegiatan siswa</span><h2>Ekstrakurikuler</h2><p>Beragam kegiatan untuk mengembangkan bakat, minat, kreativitas, dan karakter siswa.</p></div>
+            <div class="extracurricular-heading-actions">
+                <a class="activity-view-all" href="{{ route('extracurriculars') }}">Lihat Semua <span aria-hidden="true">→</span></a>
+                @if($extracurriculars->isNotEmpty())
+                    <div class="activity-carousel-controls extracurricular-carousel-controls" data-extracurricular-controls>
+                        <button type="button" data-extracurricular-prev aria-label="Ekstrakurikuler sebelumnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>←</button>
+                        <span data-extracurricular-status aria-live="polite">1 / {{ $extracurriculars->count() }}</span>
+                        <button type="button" data-extracurricular-next aria-label="Ekstrakurikuler berikutnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>→</button>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @if($extracurriculars->isNotEmpty())
+            <div class="extracurricular-carousel" data-extracurricular-carousel>
+                <div class="extracurricular-carousel-viewport" id="extracurricularCarousel" role="region" aria-label="Galeri ekstrakurikuler" tabindex="0">
+                    <div class="extracurricular-track">
+                        @foreach($extracurriculars as $entry)
+                            <a class="club-card extracurricular-card" href="{{ route('extracurriculars.show', $entry->slug) }}" aria-label="Lihat detail ekstrakurikuler {{ $entry->title }}">
+                                @if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto ekstrakurikuler {{ $entry->title }}" loading="lazy" decoding="async">@else<div class="club-photo-placeholder" role="img" aria-label="Foto {{ $entry->title }} belum tersedia"><span aria-hidden="true">▧</span></div>@endif
+                                <h3>{{ $entry->title }}</h3><span class="extracurricular-card-arrow" aria-hidden="true">↗</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="extracurricular-empty"><strong>Belum ada ekstrakurikuler yang ditayangkan.</strong><span>Informasi akan muncul setelah dipublikasikan oleh sekolah.</span></div>
+        @endif
+    </div>
+</section>
 
-<section class="section" id="kontak"><div class="container contact-grid"><div class="contact-panel"><span class="eyebrow">Kontak</span><h2>Informasi sekolah</h2><p>Hubungi sekolah melalui informasi resmi berikut.</p><div class="contact-row"><b>Alamat</b><span>{{ $settings['address'] ?? 'Alamat sekolah — perbarui' }}</span></div><div class="contact-row"><b>Telepon</b><span>{{ $settings['phone'] ?? 'Nomor telepon resmi — perbarui' }}</span></div><div class="contact-row"><b>Email</b><span>{{ $settings['email'] ?? 'Email resmi — perbarui' }}</span></div><div class="contact-row"><b>Jam pelayanan</b><span>{{ $settings['office_hours'] ?? 'Jadwal layanan — perbarui' }}</span></div></div><div class="form-panel"><h3>Kirim pesan atau saran</h3><p>Pesan Anda diteruskan kepada pengelola website sekolah.</p>@if(session('success'))<p class="form-note" role="status">{{ session('success') }}</p>@endif<form id="contactForm" method="post" action="{{ route('contact.store') }}">@csrf<div class="form-grid"><div class="field"><label for="name">Nama</label><input id="name" name="name" autocomplete="name" required value="{{ old('name') }}" placeholder="Nama Anda">@error('name')<small>{{ $message }}</small>@enderror</div><div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}" placeholder="nama@email.com">@error('email')<small>{{ $message }}</small>@enderror</div><div class="field full"><label for="subject">Subjek</label><input id="subject" name="subject" required value="{{ old('subject') }}" placeholder="Topik pesan"></div><div class="field full"><label for="message">Pesan</label><textarea id="message" name="message" required placeholder="Tulis pesan atau saran Anda">{{ old('message') }}</textarea></div><div class="field full"><button class="btn" type="submit">Kirim pesan</button></div></div></form></div></div></section>
+<section class="section" id="galeri"><div class="container"><div class="section-head"><span class="eyebrow">Dokumentasi</span><h2>Galeri Sekolah</h2><p>Foto dokumentasi yang telah diizinkan untuk dipublikasikan.</p></div>
+@if($galleryPhotos->isNotEmpty())
+    <div class="gallery-grid" id="publicGalleryGrid">
+        @foreach($galleryPhotos as $photo)
+            <article class="gallery-item" data-gallery-item>
+                <button class="gallery-photo-button" type="button" data-gallery-open data-photo-src="{{ Storage::disk('public')->url($photo->image_path) }}" data-photo-title="{{ $photo->title }}" aria-label="Perbesar foto: {{ $photo->title }}">
+                    <img src="{{ Storage::disk('public')->url($photo->image_path) }}" alt="{{ $photo->title }}" loading="lazy" decoding="async">
+                </button>
+                <h3>{{ $photo->title }}</h3>
+            </article>
+        @endforeach
+    </div>
+    <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri foto">
+        <button class="gallery-lightbox-close" type="button" data-gallery-close aria-label="Tutup galeri">×</button>
+        <button class="gallery-lightbox-nav gallery-lightbox-prev" type="button" data-gallery-prev aria-label="Foto sebelumnya">Sebelumnya</button>
+        <figure><img id="galleryLightboxImage" alt=""><figcaption id="galleryLightboxTitle"></figcaption></figure>
+        <button class="gallery-lightbox-nav gallery-lightbox-next" type="button" data-gallery-next aria-label="Foto berikutnya">Berikutnya</button>
+    </dialog>
+@else
+    <div class="gallery-placeholder"><div class="gallery-placeholder-icon" aria-hidden="true">▧</div><strong>Galeri sekolah</strong><p>Foto dokumentasi akan ditampilkan setelah diunggah oleh administrator.</p></div>
+@endif
+</div></section>
+
+<section class="section" id="kontak"><div class="container contact-grid"><div class="contact-panel"><span class="eyebrow">Kontak</span><h2>Informasi sekolah</h2><p>Hubungi sekolah melalui informasi resmi berikut.</p><div class="contact-row"><b>Alamat</b><span>{{ $settings['address'] ?? 'Alamat sekolah — perbarui' }}</span></div><div class="contact-row"><b>Telepon</b><span>{{ $settings['phone'] ?? 'Nomor telepon resmi — perbarui' }}</span></div><div class="contact-row"><b>Email</b><span>{{ $settings['email'] ?? 'Email resmi — perbarui' }}</span></div><div class="contact-row"><b>Jam pelayanan</b><span>{{ $settings['office_hours'] ?? 'Jadwal layanan — perbarui' }}</span></div></div><div class="form-panel"><h3>Kirim pesan atau saran</h3><p>Pesan Anda diteruskan kepada pengelola website sekolah.</p>@if(session('success'))<p class="form-note" role="status">{{ session('success') }}</p>@endif @if($errors->any())<p class="form-note form-note--error" role="alert">{{ $errors->first() }}</p>@endif<form id="contactForm" method="post" action="{{ route('contact.store') }}">@csrf<div class="form-grid"><div class="field"><label for="name">Nama</label><input id="name" name="name" autocomplete="name" required value="{{ old('name') }}" placeholder="Nama Anda">@error('name')<small>{{ $message }}</small>@enderror</div><div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}" placeholder="nama@email.com">@error('email')<small>{{ $message }}</small>@enderror</div><div class="field full"><label for="subject">Subjek</label><input id="subject" name="subject" required value="{{ old('subject') }}" placeholder="Topik pesan">@error('subject')<small>{{ $message }}</small>@enderror</div><div class="field full"><label for="message">Pesan</label><textarea id="message" name="message" required placeholder="Tulis pesan atau saran Anda">{{ old('message') }}</textarea>@error('message')<small>{{ $message }}</small>@enderror</div><div class="field full"><button class="btn" type="submit">Kirim pesan</button></div></div></form></div></div></section>
 @endsection

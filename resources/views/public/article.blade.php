@@ -2,5 +2,21 @@
 
 @section('title',$article->title.' — '.($settings['school_name']??'Website Sekolah'))
 @section('content')
-<article class="section"><div class="container" style="max-width:820px"><a class="back" href="{{ ($adminMode ?? false) ? route('admin.dashboard',['section'=>'berita']) : route('news') }}">Kembali ke berita</a><span class="eyebrow">{{ $article->category?->name ?? 'Berita sekolah' }}</span><h1>{{ $article->title }}</h1><p class="muted">{{ $article->published_at?->translatedFormat('d F Y') }} · {{ $article->author->name }}</p>@if($article->cover_image)<img src="{{ Storage::disk('public')->url($article->cover_image) }}" alt="Foto sampul: {{ $article->title }}" style="width:100%;max-height:460px;object-fit:cover">@endif @if($article->excerpt)<p><strong>{{ $article->excerpt }}</strong></p>@endif<div class="article-content">{!! $article->body !!}</div></div></article>
+<article class="article-page section">
+    <div class="container article-shell">
+        <a class="back article-back" href="{{ ($adminMode ?? false) ? route('admin.dashboard') : route('home') }}">Kembali ke beranda</a>
+        <header class="article-header">
+            <span class="eyebrow">{{ $article->category?->name ?? 'Berita sekolah' }}</span>
+            <h1>{{ $article->title }}</h1>
+            <p class="article-meta">{{ $article->published_at?->translatedFormat('d F Y') }} <span aria-hidden="true">·</span> {{ $article->author->name }}</p>
+        </header>
+        @if($article->cover_image)
+            <figure class="article-cover">
+                <img src="{{ Storage::disk('public')->url($article->cover_image) }}" alt="Foto sampul: {{ $article->title }}">
+            </figure>
+        @endif
+        @if($article->excerpt)<p class="article-excerpt">{{ $article->excerpt }}</p>@endif
+        <div class="article-content">{!! $article->body !!}</div>
+    </div>
+</article>
 @endsection

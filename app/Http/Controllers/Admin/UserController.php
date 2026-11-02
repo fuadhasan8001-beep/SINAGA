@@ -13,7 +13,7 @@ use Illuminate\View\View;
 class UserController extends Controller
 {
     public function editProfile(): \Illuminate\View\View { return view('admin.profile'); }
-    public function index(): View { return view('admin.users.index',['users'=>User::where('role','teacher')->withCount('articles')->orderBy('name')->paginate(30)]); }
+    public function index(): View { return view('admin.users.index',['users'=>User::where('role','teacher')->orderBy('name')->paginate(30)]); }
     public function store(Request $request): RedirectResponse
     {
         $data=$request->validate(['name'=>['required','string','min:2','max:120'],'email'=>['required','email','max:254','unique:users,email'],'password'=>['required','string','min:12','max:200']]);

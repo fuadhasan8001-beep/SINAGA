@@ -25,7 +25,7 @@ class CmsWorkflowTest extends TestCase
         $this->get($academicUrl)->assertOk()->assertViewIs('admin.settings')
             ->assertSee('Kegiatan Pembelajaran')
             ->assertSee('Kalender Pendidikan')
-            ->assertSee('Program Kokurikuler')
+            ->assertSee('Program Ekstrakurikuler')
             ->assertSee('Asesmen Akademik')
             ->assertDontSee('Kelola identitas, informasi pimpinan, visi misi, dan sambutan yang tampil pada bagian profil.');
 
@@ -34,6 +34,40 @@ class CmsWorkflowTest extends TestCase
         $entry = ContentEntry::where('type', 'learning_activity')->firstOrFail();
         $this->get(route('admin.content.edit', ['learning_activity', $entry]))
             ->assertOk()->assertSee(str_replace('&', '&amp;', $academicUrl), false)->assertSee('Kembali');
+    }
+
+    public function test_viewer_and_admin_navbars_share_seven_targets_and_academic_descriptions_render_once(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        ContentEntry::create([
+            'author_id' => $admin->id,
+            'type' => 'learning_activity',
+            'title' => 'Kegiatan Pembelajaran',
+            'slug' => 'kegiatan-pembelajaran-uji',
+            'excerpt' => 'Deskripsi akademik tunggal.',
+            'body' => '<p>Deskripsi akademik tunggal.</p>',
+            'published' => true,
+        ]);
+
+        $targets = ['beranda', 'profil', 'akademik', 'pengumuman', 'ekstrakurikuler', 'galeri', 'kontak'];
+        $viewer = $this->get(route('home'))->assertOk()->assertSee('Kegiatan Pembelajaran')
+            ->assertSee('data-activity-carousel', false)->assertDontSee('Kokurikuler');
+        $viewerHtml = $viewer->getContent();
+        $this->assertSame(1, substr_count($viewerHtml, 'Deskripsi akademik tunggal.'));
+        $this->assertSame(7, substr_count($viewerHtml, 'data-nav-section='));
+        foreach ($targets as $target) {
+            $viewer->assertSee(route('home').'#'.$target, false);
+            $this->assertSame(1, substr_count($viewerHtml, 'id="'.$target.'"'));
+        }
+
+        $adminPage = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
+        $adminHtml = $adminPage->getContent();
+        $this->assertSame(7, substr_count($adminHtml, 'data-nav-section='));
+        $this->assertSame(1, substr_count($adminHtml, 'Deskripsi akademik tunggal.'));
+        foreach ($targets as $target) {
+            $adminPage->assertSee(route('admin.dashboard').'#'.$target, false);
+            $this->assertSame(1, substr_count($adminHtml, 'id="'.$target.'"'));
+        }
     }
 
     public function test_laravel_auth_and_role_access_are_enforced(): void
@@ -135,13 +169,13 @@ class CmsWorkflowTest extends TestCase
 
         $this->get(route('admin.dashboard'))->assertOk()->assertViewIs('public.home')
             ->assertSee('admin-preview')->assertSee('site-admin-toggle')->assertDontSee('Ringkasan Konten')
-            ->assertSee(route('admin.dashboard'), false)
-            ->assertSee(str_replace('&', '&amp;', route('admin.settings.edit', ['section' => 'profile', 'edit' => 1])), false)
-            ->assertSee(str_replace('&', '&amp;', route('admin.settings.edit', ['section' => 'academic', 'edit' => 1])), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'berita']), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'ekskul']), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'galeri']), false)
-            ->assertSee(route('admin.dashboard', ['section' => 'kontak']), false)
+            ->assertSee(route('admin.dashboard').'#beranda', false)
+            ->assertSee(route('admin.dashboard').'#profil', false)
+            ->assertSee(route('admin.dashboard').'#akademik', false)
+            ->assertSee(route('admin.dashboard').'#pengumuman', false)
+            ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
+            ->assertSee(route('admin.dashboard').'#galeri', false)
+            ->assertSee(route('admin.dashboard').'#kontak', false)
             ->assertSee(route('admin.settings.edit'), false)
             ->assertDontSee(route('admin.articles.index'), false)
             ->assertDontSee(route('admin.articles.reviews'), false)
@@ -180,12 +214,6 @@ class CmsWorkflowTest extends TestCase
                 $response->assertSee('class="active"', false);
             }
             $this->assertSame(1, substr_count($response->getContent(), 'id="admin-sidebar"'));
-        }
-
-        foreach (['profil', 'program', 'berita', 'ekskul', 'galeri', 'kontak'] as $section) {
-            $this->get(route('admin.dashboard', ['section' => $section]))->assertOk()
-                ->assertSee('admin-preview')->assertSee('site-admin-toggle')
-                ->assertSee('data-scroll-target="'.$section.'"', false);
         }
 
         foreach (['hero', 'profile', 'principal'] as $placement) {
