@@ -22,6 +22,9 @@ class SettingsController extends Controller
         if ($section === 'hero') {
             $photoPaths = [
                 'hero' => $settings['hero_photo_path'] ?? null,
+            ];
+        } elseif ($section === 'profile') {
+            $photoPaths = [
                 'logo' => $settings['school_logo_path'] ?? null,
                 'profile' => $settings['profile_photo_path'] ?? ContentEntry::visible()->where('type','teacher')->orderBy('sort_order')->orderBy('id')->value('image_path'),
                 'principal' => $settings['principal_photo_path'] ?? null,

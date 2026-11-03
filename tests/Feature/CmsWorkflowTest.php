@@ -127,21 +127,31 @@ class CmsWorkflowTest extends TestCase
         $this->actingAs($admin);
         $this->get(route('admin.settings.edit',['section'=>'profile']))->assertOk()
             ->assertSee('name="settings[school_name]"', false)->assertSee('name="settings[history]"', false)
-            ->assertDontSee('hero-settings-group')->assertDontSee('hero-media-grid')->assertDontSee('settings[hero_title]');
+            ->assertSee('name="settings[school_tagline]"', false)
+            ->assertSee('Logo Sekolah')->assertSee('Foto Profil Sekolah')->assertSee('Foto Kepala Sekolah')
+            ->assertSee(route('admin.photos.edit','logo'), false)
+            ->assertSee(route('admin.photos.edit','profile'), false)
+            ->assertSee(route('admin.photos.edit','principal'), false)
+            ->assertDontSee('hero-settings-group')->assertDontSee('settings[hero_title]');
         $this->get(route('admin.settings.edit',['section'=>'hero']))->assertOk()
+            ->assertSee('Foto Latar Hero Beranda')
             ->assertSee('hero-media-grid', false)->assertSee('name="settings[hero_title]"', false)
             ->assertSee('name="settings[hero_photo_position]"', false)
             ->assertSee(route('admin.photos.edit','hero'), false)
-            ->assertSee(route('admin.photos.edit','logo'), false)
-            ->assertSee(route('admin.photos.edit','profile'), false)
-            ->assertSee(route('admin.photos.edit','principal'), false);
+            ->assertDontSee('Logo Sekolah')
+            ->assertDontSee('Foto Profil Sekolah')
+            ->assertDontSee('Foto Kepala Sekolah')
+            ->assertDontSee(route('admin.photos.edit','logo'), false)
+            ->assertDontSee(route('admin.photos.edit','profile'), false)
+            ->assertDontSee(route('admin.photos.edit','principal'), false);
         $this->post(route('admin.content.store','announcement'),['title'=>'Pengumuman ujian','excerpt'=>'Jadwal akan diumumkan.','starts_at'=>'2026-11-10 08:00','published'=>'1'])->assertRedirect();
         $this->assertDatabaseHas('content_entries',['type'=>'announcement','title'=>'Pengumuman ujian','published'=>1]);
         $this->put(route('admin.settings.update'),['section'=>'profile','settings'=>[
-            'school_name'=>'Sekolah Uji','address'=>'Alamat Uji','email'=>'info@uji.test',
+            'school_name'=>'Sekolah Uji','school_tagline'=>'Sekolah ramah dan unggul','address'=>'Alamat Uji','email'=>'info@uji.test',
             'hero_title'=>'Tidak boleh ikut tersimpan dari Kelola Profil',
         ]])->assertRedirect(route('admin.dashboard',['section'=>'profil']))->assertSessionHas('success');
         $this->assertSame('"Sekolah Uji"',SiteSetting::find('school_name')->value);
+        $this->assertSame('"Sekolah ramah dan unggul"',SiteSetting::find('school_tagline')->value);
         $this->assertDatabaseMissing('site_settings',['key'=>'hero_title']);
         $this->put(route('admin.settings.update'),['section'=>'hero','settings'=>[
             'hero_label'=>'Sambutan Sekolah','hero_title'=>'Belajar Bersama SMPN 1 Gondang',
@@ -256,7 +266,7 @@ class CmsWorkflowTest extends TestCase
         foreach (['hero', 'logo', 'profile', 'principal'] as $placement) {
             $this->put(route('admin.photos.update', $placement), [
                 'image' => UploadedFile::fake()->image($placement.'.jpg', 640, 420),
-            ])->assertRedirect(route('admin.settings.edit',['section'=>'hero']))->assertSessionHas('success');
+            ])->assertRedirect(route('admin.settings.edit',['section'=>$placement === 'hero' ? 'hero' : 'profile']))->assertSessionHas('success');
             $key = $placement === 'logo' ? 'school_logo_path' : $placement.'_photo_path';
             $path = json_decode(SiteSetting::findOrFail($key)->value, true);
             $this->assertTrue(Storage::disk('public')->exists($path));

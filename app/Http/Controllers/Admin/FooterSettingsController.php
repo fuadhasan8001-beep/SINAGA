@@ -43,8 +43,6 @@ class FooterSettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'school_name' => ['required', 'string', 'max:180'],
-            'school_tagline' => ['nullable', 'string', 'max:180'],
             'footer_description' => ['required', 'string', 'max:1000'],
             'address' => ['nullable', 'string', 'max:500'],
             'email' => ['nullable', 'email', 'max:254'],

@@ -1,20 +1,14 @@
 @extends('layouts.admin')
 @section('title', 'Pengaturan Footer')
 @section('heading', 'Pengaturan Footer')
-@section('subtitle', 'Kelola identitas, tautan navigasi, kontak, media sosial, dan copyright yang tampil di bagian bawah website.')
+@section('subtitle', 'Kelola deskripsi footer, tautan navigasi, kontak, media sosial, dan copyright website.')
 @section('content')
 <form method="post" action="{{ route('admin.footer.update') }}" class="panel footer-settings-form">
     @csrf @method('PUT')
     <section class="footer-settings-section">
-        <div class="footer-settings-heading"><span>01</span><div><h2>Identitas Sekolah</h2><p>Logo dikelola melalui penyimpanan logo sekolah yang sudah tersedia.</p></div></div>
+        <div class="footer-settings-heading"><span>01</span><div><h2>Informasi Footer</h2><p>Nama sekolah, slogan, dan logo dikelola di halaman Kelola Profil.</p></div></div>
         <div class="footer-settings-grid">
-            <label class="footer-logo-setting">Logo sekolah
-                @if($settings->get('school_logo_path'))<img src="{{ Storage::disk('public')->url($settings->get('school_logo_path')) }}" alt="Logo sekolah saat ini">@else<div class="footer-logo-placeholder">Logo belum diunggah</div>@endif
-                <a class="secondary" href="{{ route('admin.photos.edit','logo') }}">{{ $settings->get('school_logo_path') ? 'Ganti logo' : 'Unggah logo' }}</a>
-            </label>
             <div class="footer-setting-fields">
-                <label>Nama sekolah<input name="school_name" required maxlength="180" value="{{ old('school_name', $settings->get('school_name', 'SMPN 1 Gondang')) }}">@error('school_name')<small class="error">{{ $message }}</small>@enderror</label>
-                <label>Slogan singkat<input name="school_tagline" maxlength="180" value="{{ old('school_tagline', $settings->get('school_tagline', 'Sekolah yang unggul dan berkarakter')) }}">@error('school_tagline')<small class="error">{{ $message }}</small>@enderror</label>
                 <label>Deskripsi footer<textarea name="footer_description" required maxlength="1000" rows="3">{{ old('footer_description', $settings->get('footer_description')) }}</textarea>@error('footer_description')<small class="error">{{ $message }}</small>@enderror</label>
                 <label>Alamat sekolah<textarea name="address" maxlength="500" rows="2">{{ old('address', $settings->get('address', '')) }}</textarea>@error('address')<small class="error">{{ $message }}</small>@enderror</label>
             </div>

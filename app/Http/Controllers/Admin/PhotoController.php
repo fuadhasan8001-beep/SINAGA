@@ -20,8 +20,8 @@ class PhotoController extends Controller
     private const PLACEMENTS = [
         'hero' => [
             'setting' => 'hero_photo_path',
-            'title' => 'Edit Foto Lingkungan Sekolah',
-            'label' => 'Foto lingkungan sekolah',
+            'title' => 'Edit Foto Latar Hero Beranda',
+            'label' => 'Foto latar Hero Beranda',
         ],
         'profile' => [
             'setting' => 'profile_photo_path',
@@ -68,15 +68,13 @@ class PhotoController extends Controller
         ]);
 
         $file = $request->file('image');
-        $newPath = $file->storePublicly('school-photos', 'public');
+        $newPath = $file->storePublicly('school-photos/'.$placement, 'public');
 
         if (! $newPath) {
             throw ValidationException::withMessages(['image' => 'Foto gagal disimpan. Silakan coba lagi.']);
         }
 
         $settingKey = $details['setting'];
-        $oldManagedPath = $this->savedPath($settingKey);
-
         try {
             DB::transaction(function () use ($request, $file, $newPath, $settingKey, $details): void {
                 SiteSetting::updateOrCreate(
@@ -104,12 +102,9 @@ class PhotoController extends Controller
             throw $exception;
         }
 
-        if ($oldManagedPath && $oldManagedPath !== $newPath) {
-            Storage::disk('public')->delete($oldManagedPath);
-            MediaAsset::where('path', $oldManagedPath)->delete();
-        }
-
-        return redirect()->route('admin.settings.edit',['section'=>'hero'])->with('success', $details['label'].' berhasil diperbarui.');
+        return redirect()->route('admin.settings.edit', [
+            'section' => $placement === 'hero' ? 'hero' : 'profile',
+        ])->with('success', $details['label'].' berhasil diperbarui.');
     }
 
     private function placement(string $placement): array

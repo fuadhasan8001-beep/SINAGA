@@ -114,6 +114,12 @@ body{background:#edf8f0;color:#26372e}
 .hero-media-card--logo img{object-fit:contain;padding:14px;background:#fff}
 .hero-media-card .secondary{display:inline-flex;min-height:42px;align-items:center;justify-content:center;justify-self:start;padding:9px 12px;border:1px solid #d1e1d4;border-radius:10px;background:#fff;color:#315c40;font-size:.77rem;font-weight:750}
 .hero-media-card .secondary:hover{background:#f0f8f1}
+.hero-media-grid--hero{grid-template-columns:minmax(0,540px)}
+.hero-media-card--hero img{min-height:180px;max-height:none;aspect-ratio:16/9}
+.hero-media-grid--profile{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hero-media-grid--profile .hero-media-card{height:100%}
+.hero-media-grid--profile .hero-media-card--logo img{min-height:170px;max-height:170px;aspect-ratio:1;object-fit:contain;padding:22px;background:#fff}
+.hero-media-grid--profile .hero-media-card--profile img,.hero-media-grid--profile .hero-media-card--principal img{min-height:170px;max-height:220px;aspect-ratio:4/3}
 .hero-settings-form{align-items:start}
 .hero-settings-group{display:grid;grid-column:1/-1;gap:14px;min-width:0;margin:0;padding:20px;border:1px solid #dce9de;border-radius:14px;background:#f7fbf7}
 .hero-settings-group legend{padding:0 8px;color:#245437;font-family:"Epilogue","Plus Jakarta Sans",sans-serif;font-size:1rem;font-weight:800}
@@ -170,7 +176,8 @@ body{background:#edf8f0;color:#26372e}
 @media(max-width:420px){.gallery-admin-grid{grid-template-columns:1fr}.gallery-admin-card-body h3{min-height:0}}
 @media(max-width:680px){.photo-edit{padding:16px}.photo-preview-frame{min-height:190px}}
 @media(max-width:1040px){.hero-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){.hero-media-grid{grid-template-columns:minmax(0,1fr);padding-inline:16px}.hero-media-card{grid-template-columns:minmax(0,1fr) auto;align-items:center}.hero-media-card h3{grid-column:1/-1;min-height:0}.hero-media-card img,.hero-media-empty{grid-row:2/4;width:min(100%,250px);min-height:110px}.hero-media-card .secondary{grid-column:2;grid-row:2/4;justify-self:end}.hero-settings-group{padding:16px}.hero-settings-form .actions{grid-column:auto;display:grid;grid-template-columns:1fr}.hero-settings-form .actions .primary,.hero-settings-form .actions .secondary{width:100%}}
+@media(max-width:900px){.hero-media-grid--profile{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.hero-media-grid{grid-template-columns:minmax(0,1fr);padding-inline:16px}.hero-media-card{grid-template-columns:minmax(0,1fr) auto;align-items:center}.hero-media-card h3{grid-column:1/-1;min-height:0}.hero-media-card img,.hero-media-empty{grid-row:2/4;width:min(100%,250px);min-height:110px}.hero-media-card .secondary{grid-column:2;grid-row:2/4;justify-self:end}.hero-media-grid--hero .hero-media-card{grid-template-columns:minmax(0,1fr)}.hero-media-grid--hero .hero-media-card img,.hero-media-grid--hero .hero-media-card .hero-media-empty{grid-row:auto;width:100%;min-height:160px}.hero-media-grid--hero .hero-media-card .secondary{grid-column:auto;grid-row:auto;justify-self:start}.hero-media-grid--profile{grid-template-columns:minmax(0,1fr)}.hero-media-grid--profile .hero-media-card img,.hero-media-grid--profile .hero-media-card .hero-media-empty{width:min(100%,320px)}.hero-settings-group{padding:16px}.hero-settings-form .actions{grid-column:auto;display:grid;grid-template-columns:1fr}.hero-settings-form .actions .primary,.hero-settings-form .actions .secondary{width:100%}}
 
 /* Responsive content cards for activity lists and contact messages. */
 .admin-manage,.admin-manage .admin-content,.admin-manage .admin-content>section,.admin-manage .panel{min-width:0;max-width:100%}
