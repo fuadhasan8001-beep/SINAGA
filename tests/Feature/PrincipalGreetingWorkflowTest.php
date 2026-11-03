@@ -50,7 +50,7 @@ class PrincipalGreetingWorkflowTest extends TestCase
             ->assertDontSee('<script>alert', false)
             ->assertSee(Storage::disk('public')->url('school-photos/banner.jpg'), false)
             ->assertSee(Storage::disk('public')->url('school-photos/principal.jpg'), false)
-            ->assertSee(route('home').'#profil', false);
+            ->assertSee(route('profile'), false);
     }
 
     public function test_detail_has_fallbacks_when_greeting_and_photos_are_missing(): void
@@ -96,5 +96,15 @@ class PrincipalGreetingWorkflowTest extends TestCase
             ->assertSee('Lihat Selengkapnya')
             ->assertSee(route('principal-greeting'), false);
         $this->get(route('principal-greeting'))->assertOk()->assertSee('<p>Salam penutup.</p>', false);
+    }
+
+    public function test_admin_greeting_preview_returns_to_the_admin_profile_without_rendering_music(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+
+        $this->actingAs($admin)->get(route('admin.principal-greeting'))
+            ->assertOk()
+            ->assertSee(route('admin.dashboard').'#profil', false)
+            ->assertDontSee('id="siteBackgroundMusic"', false);
     }
 }

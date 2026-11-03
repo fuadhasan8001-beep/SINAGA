@@ -58,6 +58,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
     Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
     Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
     Route::middleware('role:admin')->group(function(){
+        Route::get('/website/sambutan-kepala-sekolah',[PublicController::class,'principalGreeting'])->name('principal-greeting');
         Route::get('/website/articles/{slug}',[PublicController::class,'article'])->name('website.article');
         Route::get('/photos/{placement}/edit',[PhotoController::class,'edit'])->name('photos.edit');
         Route::put('/photos/{placement}',[PhotoController::class,'update'])->name('photos.update');

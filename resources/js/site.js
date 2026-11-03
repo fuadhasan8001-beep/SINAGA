@@ -3,20 +3,38 @@ if(backgroundMusic){
     const musicPositionKey='sinaga-background-music-position';
     const musicEnabledKey='sinaga-background-music-enabled';
     const internalNavigationKey='sinaga-background-music-internal-navigation';
-    let musicStarted=false,musicAttempting=false,exitedWebsite=false,musicInitialized=false;
+    let musicStarted=false,musicAttempting=false,musicInitialized=false;
     let continueWithinSite=false,navigationMarkerTimeout=null;
     try{
-        continueWithinSite=sessionStorage.getItem(internalNavigationKey)==='1';
+        const cameFromThisSite=document.referrer&&new URL(document.referrer).origin===window.location.origin;
+        continueWithinSite=sessionStorage.getItem(internalNavigationKey)==='1'||cameFromThisSite;
         sessionStorage.removeItem(internalNavigationKey);
     }catch{}
     backgroundMusic.autoplay=false;
     const clearStartListeners=()=>['pointerdown','touchstart','keydown'].forEach(type=>document.removeEventListener(type,startAfterInteraction,true));
     const startAfterInteraction=()=>tryStartMusic();
+    const stopMusic=({forget=false}={})=>{
+        saveMusicPosition();
+        backgroundMusic.pause();
+        musicStarted=false;
+        musicAttempting=false;
+        if(forget)try{
+            sessionStorage.removeItem(musicPositionKey);
+            sessionStorage.removeItem(musicEnabledKey);
+        }catch{}
+    };
     const markInternalNavigation=()=>{
         try{
             sessionStorage.setItem(internalNavigationKey,'1');
             window.clearTimeout(navigationMarkerTimeout);
             navigationMarkerTimeout=window.setTimeout(()=>sessionStorage.removeItem(internalNavigationKey),3000);
+        }catch{}
+    };
+    const saveMusicPosition=()=>{
+        if(!musicStarted||!Number.isFinite(backgroundMusic.currentTime)||backgroundMusic.currentTime<=0)return;
+        try{
+            sessionStorage.setItem(musicPositionKey,String(backgroundMusic.currentTime));
+            sessionStorage.setItem(musicEnabledKey,'1');
         }catch{}
     };
     document.addEventListener('click',event=>{
@@ -25,7 +43,9 @@ if(backgroundMusic){
         if(!link||link.target==='_blank'||link.hasAttribute('download'))return;
         try{
             const target=new URL(link.href,window.location.href);
-            if(target.origin===window.location.origin&&(target.pathname!==window.location.pathname||target.search!==window.location.search))markInternalNavigation();
+            const isPublicTarget=target.origin===window.location.origin&&!/^\/(?:admin|guru|login)(?:\/|$)/.test(target.pathname);
+            if(!isPublicTarget){stopMusic({forget:true});return;}
+            if(target.pathname!==window.location.pathname||target.search!==window.location.search)markInternalNavigation();
         }catch{}
     },true);
     document.addEventListener('submit',event=>{
@@ -59,7 +79,8 @@ if(backgroundMusic){
         console.info(`[SINAGA] Background music loaded; duration ${Number.isFinite(backgroundMusic.duration)?backgroundMusic.duration.toFixed(2):'unknown'} seconds.`);
         try{
             const savedPosition=Number(sessionStorage.getItem(musicPositionKey));
-            if(continueWithinSite&&Number.isFinite(savedPosition)&&savedPosition>0&&savedPosition<backgroundMusic.duration){
+            const wasPlaying=sessionStorage.getItem(musicEnabledKey)==='1';
+            if(continueWithinSite&&wasPlaying&&Number.isFinite(savedPosition)&&savedPosition>0&&savedPosition<backgroundMusic.duration){
                 backgroundMusic.currentTime=savedPosition;
             }else if(!continueWithinSite){
                 sessionStorage.removeItem(musicPositionKey);
@@ -80,35 +101,28 @@ if(backgroundMusic){
         });
     },{once:true});
     backgroundMusic.addEventListener('timeupdate',()=>{
-        try{sessionStorage.setItem(musicPositionKey,String(backgroundMusic.currentTime));}catch{}
+        saveMusicPosition();
+    });
+    document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='hidden')stopMusic();
+        else if(sessionStorage.getItem(musicEnabledKey)==='1')tryStartMusic();
     });
     window.addEventListener('pagehide',()=>{
         try{
-            const internalNavigation=sessionStorage.getItem(internalNavigationKey)==='1';
-            exitedWebsite=!internalNavigation;
-            if(internalNavigation){
-                if(Number.isFinite(backgroundMusic.currentTime)&&backgroundMusic.currentTime>0){
-                    sessionStorage.setItem(musicPositionKey,String(backgroundMusic.currentTime));
-                }
-            }else{
-                sessionStorage.removeItem(musicPositionKey);
-                sessionStorage.removeItem(musicEnabledKey);
-            }
+            // Save for every departure. The next public document decides whether
+            // it was reached from this site before restoring playback.
+            saveMusicPosition();
         }catch{}
-    });
-    window.addEventListener('pageshow',event=>{
-        if(!event.persisted||!exitedWebsite)return;
-        exitedWebsite=false;
-        musicStarted=false;
-        musicAttempting=false;
-        try{backgroundMusic.currentTime=0;}catch{}
-        clearStartListeners();
-        ['pointerdown','touchstart','keydown'].forEach(type=>document.addEventListener(type,startAfterInteraction,true));
-        tryStartMusic();
     });
     ['pointerdown','touchstart','keydown'].forEach(type=>document.addEventListener(type,startAfterInteraction,true));
 }
 
+const navigationReduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isPublicNavigationUrl=url=>{
+    if(url.origin!==window.location.origin)return false;
+    return /^\/(?:|profil|akademik|berita(?:\/[^/]+)?|informasi(?:\/[^/]+)?|pengumuman|ekstrakurikuler(?:\/[^/]+)?|akademik\/kegiatan\/[^/]+|spmb|ppdb|galeri|kontak)$/.test(url.pathname);
+};
+const initializePublicPage=()=>{
 const menuBtn=document.getElementById('menuBtn');
 const navLinks=document.getElementById('navLinks');
 if(menuBtn&&navLinks){
@@ -246,15 +260,17 @@ const navAnchors=[...document.querySelectorAll('.nav-links [data-nav-section]')]
 const navSections=navAnchors.map(link=>document.getElementById(link.dataset.navSection)).filter(Boolean);
 if(navAnchors.length&&navSections.length){
     let ticking=false;
+    let initialActiveSection=target?document.getElementById(target):null;
     const updateActiveNavigation=()=>{
         const marker=window.scrollY+(document.querySelector('.nav-wrap')?.offsetHeight||0)+120;
-        let activeSection=navSections[0];
-        for(const section of navSections){if(section.offsetTop<=marker)activeSection=section;else break;}
+        let activeSection=initialActiveSection||navSections[0];
+        if(!initialActiveSection)for(const section of navSections){if(section.offsetTop<=marker)activeSection=section;else break;}
         navAnchors.forEach(link=>{
             const active=link.dataset.navSection===activeSection.id;
             link.classList.toggle('active',active);
             if(active)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');
         });
+        initialActiveSection=null;
         ticking=false;
     };
     const requestActiveUpdate=()=>{if(!ticking){ticking=true;window.requestAnimationFrame(updateActiveNavigation);}};
@@ -332,5 +348,65 @@ if(galleryLightbox){
     },{passive:true});
     galleryLightbox.addEventListener('close',()=>{current=-1;image.removeAttribute('src');});
 }
+};
+
+initializePublicPage();
+
+// Only known public routes use seamless navigation. Admin, login, downloads,
+// external links, forms, and any future route retain their normal behavior.
+let publicNavigationRequest=null;
+const isSamePublicPage=url=>url.pathname===window.location.pathname&&url.search===window.location.search;
+const replacePublicPage=async(url,{historyMode='push'}={})=>{
+    publicNavigationRequest?.abort();
+    const controller=new AbortController();
+    publicNavigationRequest=controller;
+    try{
+        const response=await fetch(url,{credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'},signal:controller.signal});
+        if(!response.ok)throw new Error(`Navigation failed with ${response.status}`);
+        const nextDocument=new DOMParser().parseFromString(await response.text(),'text/html');
+        const nextHeader=nextDocument.querySelector('.nav-wrap');
+        const nextMain=nextDocument.querySelector('main');
+        const nextFooter=nextDocument.querySelector('footer.footer');
+        const nextUp=nextDocument.getElementById('upBtn');
+        // Only public pages include the music element. Other destinations retain
+        // normal browser navigation and therefore never inherit public audio.
+        if(!nextDocument.getElementById('siteBackgroundMusic')||!nextHeader||!nextMain||!nextFooter||!nextUp){
+            window.location.assign(response.url);
+            return;
+        }
+        if(historyMode==='push'){
+            history.replaceState({...history.state,scrollY:window.scrollY},'',window.location.href);
+            history.pushState({},'',response.url);
+        }
+        document.title=nextDocument.title;
+        document.body.className=nextDocument.body.className;
+        [...document.body.attributes].filter(attribute=>attribute.name.startsWith('data-')).forEach(attribute=>document.body.removeAttribute(attribute.name));
+        [...nextDocument.body.attributes].filter(attribute=>attribute.name.startsWith('data-')).forEach(attribute=>document.body.setAttribute(attribute.name,attribute.value));
+        document.querySelector('.nav-wrap')?.replaceWith(nextHeader);
+        document.querySelector('main')?.replaceWith(nextMain);
+        document.querySelector('footer.footer')?.replaceWith(nextFooter);
+        document.getElementById('upBtn')?.replaceWith(nextUp);
+        initializePublicPage();
+        const target=new URL(response.url).hash.slice(1)||document.body.dataset.scrollTarget;
+        if(target)document.getElementById(target)?.scrollIntoView({behavior:navigationReduceMotion?'auto':'smooth',block:'start'});
+        else if(historyMode==='pop'&&Number.isFinite(history.state?.scrollY))window.scrollTo({top:history.state.scrollY,behavior:'auto'});
+        else window.scrollTo({top:0,behavior:'auto'});
+    }catch(error){
+        if(error.name!=='AbortError')window.location.assign(url);
+    }finally{
+        if(publicNavigationRequest===controller)publicNavigationRequest=null;
+    }
+};
+document.addEventListener('click',event=>{
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const link=event.target.closest?.('a[href]');
+    if(!link||link.target||link.hasAttribute('download'))return;
+    let url;
+    try{url=new URL(link.href,window.location.href);}catch{return;}
+    if(!isPublicNavigationUrl(url)||isSamePublicPage(url))return;
+    event.preventDefault();
+    replacePublicPage(url.href);
+});
+window.addEventListener('popstate',()=>replacePublicPage(window.location.href,{historyMode:'pop'}));
 
 

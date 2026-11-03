@@ -121,4 +121,7 @@
 .logout-confirm:disabled{opacity:.7;cursor:wait;transform:none}
 .site-admin-toggle{border-color:#60b67c;background:linear-gradient(130deg,#68c389,#a5e2b3);color:#183e28;font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;box-shadow:0 7px 20px rgba(36,104,58,.2)}
 .site-admin-toggle:hover{border-color:#55a970;background:linear-gradient(130deg,#59b77a,#98dca8);color:#183e28;box-shadow:0 10px 24px rgba(36,104,58,.24)}
+.admin-preview .nav-wrap{padding-left:0}
+.admin-preview .site-admin-toggle--header{position:static;z-index:auto;flex:0 0 auto;margin:0;white-space:nowrap}
+@media(max-width:650px){.admin-preview .site-admin-toggle--header{min-height:40px;padding:8px 10px;font-size:.8rem}.admin-preview .brand{gap:7px}.admin-preview .brand-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media(max-width:480px){.logout-dialog,.action-confirm-dialog{padding:24px 20px;border-radius:19px}.logout-dialog-actions{flex-direction:column-reverse}.logout-dialog-actions button{width:100%}}

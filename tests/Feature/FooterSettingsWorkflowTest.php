@@ -62,6 +62,8 @@ class FooterSettingsWorkflowTest extends TestCase
             ->assertSee('Sekolah yang ramah dan berprestasi.')
             ->assertSee('sekolah@example.sch.id')
             ->assertSee('instagram.com/smpn1gondang')
-            ->assertSee('Hak cipta dilindungi.');
+            ->assertSee('Hak cipta dilindungi.')
+            ->assertSee('class="footer-watermark"', false)
+            ->assertSee('by ESEMKITA 2026');
     }
 }

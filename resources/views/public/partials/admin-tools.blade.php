@@ -1,5 +1,5 @@
 @php($adminUser = auth()->user()?->isAdmin())
-<button class="site-admin-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false"><span aria-hidden="true">☰</span><span>Kelola</span></button>
+@unless($adminMode ?? false)<button class="site-admin-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false"><span aria-hidden="true">☰</span><span>Kelola</span></button>@endunless
 <div class="site-admin-scrim" data-sidebar-close></div>
 <aside class="site-admin-sidebar sidebar" id="admin-sidebar" aria-label="Menu pengelolaan">
     <div class="site-admin-head">

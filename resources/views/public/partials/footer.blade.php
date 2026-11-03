@@ -10,7 +10,7 @@
     <div class="container">
         <div class="footer-grid">
             <div class="footer-identity">
-                <a class="footer-brand" href="{{ route('home') }}#beranda">
+                <a class="footer-brand" href="{{ route('home') }}">
                     @if($footerSettings['school_logo_path'])
                         <img class="footer-logo" src="{{ Storage::disk('public')->url($footerSettings['school_logo_path']) }}" alt="Logo {{ $footerSettings['school_name'] }}">
                     @else
@@ -44,7 +44,7 @@
                 @endif
             </div>
         </div>
-        <div class="copyright"><span>© {{ $footerSettings['copyright_year'] }} {{ $footerSettings['copyright_name'] }}</span>@if(filled($footerSettings['copyright_note']))<span>{{ $footerSettings['copyright_note'] }}</span>@endif</div>
+        <div class="copyright"><div class="copyright-primary"><span>© {{ $footerSettings['copyright_year'] }} {{ $footerSettings['copyright_name'] }}</span><span class="footer-watermark" aria-label="by ESEMKITA 2026">by ESEMKITA 2026</span></div>@if(filled($footerSettings['copyright_note']))<span>{{ $footerSettings['copyright_note'] }}</span>@endif</div>
     </div>
 </footer>
 <button class="up" id="upBtn" aria-label="Kembali ke atas">Atas</button>

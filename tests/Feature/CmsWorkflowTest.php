@@ -55,8 +55,9 @@ class CmsWorkflowTest extends TestCase
         $viewerHtml = $viewer->getContent();
         $this->assertSame(1, substr_count($viewerHtml, 'Deskripsi akademik tunggal.'));
         $this->assertSame(7, substr_count($viewerHtml, 'data-nav-section='));
+        $publicRoutes = ['beranda' => 'home', 'profil' => 'profile', 'akademik' => 'academics', 'pengumuman' => 'announcements', 'ekstrakurikuler' => 'extracurriculars', 'galeri' => 'gallery', 'kontak' => 'contact'];
         foreach ($targets as $target) {
-            $viewer->assertSee(route('home').'#'.$target, false);
+            $viewer->assertSee(route($publicRoutes[$target]), false);
             $this->assertSame(1, substr_count($viewerHtml, 'id="'.$target.'"'));
         }
 

@@ -26,7 +26,9 @@ class PublicController extends Controller
 
     public function principalGreeting(): View
     {
-        return view('public.principal-greeting', $this->publicData());
+        $adminMode = request()->routeIs('admin.principal-greeting') && request()->user()?->isAdmin();
+
+        return view('public.principal-greeting', [...$this->publicData(), 'adminMode' => $adminMode]);
     }
 
     public function article(string $slug): View
