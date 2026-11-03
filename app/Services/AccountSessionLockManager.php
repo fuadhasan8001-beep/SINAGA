@@ -59,6 +59,11 @@ class AccountSessionLockManager
             ->delete();
     }
 
+    public function revokeForUser(int $userId): void
+    {
+        DB::table('account_session_locks')->where('user_id', $userId)->delete();
+    }
+
     public function pruneExpired(): int
     {
         return DB::table('account_session_locks')
