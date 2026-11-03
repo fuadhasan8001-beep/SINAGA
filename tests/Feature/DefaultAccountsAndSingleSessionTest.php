@@ -18,7 +18,7 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         foreach (['admin', 'teacher'] as $role) {
             $this->actingAs(User::factory()->create(['role' => $role, 'active' => true]));
 
-            $response = $this->get(route('admin.dashboard'))->assertOk()
+            $response = $this->get(route($role === 'teacher' ? 'guru.dashboard' : 'admin.dashboard'))->assertOk()
                 ->assertSee('Yakin ingin keluar?')
                 ->assertSee('Apakah kamu yakin ingin mengakhiri sesi sekarang?')
                 ->assertSee('data-logout-open', false)
@@ -69,10 +69,11 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         foreach (['guru1','guru2','guru3','guru4','guru5','admin1','admin2'] as $username) {
             $user = User::where('username', $username)->firstOrFail();
 
+            $dashboard = $user->role === 'teacher' ? 'guru.dashboard' : 'admin.dashboard';
             $this->post(route('login.store'), ['username' => $username, 'password' => 'sinagajaya'])
-                ->assertRedirect(route('admin.dashboard'));
+                ->assertRedirect(route($dashboard));
             $this->assertAuthenticatedAs($user);
-            $this->get(route('admin.dashboard'))->assertOk();
+            $this->get(route($dashboard))->assertOk();
             $this->post(route('logout'))->assertRedirect(route('login'))
                 ->assertSessionHas('success', 'Kamu berhasil logout.');
             $this->get(route('login'))->assertOk()->assertSee('Kamu berhasil logout.');
@@ -87,7 +88,7 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         $guruTwo = User::where('username', 'guru2')->firstOrFail();
 
         $this->post(route('login.store'), ['username' => 'guru1', 'password' => 'sinagajaya'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('guru.dashboard'));
         $firstSessionId = (string) DB::table('account_session_locks')->where('user_id', $guruOne->id)->value('session_id');
 
         // Simulate another browser with no authenticated guard but the first browser's lock still present.
@@ -99,7 +100,7 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id, 'session_id' => $firstSessionId]);
 
         $this->post(route('login.store'), ['username' => 'guru2', 'password' => 'sinagajaya'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('guru.dashboard'));
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id, 'session_id' => $firstSessionId]);
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruTwo->id]);
 
@@ -109,7 +110,7 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id, 'session_id' => $firstSessionId]);
         app(AccountSessionLockManager::class)->release($guruOne->id, $firstSessionId);
         $this->post(route('login.store'), ['username' => 'guru1', 'password' => 'sinagajaya'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('guru.dashboard'));
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id]);
     }
 
@@ -127,7 +128,7 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         ]);
 
         $this->post(route('login.store'), ['username' => 'guru3', 'password' => 'sinagajaya'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('guru.dashboard'));
 
         $this->assertDatabaseMissing('account_session_locks', ['user_id' => $expiredUser->id, 'session_id' => 'expired-session']);
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $activeUser->id, 'session_id' => 'active-admin-session']);

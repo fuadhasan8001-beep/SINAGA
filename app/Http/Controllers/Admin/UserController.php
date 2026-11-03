@@ -10,6 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -33,24 +35,40 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:254', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'max:200'],
         ]);
+        $username = $this->uniqueUsernameFromName($data['name']);
 
-        DB::transaction(function () use ($data, $request): void {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
-                'role' => 'teacher',
-                'active' => true,
-            ]);
+        try {
+            DB::transaction(function () use ($data, $request, $username): void {
+                $user = User::create([
+                    'name' => $data['name'],
+                    'username' => $username,
+                    'email' => $data['email'],
+                    'password' => Hash::make($data['password']),
+                    'role' => 'teacher',
+                    'active' => true,
+                ]);
 
-            ActivityLog::create([
-                'user_id' => $request->user()->id,
-                'action' => 'buat akun guru',
-                'detail' => $user->email,
-            ]);
-        });
+                ActivityLog::create([
+                    'user_id' => $request->user()->id,
+                    'action' => 'buat akun guru',
+                    'detail' => $user->email,
+                ]);
+            });
+        } catch (QueryException $exception) {
+            report($exception);
+            $sqlState = $exception->errorInfo[0] ?? null;
+            $databaseMessage = strtolower($exception->getMessage());
+            $duplicateEmail = $sqlState === '23000'
+                && str_contains($databaseMessage, 'email')
+                && (str_contains($databaseMessage, 'unique') || str_contains($databaseMessage, 'duplicate'));
+            $message = $duplicateEmail
+                ? 'Email sudah digunakan.'
+                : 'Terjadi kesalahan database saat menyimpan akun Guru. Silakan coba lagi.';
 
-        return back()->with('success', 'Akun Guru berhasil dibuat.');
+            return back()->withInput($request->except(['_token', 'password']))->withErrors(['account' => $message]);
+        }
+
+        return back()->with('success', 'Akun Guru berhasil dibuat. Username login: '.$username);
     }
 
     public function update(Request $request,User $user): RedirectResponse
@@ -91,10 +109,44 @@ class UserController extends Controller
 
         return back()->with('success', 'Akun Guru diperbarui.');
     }
+
+    public function destroy(Request $request, User $user, AccountSessionLockManager $locks): RedirectResponse
+    {
+        abort_unless($user->role === 'teacher', 404);
+
+        $identity = $user->name.' ('.$user->email.')';
+
+        DB::transaction(function () use ($request, $user, $locks, $identity): void {
+            $locks->revokeForUser($user->id);
+            $user->delete();
+
+            ActivityLog::create([
+                'user_id' => $request->user()->id,
+                'action' => 'hapus akun guru',
+                'detail' => $identity,
+            ]);
+        });
+
+        return back()->with('success', 'Akun Guru berhasil dihapus.');
+    }
+
     public function profile(Request $request): RedirectResponse
     {
         $data=$request->validate(['name'=>['required','string','min:2','max:120'],'current_password'=>['required_with:new_password','current_password'],'new_password'=>['nullable','string','min:8','max:200','confirmed']]);
         $user=$request->user();$user->name=$data['name'];if(!empty($data['new_password']))$user->password=Hash::make($data['new_password']);$user->save();
         return back()->with('success','Profil diperbarui.');
+    }
+
+    private function uniqueUsernameFromName(string $name): string
+    {
+        $base = trim($name);
+        $username = $base;
+        $suffix = 2;
+
+        while (User::whereRaw('LOWER(username) = ?', [Str::lower($username)])->exists()) {
+            $username = $base.' '.$suffix++;
+        }
+
+        return $username;
     }
 }

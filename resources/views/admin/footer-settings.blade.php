@@ -3,7 +3,7 @@
 @section('heading', 'Pengaturan Footer')
 @section('subtitle', 'Kelola deskripsi footer, tautan navigasi, kontak, media sosial, dan copyright website.')
 @section('content')
-<form method="post" action="{{ route('admin.footer.update') }}" class="panel footer-settings-form">
+<form method="post" action="{{ $panelRoute('admin.footer.update') }}" class="panel footer-settings-form">
     @csrf @method('PUT')
     <section class="footer-settings-section">
         <div class="footer-settings-heading"><span>01</span><div><h2>Informasi Footer</h2><p>Nama sekolah, slogan, dan logo dikelola di halaman Kelola Profil.</p></div></div>
@@ -51,7 +51,7 @@
             <label class="footer-copyright-note">Keterangan tambahan<input name="footer_copyright_note" maxlength="240" value="{{ old('footer_copyright_note', $settings->get('footer_copyright_note', '')) }}">@error('footer_copyright_note')<small class="error">{{ $message }}</small>@enderror</label>
         </div>
     </section>
-    <div class="footer-settings-actions"><a class="secondary" href="{{ route('admin.dashboard') }}">Kembali</a><button class="primary">Simpan pengaturan footer</button></div>
+    <div class="footer-settings-actions"><a class="secondary" href="{{ $panelRoute('admin.dashboard') }}">Kembali</a><button class="primary">Simpan pengaturan footer</button></div>
 </form>
 <template id="footer-navigation-template"><div class="footer-repeat-row"><label>Nama tautan<input data-name="label" required maxlength="80"></label><label>Alamat tautan<input data-name="url" required maxlength="500" placeholder="/#profil atau https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus tautan">Hapus</button></div></template>
 <template id="footer-social-template"><div class="footer-repeat-row"><label>Platform<input data-name="label" maxlength="80"></label><label>URL profil<input type="url" data-name="url" maxlength="500" placeholder="https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus media sosial">Hapus</button></div></template>

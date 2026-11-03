@@ -11,7 +11,7 @@
         $announcementPublished = old('published', $entry->exists ? (int) $entry->published : 1);
     }
 @endphp
-<form class="panel profile-form content-form{{ $type === 'extracurricular' ? ' extracurricular-form' : '' }}{{ $type === 'gallery' ? ' gallery-form' : '' }}" method="post" enctype="multipart/form-data" action="{{ $entry->exists?route('admin.content.update',[$type,$entry]):route('admin.content.store',$type) }}">
+<form class="panel profile-form content-form{{ $type === 'extracurricular' ? ' extracurricular-form' : '' }}{{ $type === 'gallery' ? ' gallery-form' : '' }}" method="post" enctype="multipart/form-data" action="{{ $entry->exists?$panelRoute('admin.content.update',[$type,$entry]):$panelRoute('admin.content.store',$type) }}">
     @csrf @if($entry->exists)@method('PUT')@endif
     @if($type === 'gallery')
         <label for="galleryTitle">Judul
@@ -153,6 +153,6 @@
         @if($type==='document')<label>File dokumen (PDF, Word, Excel, PowerPoint · maksimal 10 MB)<input type="file" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"></label>@if($entry->document_path)<a href="{{ Storage::disk('public')->url($entry->document_path) }}" target="_blank" rel="noopener">Lihat dokumen saat ini</a>@endif @endif
         @unless(in_array($type,$academicTypes,true))<label>Urutan tampil<input type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$entry->sort_order??0) }}"></label><label>Metadata tambahan (JSON, opsional)<textarea name="metadata_json" rows="3" placeholder='{"alt":"Teks alternatif foto","kelas":"..."}'>{{ old('metadata_json',json_encode($entry->metadata??[],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea></label>@endunless @if($type !== 'announcement' && !in_array($type,$academicTypes,true))<label class="remember"><input type="checkbox" name="published" value="1" @checked(old('published',$entry->published))> Tayang di website</label>@endif
     @endif
-    <div class="actions"><a class="secondary" href="{{ in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? route('admin.settings.edit',['section'=>'academic','edit'=>1]) : route('admin.content.index',$type) }}">Kembali</a><button class="primary">Simpan</button></div>
+    <div class="actions"><a class="secondary" href="{{ in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? $panelRoute('admin.settings.edit',['section'=>'academic','edit'=>1]) : $panelRoute('admin.content.index',$type) }}">Kembali</a><button class="primary">Simpan</button></div>
 </form>
 @endsection

@@ -33,8 +33,32 @@ class PublicController extends Controller
     {
         $article = Article::published()->with(['author', 'category'])->where('slug', $slug)->firstOrFail();
         $adminMode = request()->routeIs('admin.website.article') && request()->user()?->isAdmin();
+        $relatedArticles = Article::published()
+            ->with(['author', 'category'])
+            ->whereKeyNot($article->id)
+            ->when($article->category_id, fn ($query) => $query->where('category_id', $article->category_id))
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
 
-        return view('public.article', ['article' => $article, 'adminMode' => $adminMode]);
+        return view('public.article', [
+            'article' => $article,
+            'relatedArticles' => $relatedArticles,
+            'settings' => $this->websiteSettings(),
+            'adminMode' => $adminMode,
+        ]);
+    }
+
+    public function articles(): View
+    {
+        return view('public.articles', [
+            'articles' => Article::published()
+                ->with(['author', 'category'])
+                ->latest('published_at')
+                ->paginate(9),
+            'settings' => $this->websiteSettings(),
+            'adminMode' => false,
+        ]);
     }
 
     public function extracurricular(string $slug): View
@@ -87,6 +111,11 @@ class PublicController extends Controller
     private function publicViewData(): array
     {
         return [...$this->publicData(),'adminMode'=>false];
+    }
+
+    private function websiteSettings()
+    {
+        return SiteSetting::query()->pluck('value', 'key')->map(fn ($value) => json_decode($value, true) ?? $value);
     }
 
     private function contentDetail(string $type, string $slug, string $sectionTitle, string $backUrl): View

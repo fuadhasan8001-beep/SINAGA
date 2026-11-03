@@ -21,6 +21,8 @@ Route::get('/profil/sambutan-kepala-sekolah',[PublicController::class,'principal
 Route::get('/akademik',[PublicController::class,'section'])->defaults('section','akademik')->name('academics');
 Route::get('/berita',[PublicController::class,'home'])->name('news');
 Route::get('/berita/{slug}',[PublicController::class,'article'])->name('article.show');
+Route::get('/informasi',[PublicController::class,'articles'])->name('information.articles');
+Route::get('/informasi/{slug}',[PublicController::class,'article'])->name('information.article');
 Route::get('/pengumuman',[PublicController::class,'section'])->defaults('section','pengumuman')->name('announcements');
 Route::get('/ekstrakurikuler',[PublicController::class,'section'])->defaults('section','ekskul')->name('extracurriculars');
 Route::get('/ekstrakurikuler/{slug}',[PublicController::class,'extracurricular'])->name('extracurriculars.show');
@@ -33,10 +35,9 @@ Route::post('/kontak',[PublicController::class,'contact'])->middleware('throttle
 
 Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'showLogin'])->name('login');Route::post('/login',[AuthController::class,'login'])->middleware('throttle:5,1')->name('login.store');});
 Route::post('/logout',[AuthController::class,'logout'])->middleware(['auth','account.session'])->name('logout');
-Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','role:admin,teacher'])->group(function(){
-    Route::get('/',DashboardController::class)->name('dashboard');
-    Route::get('/profile',[UserController::class,'editProfile'])->name('profile.edit');
-    Route::put('/profile',[UserController::class,'profile'])->name('profile.update');
+Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','role:admin'])->group(function(){
+    Route::get('/', fn () => redirect()->route('admin.dashboard'))->name('root');
+    Route::get('/dashboard',DashboardController::class)->name('dashboard');
     Route::get('/articles',[ArticleController::class,'index'])->name('articles.index');
     Route::get('/articles/create',[ArticleController::class,'create'])->name('articles.create');
     Route::post('/articles',[ArticleController::class,'store'])->name('articles.store');
@@ -49,6 +50,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
     Route::get('/articles/{article}/edit',[ArticleController::class,'edit'])->name('articles.edit');
     Route::put('/articles/{article}',[ArticleController::class,'update'])->name('articles.update');
     Route::delete('/articles/{article}',[ArticleController::class,'destroy'])->name('articles.destroy');
+    Route::patch('/content/gallery/order',[ContentEntryController::class,'reorderGallery'])->name('content.gallery.reorder');
+    Route::get('/content/{type}',[ContentEntryController::class,'index'])->name('content.index');
+    Route::get('/content/{type}/create',[ContentEntryController::class,'create'])->name('content.create');
+    Route::post('/content/{type}',[ContentEntryController::class,'store'])->name('content.store');
+    Route::get('/content/{type}/{entry}/edit',[ContentEntryController::class,'edit'])->name('content.edit');
+    Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
+    Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
     Route::middleware('role:admin')->group(function(){
         Route::get('/website/articles/{slug}',[PublicController::class,'article'])->name('website.article');
         Route::get('/photos/{placement}/edit',[PhotoController::class,'edit'])->name('photos.edit');
@@ -90,13 +98,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
         Route::get('/users',[UserController::class,'index'])->name('users.index');
         Route::post('/users',[UserController::class,'store'])->name('users.store');
         Route::put('/users/{user}',[UserController::class,'update'])->name('users.update');
-        Route::patch('/content/gallery/order',[ContentEntryController::class,'reorderGallery'])->name('content.gallery.reorder');
-        Route::get('/content/{type}',[ContentEntryController::class,'index'])->name('content.index');
-        Route::get('/content/{type}/create',[ContentEntryController::class,'create'])->name('content.create');
-        Route::post('/content/{type}',[ContentEntryController::class,'store'])->name('content.store');
-        Route::get('/content/{type}/{entry}/edit',[ContentEntryController::class,'edit'])->name('content.edit');
-        Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
-        Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
+        Route::delete('/users/{user}',[UserController::class,'destroy'])->name('users.destroy');
+        Route::get('/profile',[UserController::class,'editProfile'])->name('profile.edit');
+        Route::put('/profile',[UserController::class,'profile'])->name('profile.update');
         Route::get('/settings',[SettingsController::class,'edit'])->name('settings.edit');
         Route::put('/settings',[SettingsController::class,'update'])->name('settings.update');
         Route::get('/footer-settings',[FooterSettingsController::class,'edit'])->name('footer.edit');
@@ -105,4 +109,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
         Route::patch('/messages/{message}',[ContactMessageController::class,'markRead'])->name('messages.read');
         Route::delete('/messages/{message}',[ContactMessageController::class,'destroy'])->name('messages.destroy');
     });
+});
+
+Route::prefix('guru')->name('guru.')->middleware(['auth','account.session','role:teacher'])->group(function(){
+    Route::get('/dashboard',DashboardController::class)->name('dashboard');
+    Route::get('/articles',[ArticleController::class,'index'])->name('articles.index');
+    Route::get('/articles/create',[ArticleController::class,'create'])->name('articles.create');
+    Route::post('/articles',[ArticleController::class,'store'])->name('articles.store');
+    Route::post('/articles/media',[ArticleController::class,'uploadImage'])->name('articles.media');
+    Route::post('/articles/import-docx',[ArticleController::class,'importDocx'])->name('articles.import');
+    Route::get('/articles/{article}/edit',[ArticleController::class,'edit'])->name('articles.edit');
+    Route::put('/articles/{article}',[ArticleController::class,'update'])->name('articles.update');
+    Route::delete('/articles/{article}',[ArticleController::class,'destroy'])->name('articles.destroy');
+    Route::patch('/content/gallery/order',[ContentEntryController::class,'reorderGallery'])->name('content.gallery.reorder');
+    Route::get('/content/{type}',[ContentEntryController::class,'index'])->name('content.index');
+    Route::get('/content/{type}/create',[ContentEntryController::class,'create'])->name('content.create');
+    Route::post('/content/{type}',[ContentEntryController::class,'store'])->name('content.store');
+    Route::get('/content/{type}/{entry}/edit',[ContentEntryController::class,'edit'])->name('content.edit');
+    Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
+    Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
 });

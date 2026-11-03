@@ -21,6 +21,34 @@ logoutOpen?.addEventListener('click',()=>{if(!logoutDialog?.open)logoutDialog?.s
 logoutCancel?.addEventListener('click',()=>logoutDialog?.close());
 logoutConfirm?.addEventListener('click',()=>{if(logoutForm&&!logoutConfirm.disabled){logoutConfirm.disabled=true;logoutConfirm.textContent='Keluar…';logoutForm.requestSubmit()}});
 logoutDialog?.addEventListener('close',()=>logoutOpen?.focus());
+const actionDialog=document.getElementById('actionConfirmDialog'),actionTitle=document.getElementById('actionConfirmTitle'),actionDescription=document.getElementById('actionConfirmDescription'),actionCancel=document.querySelector('[data-action-cancel]'),actionConfirm=document.querySelector('[data-action-confirm]');
+let pendingActionForm=null,pendingActionButton=null;
+document.addEventListener('click',event=>{
+    const trigger=event.target.closest('[data-confirm-action]');
+    if(!trigger||!actionDialog)return;
+    event.preventDefault();
+    if(actionDialog.open)return;
+    pendingActionForm=trigger.form;
+    pendingActionButton=trigger;
+    actionTitle.textContent=trigger.dataset.confirmTitle||'Konfirmasi penghapusan';
+    actionDescription.textContent=trigger.dataset.confirmDescription||'Tindakan ini tidak dapat dibatalkan.';
+    actionConfirm.textContent=trigger.dataset.confirmLabel||'Ya, Hapus';
+    actionConfirm.disabled=false;
+    actionDialog.showModal();
+    actionCancel?.focus();
+});
+actionCancel?.addEventListener('click',()=>actionDialog?.close());
+actionConfirm?.addEventListener('click',()=>{
+    if(!pendingActionForm||actionConfirm.disabled)return;
+    actionConfirm.disabled=true;
+    actionConfirm.textContent='Memproses…';
+    pendingActionForm.requestSubmit();
+});
+actionDialog?.addEventListener('close',()=>{
+    if(!actionConfirm?.disabled)pendingActionButton?.focus();
+    pendingActionForm=null;
+    pendingActionButton=null;
+});
 if(document.body.classList.contains('admin-preview')){
     const academicManagementUrl=document.querySelector('#admin-sidebar a[href*="section=academic"]')?.href;
     const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],akademik:[academicManagementUrl,'Edit akademik'],pengumuman:['/admin/content/announcement/create','Tambah pengumuman'],ekstrakurikuler:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
@@ -139,6 +167,8 @@ if(editorForm){
     document.getElementById('docxFile')?.addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;const data=new FormData();data.append('file',file);try{const response=await fetch(editorForm.dataset.docxUrl,{method:'POST',headers:{'X-CSRF-TOKEN':csrf,'Accept':'application/json'},body:data,credentials:'same-origin'});const result=await response.json();if(!response.ok)throw new Error(result.message||'Dokumen Word tidak dapat diproses.');editor.innerHTML=result.html;const notice=document.getElementById('importNotice');notice.textContent=result.warnings?.length?`Dokumen diimpor dengan catatan: ${result.warnings.join(' · ')}`:'Teks, format dasar, dan gambar tertanam telah dimuat. Periksa hasilnya sebelum menyimpan.';notice.hidden=false}catch(error){alert(error.message)}});
     editorForm.querySelectorAll('[data-intent]').forEach(button=>button.addEventListener('click',()=>document.getElementById('intent').value=button.dataset.intent));
     editorForm.addEventListener('submit',()=>bodyField.value=editor.innerHTML);
-    editorForm.elements.title.addEventListener('input',()=>{slugPreview.value=editorForm.elements.title.value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/[\s_-]+/g,'-').replace(/^-|-$/g,'')});
+    let slugWasEdited=false;
+    slugPreview?.addEventListener('input',()=>{slugWasEdited=true});
+    editorForm.elements.title.addEventListener('input',()=>{if(!slugWasEdited&&slugPreview)slugPreview.value=editorForm.elements.title.value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/[\s_-]+/g,'-').replace(/^-|-$/g,'')});
     document.getElementById('previewBtn')?.addEventListener('click',()=>{const preview=document.getElementById('preview');if(preview.hidden){preview.innerHTML=`<h2>${editorForm.elements.title.value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))||'Pratinjau artikel'}</h2>${safeHtml(editor.innerHTML)}`;preview.hidden=false}else preview.hidden=true});
 }

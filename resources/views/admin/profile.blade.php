@@ -13,7 +13,7 @@
         ];
     @endphp
 
-    <form method="post" action="{{ route('admin.profile.update') }}" class="panel profile-form account-profile-form">
+    <form method="post" action="{{ $panelRoute('admin.profile.update') }}" class="panel profile-form account-profile-form">
         @csrf
         @method('PUT')
 
@@ -46,7 +46,7 @@
         @endforeach
 
         <div class="actions account-profile-actions">
-            <a class="secondary" href="{{ route('admin.dashboard') }}">Batal</a>
+            <a class="secondary" href="{{ $panelRoute('admin.dashboard') }}">Batal</a>
             <button class="primary" type="submit">Simpan perubahan</button>
         </div>
     </form>

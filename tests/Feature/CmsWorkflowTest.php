@@ -65,7 +65,9 @@ class CmsWorkflowTest extends TestCase
         $this->assertSame(7, substr_count($adminHtml, 'data-nav-section='));
         $this->assertSame(1, substr_count($adminHtml, 'Deskripsi akademik tunggal.'));
         foreach ($targets as $target) {
-            $adminPage->assertSee(route('admin.dashboard').'#'.$target, false);
+            $adminPage->assertSee(in_array($target, ['pengumuman', 'galeri'], true)
+                ? route('admin.content.index', $target === 'galeri' ? 'gallery' : 'announcement')
+                : route('admin.dashboard').'#'.$target, false);
             $this->assertSame(1, substr_count($adminHtml, 'id="'.$target.'"'));
         }
     }
@@ -86,38 +88,35 @@ class CmsWorkflowTest extends TestCase
         $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
 
         $article=Article::create(['author_id'=>$teacher->id,'title'=>'Draf Guru Uji','slug'=>'draf-guru-uji','body'=>'<p>Isi.</p>','status'=>'draft']);
-        $this->actingAs($teacher)->get(route('admin.dashboard'))->assertOk()->assertDontSee(route('admin.users.index'), false);
+        $this->actingAs($teacher)->get(route('guru.dashboard'))->assertOk()->assertDontSee(route('admin.users.index'), false);
         $this->get(route('admin.users.index'))->assertForbidden();
-        $this->get(route('admin.articles.edit',$article))->assertOk();
+        $this->get(route('guru.articles.edit',$article))->assertOk();
         $this->get(route('admin.articles.reviews'))->assertForbidden();
         $inactive=User::factory()->create(['role'=>'teacher','active'=>false]);
         $this->actingAs($inactive)->get(route('admin.dashboard'))->assertRedirect(route('login'));
     }
 
-    public function test_teacher_ownership_and_admin_approval_workflow(): void
+    public function test_teacher_and_admin_share_article_workflow_while_author_identity_is_preserved(): void
     {
         $admin=User::factory()->create(['role'=>'admin','active'=>true]);
         $teacher=User::factory()->create(['role'=>'teacher','active'=>true]);
         $other=User::factory()->create(['role'=>'teacher','active'=>true]);
         Category::create(['name'=>'Berita Uji','slug'=>'berita-uji']);
         $this->actingAs($teacher);
-        $response=$this->post(route('admin.articles.store'),['title'=>'Artikel Guru','excerpt'=>'Ringkasan','category_id'=>1,'body'=>'<h2>Aman</h2><script>alert(1)</script>','intent'=>'review']);
+        $response=$this->post(route('guru.articles.store'),['title'=>'Artikel Guru','excerpt'=>'Ringkasan','category_id'=>1,'body'=>'<h2>Aman</h2><script>alert(1)</script>','intent'=>'review']);
         $article=Article::where('title','Artikel Guru')->firstOrFail();
-        $response->assertRedirect(route('admin.articles.edit',$article));
-        $this->assertSame('pending',$article->status);
+        $response->assertRedirect(route('guru.dashboard'));
+        $this->assertSame('published',$article->status);
         $this->assertStringNotContainsString('<script>',$article->body);
         $foreign=Article::create(['author_id'=>$other->id,'title'=>'Punya Guru Lain','slug'=>'guru-lain','body'=>'<p>Pribadi.</p>','status'=>'draft']);
-        $this->put(route('admin.articles.update',$foreign),['title'=>'Diubah','body'=>'<p>x</p>'])->assertForbidden();
-        $this->put(route('admin.articles.update',$article),['title'=>'Tidak boleh','body'=>'<p>x</p>'])->assertForbidden();
-
-        $this->actingAs($admin)->post(route('admin.articles.review',$article),['action'=>'revision','note'=>'Tambahkan sumber.'])->assertRedirect();
-        $article->refresh();$this->assertSame('revision',$article->status);$this->assertSame('Tambahkan sumber.',$article->revision_note);
-        $this->actingAs($teacher)->put(route('admin.articles.update',$article),['title'=>'Artikel Diperbaiki','body'=>'<h2>Diperbaiki</h2><p>Isi lengkap.</p>','intent'=>'review'])->assertRedirect();
-        $article->refresh();$this->assertSame('pending',$article->status);
-        $this->actingAs($admin)->post(route('admin.articles.review',$article),['action'=>'publish'])->assertRedirect();
+        $this->put(route('guru.articles.update',$foreign),['title'=>'Diubah Guru','body'=>'<p>Diperbarui.</p>','intent'=>'review'])->assertRedirect();
+        $foreign->refresh();
+        $this->assertSame($other->id,$foreign->author_id);
+        $this->assertSame($teacher->id,$foreign->updated_by);
+        $this->put(route('guru.articles.update',$article),['title'=>'Artikel Diperbaiki','body'=>'<h2>Diperbaiki</h2><p>Isi lengkap.</p>','intent'=>'review'])->assertRedirect();
         $article->refresh();$this->assertSame('published',$article->status);
         $this->get(route('article.show',$article->slug))->assertOk()->assertSee('Diperbaiki');
-        $this->post(route('admin.articles.unpublish',$article))->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.articles.unpublish',$article))->assertRedirect();
         $article->refresh();$this->assertSame('draft',$article->status);
         $this->assertGreaterThanOrEqual(4,ActivityLog::count());
     }
@@ -210,13 +209,13 @@ class CmsWorkflowTest extends TestCase
             ->assertSee(route('admin.dashboard').'#beranda', false)
             ->assertSee(route('admin.dashboard').'#profil', false)
             ->assertSee(route('admin.dashboard').'#akademik', false)
-            ->assertSee(route('admin.dashboard').'#pengumuman', false)
+            ->assertSee(route('admin.content.index', 'announcement'), false)
             ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
-            ->assertSee(route('admin.dashboard').'#galeri', false)
+            ->assertSee(route('admin.content.index', 'gallery'), false)
             ->assertSee(route('admin.dashboard').'#kontak', false)
             ->assertSee(route('admin.settings.edit'), false)
-            ->assertDontSee(route('admin.articles.index'), false)
-            ->assertDontSee(route('admin.articles.reviews'), false)
+            ->assertSee(route('admin.articles.index'), false)
+            ->assertSee(route('admin.articles.reviews'), false)
             ->assertDontSee(route('admin.content.index', 'event'), false)
             ->assertSee(route('admin.content.index', 'announcement'), false)
             ->assertSee(route('admin.content.index', 'extracurricular'), false)
@@ -306,18 +305,16 @@ class CmsWorkflowTest extends TestCase
         Storage::fake('public');$teacher=User::factory()->create(['role'=>'teacher','active'=>true]);$this->actingAs($teacher);
         $path=base_path('tests/fixtures/sample-with-image.docx');
         $upload=new UploadedFile($path,'sample-with-image.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document',null,true);
-        $response=$this->postJson(route('admin.articles.import'),['file'=>$upload])->assertOk();
+        $response=$this->postJson(route('guru.articles.import'),['file'=>$upload])->assertOk();
         $html=$response->json('html');
         $this->assertStringContainsString('Judul dari Word',$html);$this->assertStringContainsString('Paragraf setelah gambar',$html);
         $this->assertMatchesRegularExpression('~src="/storage/media/[a-f0-9-]+\.png"~',$html);
         $image=MediaAsset::firstOrFail();$this->assertTrue(Storage::disk('public')->exists($image->path));
-        $this->post(route('admin.articles.store'),['title'=>'Hasil Impor Word','body'=>$html,'intent'=>'review'])->assertRedirect();
+        $this->post(route('guru.articles.store'),['title'=>'Hasil Impor Word','body'=>$html,'intent'=>'review'])->assertRedirect();
         $article=Article::where('title','Hasil Impor Word')->firstOrFail();
-        $this->assertSame('pending',$article->status);$this->assertStringContainsString('/storage/media/',$article->body);
-        $admin=User::factory()->create(['role'=>'admin','active'=>true]);
-        $this->actingAs($admin)->post(route('admin.articles.review',$article),['action'=>'publish'])->assertRedirect();
+        $this->assertSame('published',$article->status);$this->assertStringContainsString('/storage/media/',$article->body);
         $this->get(route('article.show',$article->slug))->assertOk()->assertSee('/storage/media/');
         $bad=new UploadedFile(tempnam(sys_get_temp_dir(),'bad-docx'),'bad.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document',null,true);
-        $this->postJson(route('admin.articles.import'),['file'=>$bad])->assertUnprocessable();
+        $this->postJson(route('guru.articles.import'),['file'=>$bad])->assertUnprocessable();
     }
 }

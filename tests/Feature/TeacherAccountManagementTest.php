@@ -18,6 +18,7 @@ class TeacherAccountManagementTest extends TestCase
             ->assertSee('Buat Akun Guru')
             ->assertSee('Minimal 8 karakter. Kata sandi hanya ditampilkan kepada Admin saat dibuat.')
             ->assertSee('teacher-account-create')
+            ->assertSee('data-password-toggle', false)
             ->assertSee('teacher-account-table-wrap');
 
         $this->post(route('admin.users.store'), [
@@ -25,14 +26,50 @@ class TeacherAccountManagementTest extends TestCase
             'email' => 'guru.delapan@example.test',
             'password' => 'password',
             'role' => 'admin', // Role is never accepted from the form.
-        ])->assertRedirect()->assertSessionHas('success', 'Akun Guru berhasil dibuat.');
+        ])->assertRedirect()->assertSessionHas('success', 'Akun Guru berhasil dibuat. Username login: Guru Delapan');
 
+        $this->assertAuthenticatedAs($admin);
+        $this->get(route('admin.users.index'))->assertOk()->assertSee('guru.delapan@example.test')->assertSee('Username login: Guru Delapan');
         $teacher = User::where('email', 'guru.delapan@example.test')->firstOrFail();
         $this->assertSame('teacher', $teacher->role);
+        $this->assertSame('Guru Delapan', $teacher->username);
         $this->assertTrue($teacher->active);
         $this->assertNotSame('password', $teacher->password);
         $this->assertTrue(Hash::check('password', $teacher->password));
         $this->assertDatabaseCount('users', 2);
+
+        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('login.store'), [
+            'username' => 'GURU DELAPAN',
+            'password' => 'password',
+        ])->assertRedirect(route('guru.dashboard'));
+        $this->assertAuthenticatedAs($teacher);
+        $this->get(route('guru.dashboard'))->assertOk()->assertSee('Kelola Konten');
+
+        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('login.store'), [
+            'email' => $teacher->email,
+            'password' => 'password',
+        ])->assertRedirect(route('guru.dashboard'));
+        $this->assertAuthenticatedAs($teacher);
+    }
+
+    public function test_legacy_teacher_without_username_can_log_in_using_unique_email_local_part(): void
+    {
+        $teacher = User::factory()->create([
+            'role' => 'teacher',
+            'active' => true,
+            'username' => null,
+            'email' => 'promax@example.test',
+            'password' => Hash::make('teacher-pass-8'),
+        ]);
+
+        $this->post(route('login.store'), [
+            'username' => 'promax',
+            'password' => 'teacher-pass-8',
+        ])->assertRedirect(route('guru.dashboard'));
+
+        $this->assertAuthenticatedAs($teacher);
     }
 
     public function test_create_validation_rejects_short_password_duplicate_email_empty_name_and_invalid_email(): void
@@ -134,7 +171,7 @@ class TeacherAccountManagementTest extends TestCase
 
         auth()->logout();
         $this->post(route('login.store'), ['username' => $teacher->email, 'password' => 'teacher123'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('guru.dashboard'));
         $this->assertAuthenticatedAs($teacher->fresh());
     }
 }

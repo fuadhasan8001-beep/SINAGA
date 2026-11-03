@@ -15,8 +15,8 @@
                         <td>{{ $item->created_at->format('d M Y H:i') }}</td>
                         <td><span class="pill {{ $item->read_at?'published':'draft' }}">{{ $item->read_at?'Sudah dibaca':'Belum dibaca' }}</span></td>
                         <td><div class="row-actions">
-                            @if(!$item->read_at)<form method="post" action="{{ route('admin.messages.read',$item) }}">@csrf @method('PATCH')<button class="tiny">Tandai dibaca</button></form>@endif
-                            <form method="post" action="{{ route('admin.messages.destroy',$item) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus pesan ini?')">Hapus</button></form>
+                            @if(!$item->read_at)<form method="post" action="{{ $panelRoute('admin.messages.read',$item) }}">@csrf @method('PATCH')<button class="tiny">Tandai dibaca</button></form>@endif
+                            <form method="post" action="{{ $panelRoute('admin.messages.destroy',$item) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus pesan ini?')">Hapus</button></form>
                         </div></td>
                     </tr>
                 @empty
@@ -38,8 +38,8 @@
                 </div>
                 <p class="message-received"><span>Diterima</span><time datetime="{{ $item->created_at->toIso8601String() }}">{{ $item->created_at->format('d M Y H:i') }}</time></p>
                 <div class="record-card-actions message-card-actions">
-                    @if(!$item->read_at)<form method="post" action="{{ route('admin.messages.read',$item) }}">@csrf @method('PATCH')<button class="tiny">Tandai dibaca</button></form>@endif
-                    <form method="post" action="{{ route('admin.messages.destroy',$item) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus pesan ini?')">Hapus</button></form>
+                    @if(!$item->read_at)<form method="post" action="{{ $panelRoute('admin.messages.read',$item) }}">@csrf @method('PATCH')<button class="tiny">Tandai dibaca</button></form>@endif
+                    <form method="post" action="{{ $panelRoute('admin.messages.destroy',$item) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus pesan ini?')">Hapus</button></form>
                 </div>
             </article>
         @empty

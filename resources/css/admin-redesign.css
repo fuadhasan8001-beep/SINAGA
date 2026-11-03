@@ -70,6 +70,13 @@ button:disabled,.primary:disabled{cursor:not-allowed;opacity:.58;box-shadow:none
 .teacher-account-form>label,.teacher-account-edit>label{display:grid;align-content:start;gap:7px;min-width:0;color:#35473b;font-size:.84rem;font-weight:700}
 .teacher-account-form input,.teacher-account-edit input:not([type=checkbox]):not([type=hidden]){box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d6e2d9;border-radius:11px;background:#fff;color:#25352d;font:500 .88rem "Plus Jakarta Sans",sans-serif}
 .teacher-account-form input:focus,.teacher-account-edit input:focus{border-color:#70bd88;outline:0;box-shadow:0 0 0 3px rgba(112,189,136,.18)}
+.teacher-password-input{position:relative;display:block;min-width:0}
+.teacher-password-input input{padding-right:48px!important}
+.teacher-password-toggle{position:absolute;top:50%;right:10px;display:grid;width:30px;height:30px;place-items:center;padding:4px;transform:translateY(-50%);border:0;border-radius:7px;background:transparent;color:#607568;cursor:pointer}
+.teacher-password-toggle:hover{background:#edf7ef;color:#245b35}
+.teacher-password-toggle:focus-visible{outline:2px solid #70bd88;outline-offset:2px}
+.teacher-password-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+.teacher-password-toggle svg[hidden]{display:none!important}
 .teacher-account-form .teacher-password-field{grid-column:1/-1}
 .teacher-account-form .hint{color:#718076;line-height:1.5}
 .teacher-create-submit{justify-self:start;min-width:176px;min-height:44px;border-radius:11px;font-weight:750}
@@ -88,6 +95,9 @@ button:disabled,.primary:disabled{cursor:not-allowed;opacity:.58;box-shadow:none
 .teacher-account-edit .teacher-account-active{display:flex;align-items:center;gap:6px;min-height:38px;white-space:nowrap;font-size:.73rem}
 .teacher-account-edit .teacher-account-active input[type=checkbox]{width:17px;height:17px;accent-color:#43885b}
 .teacher-account-edit .tiny{min-height:38px;padding-inline:12px;white-space:nowrap}
+.teacher-account-delete{display:flex;justify-content:flex-end;margin-top:6px}
+.teacher-account-delete .tiny{border-radius:10px}
+.gallery-admin-author{margin:4px 0 0;color:#718075;font-size:.72rem}
 .teacher-account-security-note{max-width:760px}
 @media(max-width:1100px){.teacher-account-edit{grid-template-columns:repeat(2,minmax(140px,1fr))}.teacher-account-edit .teacher-account-active{justify-self:start}.teacher-account-table{min-width:850px}}
 @media(max-width:720px){.admin-manage .teacher-account-create{gap:16px;padding:18px}.teacher-account-form{grid-template-columns:minmax(0,1fr)}.teacher-account-form .teacher-password-field{grid-column:auto}.teacher-create-submit{width:100%;justify-self:stretch}.teacher-account-list__header{padding:15px 16px}.teacher-account-edit{grid-template-columns:repeat(2,minmax(125px,1fr))}.teacher-account-table{min-width:760px}}

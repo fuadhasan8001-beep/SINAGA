@@ -21,7 +21,7 @@
             </div>
         @endif
 
-        <form method="post" action="{{ route('admin.users.store') }}" class="teacher-account-form">
+        <form method="post" action="{{ $panelRoute('admin.users.store') }}" class="teacher-account-form">
             @csrf
             <label for="teacherName">
                 Nama
@@ -35,7 +35,13 @@
             </label>
             <label class="teacher-password-field" for="teacherPassword">
                 Kata Sandi Awal
-                <input id="teacherPassword" type="password" name="password" required minlength="8" maxlength="200" autocomplete="new-password" aria-describedby="teacherPasswordHint">
+                <span class="teacher-password-input">
+                    <input id="teacherPassword" type="password" name="password" required minlength="8" maxlength="200" autocomplete="new-password" aria-describedby="teacherPasswordHint">
+                    <button class="teacher-password-toggle" type="button" data-password-toggle aria-controls="teacherPassword" aria-label="Tampilkan kata sandi" aria-pressed="false">
+                        <svg data-eye-open viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg data-eye-closed viewBox="0 0 24 24" aria-hidden="true" hidden><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10 10 0 0 0 4-.8"/></svg>
+                    </button>
+                </span>
                 <span class="hint" id="teacherPasswordHint">Minimal 8 karakter. Kata sandi hanya ditampilkan kepada Admin saat dibuat.</span>
                 @error('password')<span class="teacher-field-error">{{ $message }}</span>@enderror
             </label>
@@ -61,10 +67,11 @@
                             <td class="teacher-account-identity">
                                 <strong>{{ $teacher->name }}</strong>
                                 <span class="subline">{{ $teacher->email }}</span>
+                                <span class="subline">{{ $teacher->username ? 'Username login: '.$teacher->username : 'Username belum diatur; login dengan email' }}</span>
                             </td>
                             <td><span class="pill {{ $teacher->active ? 'published' : 'rejected' }}">{{ $teacher->active ? 'Aktif' : 'Nonaktif' }}</span></td>
                             <td>
-                                <form method="post" action="{{ route('admin.users.update', $teacher) }}" class="teacher-account-edit">
+                                <form method="post" action="{{ $panelRoute('admin.users.update', $teacher) }}" class="teacher-account-edit">
                                     @csrf
                                     @method('PUT')
                                     <label>Nama<input name="name" value="{{ $teacher->name }}" required minlength="2" maxlength="120" aria-label="Nama Guru"></label>
@@ -72,6 +79,11 @@
                                     <label class="teacher-reset-password">Kata sandi baru<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" placeholder="Kosongkan jika tidak diubah" aria-label="Kata sandi baru (opsional)"></label>
                                     <label class="teacher-account-active"><input type="hidden" name="active" value="0"><input type="checkbox" name="active" value="1" @checked($teacher->active)> Akun aktif</label>
                                     <button class="tiny" type="submit">Simpan</button>
+                                </form>
+                                <form method="post" action="{{ $panelRoute('admin.users.destroy', $teacher) }}" class="teacher-account-delete">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="tiny deny" type="button" data-confirm-action data-confirm-title="Yakin ingin menghapus akun ini?" data-confirm-description="Apakah Anda yakin ingin menghapus akun Guru ini? Data akun yang sudah dihapus tidak dapat digunakan kembali untuk login." data-confirm-label="Ya, Hapus Akun">Hapus Akun</button>
                                 </form>
                             </td>
                         </tr>

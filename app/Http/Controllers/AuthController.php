@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Services\AccountSessionLockManager;
+use App\Support\PanelRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,11 +35,23 @@ class AuthController extends Controller
             'email' => ['nullable', 'email', 'max:254', 'required_without:username'],
             'password' => ['required', 'string', 'max:200'],
         ]);
-        $identity = trim($credentials['username'] ?? $credentials['email'] ?? '');
+        $identity = Str::lower(trim($credentials['username'] ?? $credentials['email'] ?? ''));
         $user = User::query()
             ->where('active', true)
-            ->where(fn ($query) => $query->where('username', $identity)->orWhere('email', $identity))
+            ->where(fn ($query) => $query->whereRaw('LOWER(username) = ?', [$identity])->orWhereRaw('LOWER(email) = ?', [$identity]))
             ->first();
+
+        if (! $user && ! str_contains($identity, '@')) {
+            $legacyMatches = User::query()
+                ->where('active', true)
+                ->whereNull('username')
+                ->get()
+                ->filter(fn (User $candidate): bool => Str::lower(Str::before($candidate->email, '@')) === $identity);
+
+            if ($legacyMatches->count() === 1) {
+                $user = $legacyMatches->first();
+            }
+        }
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
@@ -71,7 +84,7 @@ class AuthController extends Controller
             throw $exception;
         }
 
-        return redirect()->intended(route('admin.dashboard'));
+        return redirect()->route(PanelRoute::name($user->role === 'teacher' ? 'guru.dashboard' : 'admin.dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse

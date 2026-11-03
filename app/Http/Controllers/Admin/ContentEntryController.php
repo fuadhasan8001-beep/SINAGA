@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\ContentEntry;
 use App\Models\MediaAsset;
 use App\Services\ArticleHtml;
+use App\Support\PanelRoute;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,8 +25,8 @@ class ContentEntryController extends Controller
     {
         $this->assertType($type);
         $entries = $type === 'gallery'
-            ? ContentEntry::where('type', 'gallery')->orderBy('sort_order')->orderBy('id')->get()
-            : ContentEntry::where('type', $type)->with('author')->orderBy('sort_order')->orderByDesc('starts_at')->orderByDesc('id')->paginate(20);
+            ? ContentEntry::with('author')->where('type', 'gallery')->orderBy('sort_order')->orderBy('id')->get()
+            : ContentEntry::with('author')->where('type', $type)->orderBy('sort_order')->orderByDesc('starts_at')->orderByDesc('id')->paginate(20);
 
         return view('admin.content.index',['type'=>$type,'label'=>self::TYPES[$type],'entries'=>$entries]);
     }
@@ -50,7 +51,7 @@ class ContentEntryController extends Controller
     public function store(Request $request,string $type): RedirectResponse
     {
         $this->assertType($type);$data=$this->validateData($request,$type);
-        $entry=ContentEntry::create([...$data,'type'=>$type,'author_id'=>$request->user()->id,'slug'=>Str::slug($data['title']).'-'.Str::lower(Str::random(5))]);
+        $entry=ContentEntry::create([...$data,'type'=>$type,'author_id'=>$request->user()->id,'author_name'=>$request->user()->name,'slug'=>Str::slug($data['title']).'-'.Str::lower(Str::random(5))]);
         ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'buat '.$type,'detail'=>$entry->title]);
         return $this->afterSave($type, self::TYPES[$type].' berhasil ditambahkan.');
     }
@@ -72,6 +73,7 @@ class ContentEntryController extends Controller
 
     public function reorderGallery(Request $request): JsonResponse
     {
+        abort_unless($request->user()?->isAdmin() || $request->user()?->role === 'teacher', 403);
         $data = $request->validate([
             'ordered_ids' => ['required', 'array', 'min:1'],
             'ordered_ids.*' => ['required', 'integer', 'distinct'],
@@ -254,9 +256,16 @@ class ContentEntryController extends Controller
     private function afterSave(string $type, string $message): RedirectResponse
     {
         return in_array($type, ['learning_activity','education_calendar','academic_program','academic_assessment'], true)
-            ? redirect()->route('admin.settings.edit',['section'=>'academic','edit'=>1])->with('success',$message)
-            : redirect()->route('admin.content.index',$type)->with('success',$message);
+            ? redirect()->route(PanelRoute::name('admin.settings.edit'),['section'=>'academic','edit'=>1])->with('success',$message)
+            : redirect()->route(PanelRoute::name('admin.content.index'),$type)->with('success',$message);
     }
 
-    private function assertType(string $type): void { abort_unless(array_key_exists($type,self::TYPES),404); }
+    private function assertType(string $type): void
+    {
+        abort_unless(array_key_exists($type, self::TYPES), 404);
+
+        if (request()->user()?->role === 'teacher') {
+            abort_unless(in_array($type, ['announcement', 'gallery'], true), 403);
+        }
+    }
 }

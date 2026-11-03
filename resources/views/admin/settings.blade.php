@@ -22,12 +22,12 @@
             <article class="hero-media-card hero-media-card--{{ $placement }}">
                 <h3>{{ $media['label'] }}</h3>
                 @if(filled($media['path']))<img src="{{ Storage::disk('public')->url($media['path']) }}" alt="Pratinjau {{ strtolower($media['label']) }}" loading="lazy">@else<div class="hero-media-empty">Belum ada foto</div>@endif
-                <a class="secondary" href="{{ route('admin.photos.edit',$placement) }}">Ganti Foto</a>
+                <a class="secondary" href="{{ $panelRoute('admin.photos.edit',$placement) }}">Ganti Foto</a>
             </article>
         @endforeach
     </div>
 </section>
-<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form hero-settings-form">@csrf @method('PUT')<input type="hidden" name="section" value="hero">
+<form method="post" action="{{ $panelRoute('admin.settings.update') }}" class="panel profile-form hero-settings-form">@csrf @method('PUT')<input type="hidden" name="section" value="hero">
 <fieldset class="hero-settings-group"><legend>Konten Hero Beranda</legend><p>Label, judul, deskripsi, dan posisi foto ini langsung digunakan pada halaman utama.</p>
 @foreach(['hero_label','hero_title','hero_description'] as $key)
 @php $label = $fields[$key]; @endphp
@@ -41,7 +41,7 @@
 @endforeach
 <label>{{ $fields['hero_photo_position'] }}<select name="settings[hero_photo_position]">@foreach(['center'=>'Tengah','left'=>'Kiri','right'=>'Kanan','top'=>'Atas','bottom'=>'Bawah'] as $value=>$label)<option value="{{ $value }}" @selected(old('settings.hero_photo_position',$settings['hero_photo_position']??'center')===$value)>{{ $label }}</option>@endforeach</select></label>
 </fieldset>
-<div class="actions"><a class="secondary" href="{{ route('admin.settings.edit',['section'=>'hero']) }}">Batal</a><button class="primary">Simpan Pengaturan Hero</button></div></form>
+<div class="actions"><a class="secondary" href="{{ $panelRoute('admin.settings.edit',['section'=>'hero']) }}">Batal</a><button class="primary">Simpan Pengaturan Hero</button></div></form>
 @endif
 @if($section === 'profile')
 @php
@@ -57,7 +57,7 @@
             <article class="hero-media-card hero-media-card--{{ $placement }}">
                 <h3>{{ $media['label'] }}</h3>
                 @if(filled($media['path']))<img src="{{ Storage::disk('public')->url($media['path']) }}" alt="Pratinjau {{ strtolower($media['label']) }}" loading="lazy">@else<div class="hero-media-empty">Belum ada foto</div>@endif
-                <a class="secondary" href="{{ route('admin.photos.edit',$placement) }}">Ganti Foto</a>
+                <a class="secondary" href="{{ $panelRoute('admin.photos.edit',$placement) }}">Ganti Foto</a>
             </article>
         @endforeach
     </div>
@@ -75,7 +75,7 @@
             'preview_class' => 'principal-greeting-media-preview--portrait',
             'help' => 'Foto yang mendampingi sambutan kepala sekolah.',
             'action' => 'Kelola Foto Kepala Sekolah',
-            'href' => route('admin.photos.edit','principal'),
+            'href' => $panelRoute('admin.photos.edit','principal'),
             'empty' => 'Foto belum tersedia',
         ],
         [
@@ -85,12 +85,12 @@
             'preview_class' => 'principal-greeting-media-preview--banner',
             'help' => 'Menggunakan foto Hero yang dikelola di Kelola Hero.',
             'action' => 'Kelola Foto Hero',
-            'href' => route('admin.settings.edit',['section'=>'hero']),
+            'href' => $panelRoute('admin.settings.edit',['section'=>'hero']),
             'empty' => 'Foto Hero belum tersedia',
         ],
     ];
 @endphp
-<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form profile-settings-form">
+<form method="post" action="{{ $panelRoute('admin.settings.update') }}" class="panel profile-form profile-settings-form">
     @csrf
     @method('PUT')
     <input type="hidden" name="section" value="profile">
@@ -160,20 +160,20 @@
     </section>
 
     <div class="actions profile-settings-actions">
-        <a class="secondary" href="{{ route('admin.settings.edit',['section'=>'profile']) }}">Batal</a>
+        <a class="secondary" href="{{ $panelRoute('admin.settings.edit',['section'=>'profile']) }}">Batal</a>
         <button class="primary" type="submit">Simpan {{ strtolower($activeGroup['title']) }}</button>
     </div>
 </form>
 @elseif($section === 'contact')
-<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="contact">
+<form method="post" action="{{ $panelRoute('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="contact">
 @foreach($activeGroup['keys'] as $key)
 @php $label = $fields[$key]; @endphp
 <label>{{ $label }}@if(in_array($key,$textareaKeys,true))<textarea name="settings[{{ $key }}]" rows="3">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
 @endforeach
-<div class="actions"><a class="secondary" href="{{ route('admin.settings.edit',['section'=>'contact']) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
+<div class="actions"><a class="secondary" href="{{ $panelRoute('admin.settings.edit',['section'=>'contact']) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
 @endif
 @if($section === 'academic')
 @php($academicGroups=['learning_activity'=>'Kegiatan Pembelajaran','education_calendar'=>'Kalender Pendidikan','academic_program'=>'Program Ekstrakurikuler','academic_assessment'=>'Asesmen Akademik'])
-<div class="academic-management">@foreach($academicGroups as $type=>$title)<section class="panel"><div class="panel-head"><div><h2>{{ $title }}</h2><p>Kelola judul, keterangan, dan foto pendukung opsional.</p></div><a class="primary" href="{{ route('admin.content.create',$type) }}">＋ Tambah</a></div><div class="table-wrap"><table><thead><tr><th>Judul / keterangan</th><th>Foto</th><th>Status</th><th>Tindakan</th></tr></thead><tbody>@forelse($academicEntries->get($type,collect()) as $entry)<tr><td class="title-cell">{{ $entry->title }}<span class="subline">{{ Str::limit($entry->excerpt ?: strip_tags($entry->body),140) }}</span></td><td>@if($entry->image_path)<img class="spmb-photo-thumb" src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ $title }}">@else — @endif</td><td><span class="pill {{ $entry->published?'published':'draft' }}">{{ $entry->published?'Tayang':'Draf' }}</span></td><td><div class="row-actions"><a class="tiny" href="{{ route('admin.content.edit',[$type,$entry]) }}">Edit</a><form method="post" action="{{ route('admin.content.destroy',[$type,$entry]) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus data ini?')">Hapus</button></form></div></td></tr>@empty<tr><td colspan="4" class="empty">Belum ada data {{ strtolower($title) }}.</td></tr>@endforelse</tbody></table></div></section>@endforeach</div>
+<div class="academic-management">@foreach($academicGroups as $type=>$title)<section class="panel"><div class="panel-head"><div><h2>{{ $title }}</h2><p>Kelola judul, keterangan, dan foto pendukung opsional.</p></div><a class="primary" href="{{ $panelRoute('admin.content.create',$type) }}">＋ Tambah</a></div><div class="table-wrap"><table><thead><tr><th>Judul / keterangan</th><th>Foto</th><th>Status</th><th>Tindakan</th></tr></thead><tbody>@forelse($academicEntries->get($type,collect()) as $entry)<tr><td class="title-cell">{{ $entry->title }}<span class="subline">{{ Str::limit($entry->excerpt ?: strip_tags($entry->body),140) }}</span></td><td>@if($entry->image_path)<img class="spmb-photo-thumb" src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ $title }}">@else — @endif</td><td><span class="pill {{ $entry->published?'published':'draft' }}">{{ $entry->published?'Tayang':'Draf' }}</span></td><td><div class="row-actions"><a class="tiny" href="{{ $panelRoute('admin.content.edit',[$type,$entry]) }}">Edit</a><form method="post" action="{{ $panelRoute('admin.content.destroy',[$type,$entry]) }}">@csrf @method('DELETE')<button class="tiny deny" onclick="return confirm('Hapus data ini?')">Hapus</button></form></div></td></tr>@empty<tr><td colspan="4" class="empty">Belum ada data {{ strtolower($title) }}.</td></tr>@endforelse</tbody></table></div></section>@endforeach</div>
 @endif
 @endsection

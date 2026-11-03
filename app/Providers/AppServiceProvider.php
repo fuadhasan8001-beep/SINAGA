@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\SiteSetting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use App\Support\PanelRoute;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::share('panelRoute', fn (string $name, mixed $parameters = [], bool $absolute = true): string => route(PanelRoute::name($name), $parameters, $absolute));
+
         View::composer('public.partials.footer', function ($view): void {
             $settings = SiteSetting::query()->pluck('value', 'key')->map(fn ($value) => json_decode($value, true) ?? $value);
             $navigation = $settings->get('footer_navigation');
