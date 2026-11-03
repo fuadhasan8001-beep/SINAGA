@@ -103,3 +103,20 @@
 .admin-manage .actions{align-items:center;gap:10px;flex-wrap:wrap}
 @media(max-width:650px){.site-admin-toggle{top:42px;left:12px;min-height:44px;border-radius:13px}.admin-manage .site-admin-toggle{top:10px}.site-admin-sidebar{border-radius:0 20px 20px 0}.site-admin-sidebar nav a{min-height:46px}}
 @media(prefers-reduced-motion:reduce){.site-admin-toggle,.site-admin-head button,.site-admin-sidebar nav a,.site-admin-icon,.site-admin-foot a,.site-admin-foot button,.admin-context-edit,.photo-admin-action,.admin-manage .back-dashboard,.admin-manage .view-site{transition:none!important;transform:none!important}}
+/* Shared logout confirmation used by Admin, Guru, and admin preview pages. */
+.logout-dialog{width:min(440px,calc(100vw - 32px));padding:30px;border:1px solid #e0ebe2;border-radius:22px;background:#fff;color:#203b28;box-shadow:0 24px 80px rgba(20,45,28,.24);font-family:"Plus Jakarta Sans",sans-serif}
+.logout-dialog::backdrop{background:rgba(15,32,21,.48);backdrop-filter:blur(3px)}
+.logout-dialog-icon{display:grid;width:52px;height:52px;place-items:center;border-radius:16px;background:#fff1ed;color:#c74d3d}
+.logout-dialog-icon svg,.logout-confirm svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.logout-dialog h2{margin:18px 0 8px;color:#193d28;font:750 1.25rem/1.3 "Epilogue","Plus Jakarta Sans",sans-serif}
+.logout-dialog p{margin:0;color:#64756a;font-size:.92rem;line-height:1.65}
+.logout-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:25px}
+.logout-dialog-actions button{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border:1px solid transparent;border-radius:12px;font:700 .88rem "Plus Jakarta Sans",sans-serif;cursor:pointer;transition:background .16s,transform .16s,box-shadow .16s}
+.logout-dialog-actions button:hover{transform:translateY(-1px);box-shadow:0 5px 13px rgba(20,45,28,.1)}
+.logout-dialog-actions button:focus-visible{outline:3px solid #39865a;outline-offset:3px}
+.logout-cancel{border-color:#dce7de!important;background:#f7faf7;color:#40564a}
+.logout-cancel:hover{background:#edf5ef}
+.logout-confirm{background:#c94e40;color:#fff}
+.logout-confirm:hover{background:#b83d32}
+.logout-confirm:disabled{opacity:.7;cursor:wait;transform:none}
+@media(max-width:480px){.logout-dialog{padding:24px 20px;border-radius:19px}.logout-dialog-actions{flex-direction:column-reverse}.logout-dialog-actions button{width:100%}}

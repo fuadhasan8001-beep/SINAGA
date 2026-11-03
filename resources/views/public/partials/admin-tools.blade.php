@@ -19,5 +19,14 @@
         <a class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" href="{{ route('admin.profile.edit') }}"><span class="site-admin-icon" aria-hidden="true">◌</span>Profil Akun</a>
         <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="site-admin-icon" aria-hidden="true">♙</span>Akun Guru</a>
     </nav>
-    <div class="site-admin-foot"><a href="{{ route('home') }}">Mode pengunjung</a><form method="post" action="{{ route('logout') }}">@csrf<button>Keluar</button></form></div>
+    <div class="site-admin-foot"><a href="{{ route('home') }}">Mode pengunjung</a><form id="logoutForm" method="post" action="{{ route('logout') }}">@csrf<button type="button" data-logout-open>Keluar</button></form></div>
 </aside>
+<dialog class="logout-dialog" id="logoutConfirmation" aria-labelledby="logoutDialogTitle" aria-describedby="logoutDialogDescription">
+    <div class="logout-dialog-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3m9-8h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5"/></svg></div>
+    <h2 id="logoutDialogTitle">Yakin ingin keluar?</h2>
+    <p id="logoutDialogDescription">Apakah kamu yakin ingin mengakhiri sesi sekarang? Kamu harus login kembali untuk mengakses halaman ini.</p>
+    <div class="logout-dialog-actions">
+        <button type="button" class="logout-cancel" data-logout-cancel>Batal</button>
+        <button type="button" class="logout-confirm" data-logout-confirm><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3m9-8h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5"/></svg>Ya, Keluar</button>
+    </div>
+</dialog>

@@ -16,6 +16,11 @@ sidebarToggle?.addEventListener('click',()=>setSidebar(!document.body.classList.
 sidebarCloses.forEach(button=>button.addEventListener('click',()=>{setSidebar(false);sidebarToggle?.focus()}));
 document.querySelectorAll('.sidebar a').forEach(link=>link.addEventListener('click',()=>setSidebar(false)));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('sidebar-open')){setSidebar(false);sidebarToggle?.focus()}});
+const logoutDialog=document.getElementById('logoutConfirmation'),logoutForm=document.getElementById('logoutForm'),logoutOpen=document.querySelector('[data-logout-open]'),logoutCancel=document.querySelector('[data-logout-cancel]'),logoutConfirm=document.querySelector('[data-logout-confirm]');
+logoutOpen?.addEventListener('click',()=>{if(!logoutDialog?.open)logoutDialog?.showModal();logoutCancel?.focus()});
+logoutCancel?.addEventListener('click',()=>logoutDialog?.close());
+logoutConfirm?.addEventListener('click',()=>{if(logoutForm&&!logoutConfirm.disabled){logoutConfirm.disabled=true;logoutConfirm.textContent='Keluar…';logoutForm.requestSubmit()}});
+logoutDialog?.addEventListener('close',()=>logoutOpen?.focus());
 if(document.body.classList.contains('admin-preview')){
     const academicManagementUrl=document.querySelector('#admin-sidebar a[href*="section=academic"]')?.href;
     const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],akademik:[academicManagementUrl,'Edit akademik'],pengumuman:['/admin/content/announcement/create','Tambah pengumuman'],ekstrakurikuler:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};

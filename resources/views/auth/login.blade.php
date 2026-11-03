@@ -23,6 +23,7 @@
                 <div><b>Panel Pengelola</b><small>Website Sekolah</small></div>
             </div>
             <h1>Masuk ke SINAGA</h1>
+            @if(session('success'))<p class="login-success" role="status">{{ session('success') }}</p>@endif
             <p class="muted">Gunakan akun Admin atau Guru yang telah dibuat.</p>
             <label for="loginUsername">Username atau email<input id="loginUsername" type="text" name="username" autocomplete="username" value="{{ old('username', old('email')) }}" required autofocus></label>
             @error('username')<span class="error">{{ $message }}</span>@enderror

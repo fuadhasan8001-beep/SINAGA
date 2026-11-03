@@ -30,6 +30,7 @@ button{cursor:pointer}
 .login-card h1{font-size:clamp(1.5rem,5vw,1.8rem);line-height:1.2;margin:0}
 .muted,.hint{color:var(--color-muted)}
 .login-card p{margin:0}
+.login-card .login-success{padding:11px 13px;border:1px solid #c9e6d0;border-radius:9px;background:#edf8f0;color:#27633b;font-size:.9rem;font-weight:650}
 .login-card label,label{display:grid;gap:6px;font-size:.86rem;font-weight:650}
 .login-card input{min-width:0;min-height:46px;font-size:16px}
 .login-password-field{position:relative;min-width:0}

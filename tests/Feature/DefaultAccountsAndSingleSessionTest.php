@@ -13,6 +13,28 @@ use Tests\TestCase;
 
 class DefaultAccountsAndSingleSessionTest extends TestCase
 {
+    public function test_admin_and_teacher_pages_share_a_closed_logout_confirmation_dialog(): void
+    {
+        foreach (['admin', 'teacher'] as $role) {
+            $this->actingAs(User::factory()->create(['role' => $role, 'active' => true]));
+
+            $response = $this->get(route('admin.dashboard'))->assertOk()
+                ->assertSee('Yakin ingin keluar?')
+                ->assertSee('Apakah kamu yakin ingin mengakhiri sesi sekarang?')
+                ->assertSee('data-logout-open', false)
+                ->assertSee('data-logout-cancel', false)
+                ->assertSee('data-logout-confirm', false)
+                ->assertSee('Batal')
+                ->assertSee('Ya, Keluar');
+
+            preg_match('/<dialog\\b[^>]*>/', $response->getContent(), $dialogTag);
+            $this->assertNotEmpty($dialogTag);
+            $this->assertStringNotContainsString(' open', $dialogTag[0]);
+
+            auth()->logout();
+        }
+    }
+
     public function test_seeder_creates_seven_hashed_role_correct_accounts_and_preserves_changed_passwords(): void
     {
         $this->seed(DefaultAccountsSeeder::class);
@@ -51,7 +73,9 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
                 ->assertRedirect(route('admin.dashboard'));
             $this->assertAuthenticatedAs($user);
             $this->get(route('admin.dashboard'))->assertOk();
-            $this->post(route('logout'))->assertRedirect(route('login'));
+            $this->post(route('logout'))->assertRedirect(route('login'))
+                ->assertSessionHas('success', 'Kamu berhasil logout.');
+            $this->get(route('login'))->assertOk()->assertSee('Kamu berhasil logout.');
             $this->assertDatabaseMissing('account_session_locks', ['user_id' => $user->id]);
         }
     }
@@ -79,7 +103,10 @@ class DefaultAccountsAndSingleSessionTest extends TestCase
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id, 'session_id' => $firstSessionId]);
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruTwo->id]);
 
-        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('logout'))->assertRedirect(route('login'))
+            ->assertSessionHas('success', 'Kamu berhasil logout.');
+        $this->assertDatabaseMissing('account_session_locks', ['user_id' => $guruTwo->id]);
+        $this->assertDatabaseHas('account_session_locks', ['user_id' => $guruOne->id, 'session_id' => $firstSessionId]);
         app(AccountSessionLockManager::class)->release($guruOne->id, $firstSessionId);
         $this->post(route('login.store'), ['username' => 'guru1', 'password' => 'sinagajaya'])
             ->assertRedirect(route('admin.dashboard'));
