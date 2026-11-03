@@ -24,7 +24,8 @@
             </div>
             <h1>Masuk ke SINAGA</h1>
             <p class="muted">Gunakan akun Admin atau Guru yang telah dibuat.</p>
-            <label for="loginEmail">Email<input id="loginEmail" type="email" name="email" autocomplete="username" value="{{ old('email') }}" required autofocus></label>
+            <label for="loginUsername">Username atau email<input id="loginUsername" type="text" name="username" autocomplete="username" value="{{ old('username', old('email')) }}" required autofocus></label>
+            @error('username')<span class="error">{{ $message }}</span>@enderror
             @error('email')<span class="error">{{ $message }}</span>@enderror
             <label for="loginPassword">Kata sandi</label>
             <div class="login-password-field">
@@ -34,7 +35,6 @@
                     <svg data-eye-closed viewBox="0 0 24 24" aria-hidden="true" hidden><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10 10 0 0 0 4-.8"/></svg>
                 </button>
             </div>
-            <label class="remember"><input type="checkbox" name="remember" value="1"> Ingat saya</label>
             <button class="primary" type="submit">Masuk</button>
             <a class="back" href="{{ route('home') }}">Kembali ke website</a>
         </form>

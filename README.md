@@ -12,7 +12,7 @@ npm ci
 cp .env.example .env
 ```
 
-Atur `APP_NAME`, `APP_URL`, `DB_CONNECTION=sqlite`, serta `ADMIN_NAME`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD` di `.env`. Kata sandi Admin awal harus unik dan sedikitnya 12 karakter; gunakan pembuat kata sandi acak. Kredensial awal tidak disimpan di repository.
+Atur `APP_NAME`, `APP_URL`, dan `DB_CONNECTION=sqlite` di `.env`.
 
 Siapkan aplikasi dan database:
 
@@ -25,7 +25,7 @@ npm run build
 php artisan serve
 ```
 
-Buka `http://127.0.0.1:8000` untuk website dan `/login` untuk panel. Seeder membuat akun Admin dari variabel `.env` hanya jika email tersebut belum terdaftar. Menjalankan ulang seeder tidak mengganti kata sandi akun yang ada. Buat akun Guru dari menu **Akun Guru**.
+Buka `http://127.0.0.1:8000` untuk website dan `/login` untuk panel. Seeder menambahkan lima akun Guru (`guru1`–`guru5`) dan dua akun Admin (`admin1`, `admin2`), seluruhnya dengan kata sandi awal `sinagajaya`. Menjalankan seeder ulang tidak mengganti kata sandi akun yang sudah ada. Setiap akun hanya dapat memiliki satu sesi aktif; sesi idle dilepas setelah masa berlaku session berakhir.
 
 SQLite berada di `database/database.sqlite`; unggahan berada di `storage/app/public`. Backup database dan direktori storage sebelum deployment atau perubahan skema. Migrasi tambahan mempertahankan tabel pengguna Laravel yang sudah ada.
 
@@ -53,7 +53,7 @@ cp sinaga-share.sqlite database/database.sqlite
 php artisan storage:link
 ```
 
-Perintah pertama `cp` membuat backup lokal; bila database lokal belum ada, lewati baris itu. File share tidak memiliki akun login, jadi buat akun Admin lokal melalui seeder dan nilai `ADMIN_NAME`, `ADMIN_EMAIL`, serta `ADMIN_PASSWORD` di `.env`. Jangan menjalankan `migrate:fresh`. Untuk MySQL/MariaDB, ekspor dan impor tabel data terkait (`site_settings`, `media_assets`, `content_entries`, `articles`, `spmb_settings`, dan `spmb_photos`) ke database yang sudah ada. Gunakan kredensial melalui `.env` lokal—jangan commit `.env` atau dump yang berisi rahasia.
+Perintah pertama `cp` membuat backup lokal; bila database lokal belum ada, lewati baris itu. Setelah menyalin database share, jalankan `php artisan migrate --seed` agar skema dan akun default diperbarui. Jangan menjalankan `migrate:fresh`. Untuk MySQL/MariaDB, ekspor dan impor tabel data terkait (`site_settings`, `media_assets`, `content_entries`, `articles`, `spmb_settings`, dan `spmb_photos`) ke database yang sudah ada. Gunakan kredensial melalui `.env` lokal—jangan commit `.env` atau dump yang berisi rahasia.
 
 Saat menambahkan foto baru yang memang harus tersedia bagi tim, periksa lalu commit aset dan perubahan data yang diperlukan bersama-sama:
 
@@ -68,7 +68,7 @@ Untuk deployment atau unggahan yang besar/sering berubah, gunakan storage bersam
 
 - Beranda satu halaman mempertahankan desain lama. Rute `/profil`, `/akademik`, `/berita`, `/pengumuman`, `/ekstrakurikuler`, `/ppdb`, `/galeri`, dan `/kontak` membuka bagian yang sesuai. Artikel terbit memiliki halaman `/berita/{slug}`.
 - Halaman publik membaca artikel, pengumuman, agenda, profil guru, ekstrakurikuler, prestasi, galeri, dokumen, kontak, dan pengaturan dari database. Jika belum ada data sekolah, halaman tetap menampilkan placeholder.
-- Login memakai autentikasi dan sesi Laravel, regenerasi sesi, rate limiting, CSRF, validasi server, serta middleware peran Admin/Guru. Registrasi publik dimatikan.
+- Login memakai autentikasi dan sesi Laravel, username atau email, penguncian satu sesi aktif per akun di database, expiry berbasis heartbeat, rate limiting, CSRF, validasi server, serta middleware peran Admin/Guru. Registrasi publik dimatikan.
 - Admin mengelola artikel semua penulis, kategori, pengumuman, agenda, guru, ekstrakurikuler, prestasi, galeri, dokumen, pesan kontak, dan pengaturan website. Admin dapat menerbitkan, membatalkan publikasi, meminta revisi, atau menolak artikel.
 - Guru membuat draf dan mengirim artikel untuk persetujuan. Guru hanya dapat membaca atau mengubah artikel miliknya sendiri; artikel pending dan terbit tidak dapat diedit oleh Guru.
 - Editor mendukung heading, bold/italic/underline, daftar, tautan, kutipan, undo/redo, pratinjau, gambar inline, foto sampul, teks alternatif, dan keterangan.

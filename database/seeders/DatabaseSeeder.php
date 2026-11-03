@@ -14,6 +14,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         foreach(['Berita','Kegiatan','Prestasi'] as $name)Category::firstOrCreate(['slug'=>Str::slug($name)],['name'=>$name]);
-        $this->call(AdminUserSeeder::class);
+        $this->call(DefaultAccountsSeeder::class);
     }
 }

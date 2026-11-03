@@ -32,8 +32,8 @@ Route::get('/kontak',[PublicController::class,'section'])->defaults('section','k
 Route::post('/kontak',[PublicController::class,'contact'])->middleware('throttle:5,1')->name('contact.store');
 
 Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'showLogin'])->name('login');Route::post('/login',[AuthController::class,'login'])->middleware('throttle:5,1')->name('login.store');});
-Route::post('/logout',[AuthController::class,'logout'])->middleware('auth')->name('logout');
-Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin,teacher'])->group(function(){
+Route::post('/logout',[AuthController::class,'logout'])->middleware(['auth','account.session'])->name('logout');
+Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','role:admin,teacher'])->group(function(){
     Route::get('/',DashboardController::class)->name('dashboard');
     Route::get('/profile',[UserController::class,'editProfile'])->name('profile.edit');
     Route::put('/profile',[UserController::class,'profile'])->name('profile.update');
