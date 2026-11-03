@@ -17,7 +17,7 @@
         <a class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}" href="{{ route('admin.messages.index') }}"><span class="site-admin-icon" aria-hidden="true">✉</span>Pesan Kontak</a>
         <span class="site-admin-label">MANAJEMEN AKUN</span>
         <a class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" href="{{ route('admin.profile.edit') }}"><span class="site-admin-icon" aria-hidden="true">◌</span>Profil Akun</a>
-        <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="site-admin-icon" aria-hidden="true">♙</span>Akun Guru</a>
+        @if(auth()->user()?->isAdmin())<a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="site-admin-icon" aria-hidden="true">♙</span>Akun Guru</a>@endif
     </nav>
     <div class="site-admin-foot"><a href="{{ route('home') }}">Mode pengunjung</a><form id="logoutForm" method="post" action="{{ route('logout') }}">@csrf<button type="button" data-logout-open>Keluar</button></form></div>
 </aside>

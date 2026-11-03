@@ -79,14 +79,15 @@ class CmsWorkflowTest extends TestCase
         $this->assertAuthenticatedAs($admin);
         $this->get(route('admin.dashboard'))->assertOk()->assertSee('admin-preview')->assertSee('site-admin-toggle')
             ->assertDontSee('topline')->assertDontSee('Selamat datang di website sekolah')->assertDontSee('Hubungi kami');
-        $this->get(route('admin.users.index'))->assertOk();
+        $this->get(route('admin.users.index'))->assertOk()->assertSee(route('admin.users.index'), false);
         $this->post(route('admin.users.store'),['name'=>'Guru Baru','email'=>'baru@example.test','password'=>'Initial-Teacher-123'])->assertRedirect();
         $this->assertDatabaseHas('users',['email'=>'baru@example.test','role'=>'teacher','active'=>1]);
         $this->post(route('logout'))->assertRedirect(route('login'));
         $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
 
         $article=Article::create(['author_id'=>$teacher->id,'title'=>'Draf Guru Uji','slug'=>'draf-guru-uji','body'=>'<p>Isi.</p>','status'=>'draft']);
-        $this->actingAs($teacher)->get(route('admin.users.index'))->assertForbidden();
+        $this->actingAs($teacher)->get(route('admin.dashboard'))->assertOk()->assertDontSee(route('admin.users.index'), false);
+        $this->get(route('admin.users.index'))->assertForbidden();
         $this->get(route('admin.articles.edit',$article))->assertOk();
         $this->get(route('admin.articles.reviews'))->assertForbidden();
         $inactive=User::factory()->create(['role'=>'teacher','active'=>false]);
