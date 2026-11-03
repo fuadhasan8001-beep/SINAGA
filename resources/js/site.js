@@ -2,9 +2,40 @@ const backgroundMusic=document.getElementById('siteBackgroundMusic');
 if(backgroundMusic){
     const musicPositionKey='sinaga-background-music-position';
     const musicEnabledKey='sinaga-background-music-enabled';
-    let musicStarted=false,musicAttempting=false;
+    const internalNavigationKey='sinaga-background-music-internal-navigation';
+    let musicStarted=false,musicAttempting=false,exitedWebsite=false,musicInitialized=false;
+    let continueWithinSite=false,navigationMarkerTimeout=null;
+    try{
+        continueWithinSite=sessionStorage.getItem(internalNavigationKey)==='1';
+        sessionStorage.removeItem(internalNavigationKey);
+    }catch{}
+    backgroundMusic.autoplay=false;
     const clearStartListeners=()=>['pointerdown','touchstart','keydown'].forEach(type=>document.removeEventListener(type,startAfterInteraction,true));
     const startAfterInteraction=()=>tryStartMusic();
+    const markInternalNavigation=()=>{
+        try{
+            sessionStorage.setItem(internalNavigationKey,'1');
+            window.clearTimeout(navigationMarkerTimeout);
+            navigationMarkerTimeout=window.setTimeout(()=>sessionStorage.removeItem(internalNavigationKey),3000);
+        }catch{}
+    };
+    document.addEventListener('click',event=>{
+        if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+        const link=event.target.closest?.('a[href]');
+        if(!link||link.target==='_blank'||link.hasAttribute('download'))return;
+        try{
+            const target=new URL(link.href,window.location.href);
+            if(target.origin===window.location.origin&&(target.pathname!==window.location.pathname||target.search!==window.location.search))markInternalNavigation();
+        }catch{}
+    },true);
+    document.addEventListener('submit',event=>{
+        const form=event.target;
+        if(!(form instanceof HTMLFormElement)||form.target==='_blank')return;
+        try{
+            const target=new URL(form.action||window.location.href,window.location.href);
+            if(target.origin===window.location.origin)markInternalNavigation();
+        }catch{}
+    },true);
     const tryStartMusic=()=>{
         if(musicStarted||musicAttempting)return;
         musicAttempting=true;
@@ -22,14 +53,24 @@ if(backgroundMusic){
             else console.error('[SINAGA] Background music playback was rejected.',error);
         });
     };
-    backgroundMusic.addEventListener('loadedmetadata',()=>{
+    const initializeMusic=()=>{
+        if(musicInitialized)return;
+        musicInitialized=true;
         console.info(`[SINAGA] Background music loaded; duration ${Number.isFinite(backgroundMusic.duration)?backgroundMusic.duration.toFixed(2):'unknown'} seconds.`);
         try{
             const savedPosition=Number(sessionStorage.getItem(musicPositionKey));
-            if(Number.isFinite(savedPosition)&&savedPosition>0&&savedPosition<backgroundMusic.duration)backgroundMusic.currentTime=savedPosition;
-            if(sessionStorage.getItem(musicEnabledKey)==='1')tryStartMusic();
+            if(continueWithinSite&&Number.isFinite(savedPosition)&&savedPosition>0&&savedPosition<backgroundMusic.duration){
+                backgroundMusic.currentTime=savedPosition;
+            }else if(!continueWithinSite){
+                sessionStorage.removeItem(musicPositionKey);
+                sessionStorage.removeItem(musicEnabledKey);
+                backgroundMusic.currentTime=0;
+            }
         }catch{}
-    },{once:true});
+        tryStartMusic();
+    };
+    backgroundMusic.addEventListener('loadedmetadata',initializeMusic,{once:true});
+    if(backgroundMusic.readyState>=1)initializeMusic();
     backgroundMusic.addEventListener('error',()=>{
         console.error('[SINAGA] Background music failed to load.',{
             url:backgroundMusic.currentSrc||backgroundMusic.querySelector('source')?.src,
@@ -41,8 +82,31 @@ if(backgroundMusic){
     backgroundMusic.addEventListener('timeupdate',()=>{
         try{sessionStorage.setItem(musicPositionKey,String(backgroundMusic.currentTime));}catch{}
     });
+    window.addEventListener('pagehide',()=>{
+        try{
+            const internalNavigation=sessionStorage.getItem(internalNavigationKey)==='1';
+            exitedWebsite=!internalNavigation;
+            if(internalNavigation){
+                if(Number.isFinite(backgroundMusic.currentTime)&&backgroundMusic.currentTime>0){
+                    sessionStorage.setItem(musicPositionKey,String(backgroundMusic.currentTime));
+                }
+            }else{
+                sessionStorage.removeItem(musicPositionKey);
+                sessionStorage.removeItem(musicEnabledKey);
+            }
+        }catch{}
+    });
+    window.addEventListener('pageshow',event=>{
+        if(!event.persisted||!exitedWebsite)return;
+        exitedWebsite=false;
+        musicStarted=false;
+        musicAttempting=false;
+        try{backgroundMusic.currentTime=0;}catch{}
+        clearStartListeners();
+        ['pointerdown','touchstart','keydown'].forEach(type=>document.addEventListener(type,startAfterInteraction,true));
+        tryStartMusic();
+    });
     ['pointerdown','touchstart','keydown'].forEach(type=>document.addEventListener(type,startAfterInteraction,true));
-    tryStartMusic();
 }
 
 const menuBtn=document.getElementById('menuBtn');

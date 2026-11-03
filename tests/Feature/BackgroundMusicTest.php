@@ -16,7 +16,8 @@ class BackgroundMusicTest extends TestCase
         $html = $this->get(route('home'))->assertOk()->getContent();
         $this->assertSame(1, substr_count($html, 'id="siteBackgroundMusic"'));
         $this->assertStringContainsString('audio/background-music.mp3', $html);
-        $this->assertStringContainsString('autoplay loop preload="metadata"', $html);
+        $this->assertStringContainsString('loop preload="metadata"', $html);
+        $this->assertStringNotContainsString('autoplay', $html);
         $this->assertDoesNotMatchRegularExpression('/<audio\\b[^>]*\\bcontrols(?:=|\\s|>)/i', $html);
 
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);

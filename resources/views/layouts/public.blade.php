@@ -20,7 +20,7 @@
     @if($adminMode ?? false) @include('public.partials.admin-tools') @endif
     @if(($adminMode ?? false) && session('success'))<div class="admin-save-notice" role="status">{{ session('success') }}</div>@endif
     @if(!($adminMode ?? false) && is_file(public_path('audio/background-music.mp3')))
-        <audio id="siteBackgroundMusic" autoplay loop preload="metadata" aria-hidden="true">
+        <audio id="siteBackgroundMusic" loop preload="metadata" aria-hidden="true">
             <source src="{{ asset('audio/background-music.mp3') }}" type="audio/mpeg">
         </audio>
     @endif
