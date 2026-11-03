@@ -57,6 +57,9 @@ class AcademicExtracurricularExperienceTest extends TestCase
             ->assertSee('Ringkasan literasi.')
             ->assertSee(route('extracurriculars.show', $club->slug), false)
             ->assertSee('Ekstrakurikuler')
+            ->assertDontSee('Lihat Semua')
+            ->assertDontSee('extracurricular-card-arrow', false)
+            ->assertDontSee('activity-card-indicator', false)
             ->assertDontSee('Materi Draf')
             ->assertDontSee('Ekstra Draf');
         preg_match_all('/<button class="learning-activity-card".*?<\/button>/s', $homeResponse->getContent(), $academicCards);
@@ -73,6 +76,14 @@ class AcademicExtracurricularExperienceTest extends TestCase
             ->assertSee('Pramuka')->assertSee('Deskripsi pramuka.');
         $this->get(route('extracurriculars.show', 'ekstra-draf-test'))->assertNotFound();
         $this->get(route('learning-activities.show', 'slug-tidak-ada'))->assertNotFound();
+
+        $adminHome = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
+        $adminHome->assertSee(route('admin.content.edit', ['extracurricular', $club]), false)
+            ->assertSee(route('admin.dashboard').'#beranda', false);
+        $adminPublicDetail = $this->get(route('extracurriculars.show', $club->slug))->assertOk();
+        $adminPublicDetail->assertSee(route('home').'#beranda', false)
+            ->assertSee(route('home').'#ekstrakurikuler', false)
+            ->assertDontSee('admin-sidebar');
     }
 
     public function test_admin_can_manage_learning_activity_detail_and_extracurricular_order_and_publication(): void

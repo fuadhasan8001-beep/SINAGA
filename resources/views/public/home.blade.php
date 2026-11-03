@@ -3,7 +3,10 @@
 @section('content')
 @php
     $heroPhotoPath = filled($settings['hero_photo_path'] ?? null) ? $settings['hero_photo_path'] : null;
-    $heroPhotoTitle = 'Lingkungan '.($settings['school_name'] ?? 'SMPN 1 Gondang');
+    $heroTitle = filled($settings['hero_title'] ?? null) ? $settings['hero_title'] : 'Selamat datang di '.($settings['school_name'] ?? 'SMPN 1 Gondang');
+    $heroDescription = filled($settings['hero_description'] ?? null) ? $settings['hero_description'] : 'Ruang informasi sekolah untuk mengenal lingkungan, program, kegiatan, dan layanan SMPN 1 Gondang.';
+    $heroLabel = filled($settings['hero_label'] ?? null) ? $settings['hero_label'] : 'Website resmi sekolah';
+    $heroPosition = ['center'=>'center center','left'=>'left center','right'=>'right center','top'=>'center top','bottom'=>'center bottom'][$settings['hero_photo_position'] ?? 'center'] ?? 'center center';
     $galleryPhotos = $gallery->filter(fn ($photo) => filled($photo->image_path))->values();
     $profilePhotoEntry = $teachers->first();
     $profilePhotoPath = filled($settings['profile_photo_path'] ?? null) ? $settings['profile_photo_path'] : $profilePhotoEntry?->image_path;
@@ -12,7 +15,29 @@
         ? ($profilePhotoEntry->metadata['alt'] ?? $profilePhotoEntry->title)
         : 'Foto profil sekolah';
 @endphp
-<section class="hero" id="beranda"><div class="container hero-grid"><div class="hero-copy"><span class="eyebrow">Website resmi sekolah</span><h1>Selamat datang di <span class="hero-title-mark">{{ $settings['school_name'] ?? 'Nama Sekolah' }}</span></h1><p>Ruang informasi sekolah untuk mengenal lingkungan, program, kegiatan, dan layanan SMPN 1 Gondang.</p><div class="hero-actions">@if($adminMode ?? false)<a class="btn" href="{{ route('admin.content.index','announcement') }}">Kelola Pengumuman</a>@else<a class="btn" href="#profil">Profil Sekolah</a>@endif<a class="btn btn-outline" href="#galeri">Jelajahi Galeri</a></div></div><div class="hero-visual">@if($heroPhotoPath)<figure class="hero-photo-main"><img src="{{ Storage::disk('public')->url($heroPhotoPath) }}" alt="{{ $heroPhotoTitle }}" width="1200" height="900" fetchpriority="high" decoding="async"><figcaption>{{ $heroPhotoTitle }}</figcaption></figure>@else<div class="photo-placeholder"><svg class="school-illustration" viewBox="0 0 180 150" fill="none" aria-hidden="true"><path class="school-outline" d="M20 66 90 15l78 52M76 136V92h28v44M39 82h20v20H39zm82 0h20v20h-20z"/><path d="M90 15V5m0 0h32l-8 10H90"/><path d="M10 139h160"/></svg><div><strong>Lingkungan SMPN 1 Gondang</strong><span>Foto lingkungan sekolah dapat ditambahkan melalui pengaturan foto Beranda.</span></div></div>@endif <span class="hero-photo-label"><span aria-hidden="true">✳</span> Belajar, tumbuh, berprestasi</span>@if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.photos.edit','hero') }}">Edit Foto Beranda</a>@endif</div></div></section>
+<section class="hero home-hero" id="beranda" style="--hero-photo-position: {{ $heroPosition }}">
+    @if($heroPhotoPath)<img class="home-hero-image" src="{{ Storage::disk('public')->url($heroPhotoPath) }}" alt="" aria-hidden="true" width="1920" height="1080" fetchpriority="high" decoding="async">@endif
+    <div class="container home-hero-content">
+        <div class="home-hero-copy">
+            <span class="eyebrow">{{ $heroLabel }}</span>
+            <h1>{{ $heroTitle }}</h1>
+            <p>{{ $heroDescription }}</p>
+            <div class="hero-actions">
+                @if($adminMode ?? false)<a class="btn" href="{{ route('admin.content.index','announcement') }}">Kelola Pengumuman</a>@else<a class="btn" href="#profil">Profil Sekolah</a>@endif
+                <a class="btn btn-outline" href="#galeri">Jelajahi Galeri</a>
+            </div>
+        </div>
+    </div>
+    @if($adminMode ?? false)
+        <details class="home-hero-admin-menu">
+            <summary title="Kelola Hero"><span aria-hidden="true">⚙</span><span>Kelola Hero</span></summary>
+            <div class="home-hero-admin-menu-items">
+                <a href="{{ route('admin.settings.edit',['section'=>'hero']) }}"><span aria-hidden="true">✎</span>Edit teks Hero</a>
+                <a href="{{ route('admin.photos.edit','hero') }}"><span aria-hidden="true">▧</span>Ganti foto Hero</a>
+            </div>
+        </details>
+    @endif
+</section>
 
 <section class="section" id="profil"><div class="container welcome-grid"><div class="welcome-image profile-image-stack">@if($profilePhotoPath)<img src="{{ Storage::disk('public')->url($profilePhotoPath) }}" alt="{{ $profilePhotoAlt }}" style="max-width:100%;max-height:250px;object-fit:cover">@else<div class="photo-placeholder"><strong>Tempat foto sekolah atau kegiatan resmi</strong><span>Dokumentasi profil sekolah dapat ditambahkan oleh pengelola.</span></div>@endif @if($principalPhotoPath)<figure class="principal-photo"><img src="{{ Storage::disk('public')->url($principalPhotoPath) }}" alt="Foto kepala sekolah"><figcaption>{{ $settings['principal'] ?? 'Kepala Sekolah' }}</figcaption></figure>@endif @if($adminMode ?? false)<a class="photo-admin-action" href="{{ route('admin.settings.edit',['section'=>'profile']) }}">Kelola Profil</a>@endif</div><div class="welcome-copy"><span class="eyebrow">Profil sekolah</span><h2>Mengenal sekolah lebih dekat</h2><p>{{ $settings['history'] ?? 'Tambahkan ringkasan sejarah dan identitas sekolah setelah informasi resmi tersedia.' }}</p>@if(filled($settings['vision'] ?? null))<h3>Visi Sekolah</h3><p>{{ $settings['vision'] }}</p>@endif @if(!empty($settings['mission']))<h3>Misi Sekolah</h3><ol class="mission-list">@foreach(is_array($settings['mission']) ? $settings['mission'] : preg_split('/\\r?\\n/', $settings['mission']) as $mission)@if(filled($mission))<li>{{ $mission }}</li>@endif @endforeach</ol>@endif<div class="person"><b>Kepala Sekolah</b><small>{{ $settings['principal'] ?? 'Nama kepala sekolah — perbarui dengan data resmi' }}</small></div>@if(filled($settings['principal_greeting'] ?? null))<article class="greeting-card"><span class="eyebrow">{{ $settings['principal_greeting_title'] ?? 'Sambutan Kepala Sekolah' }}</span><h3>{{ $settings['principal'] ?? 'Kepala Sekolah' }}</h3><p>{!! nl2br(e($settings['principal_greeting'])) !!}</p></article>@endif</div></div></section>
 
@@ -62,8 +87,8 @@
                                 $cardTitle = $entry->title;
                             @endphp
                             <div class="activity-slide">
-                                <button class="learning-activity-card" type="button" data-academic-detail="academic-detail-{{ $entry->id }}" aria-haspopup="dialog" aria-controls="academicDetailModal" aria-label="Lihat detail {{ $cardTitle }}">
-                                    <span class="learning-activity-panel"><span class="learning-activity-title">{{ $cardTitle }}</span><span class="activity-card-indicator" aria-hidden="true">↗</span></span>
+                                <button class="learning-activity-card" type="button" data-academic-detail="academic-detail-{{ $entry->id }}" aria-haspopup="dialog" aria-controls="academicDetailModal" aria-label="Buka informasi {{ $cardTitle }}">
+                                    <span class="learning-activity-panel"><span class="learning-activity-title">{{ $cardTitle }}</span></span>
                                     <span class="learning-activity-photo">@if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ $cardTitle }}" loading="lazy" decoding="async">@else<span class="activity-photo-placeholder" role="img" aria-label="Gambar {{ $cardTitle }} belum tersedia"><span aria-hidden="true">▧</span></span>@endif</span>
                                 </button>
                             </div>
@@ -113,25 +138,22 @@
     <div class="container">
         <div class="section-head extracurricular-section-head">
             <div><span class="eyebrow">Kegiatan siswa</span><h2>Ekstrakurikuler</h2><p>Beragam kegiatan untuk mengembangkan bakat, minat, kreativitas, dan karakter siswa.</p></div>
-            <div class="extracurricular-heading-actions">
-                <a class="activity-view-all" href="{{ route('extracurriculars') }}">Lihat Semua <span aria-hidden="true">→</span></a>
-                @if($extracurriculars->isNotEmpty())
-                    <div class="activity-carousel-controls extracurricular-carousel-controls" data-extracurricular-controls>
-                        <button type="button" data-extracurricular-prev aria-label="Ekstrakurikuler sebelumnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>←</button>
-                        <span data-extracurricular-status aria-live="polite">1 / {{ $extracurriculars->count() }}</span>
-                        <button type="button" data-extracurricular-next aria-label="Ekstrakurikuler berikutnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>→</button>
-                    </div>
-                @endif
-            </div>
+            @if($extracurriculars->isNotEmpty())
+                <div class="activity-carousel-controls extracurricular-carousel-controls" data-extracurricular-controls>
+                    <button type="button" data-extracurricular-prev aria-label="Ekstrakurikuler sebelumnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>←</button>
+                    <span data-extracurricular-status aria-live="polite">1 / {{ $extracurriculars->count() }}</span>
+                    <button type="button" data-extracurricular-next aria-label="Ekstrakurikuler berikutnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>→</button>
+                </div>
+            @endif
         </div>
         @if($extracurriculars->isNotEmpty())
             <div class="extracurricular-carousel" data-extracurricular-carousel>
                 <div class="extracurricular-carousel-viewport" id="extracurricularCarousel" role="region" aria-label="Galeri ekstrakurikuler" tabindex="0">
                     <div class="extracurricular-track">
                         @foreach($extracurriculars as $entry)
-                            <a class="club-card extracurricular-card" href="{{ route('extracurriculars.show', $entry->slug) }}" aria-label="Lihat detail ekstrakurikuler {{ $entry->title }}">
+                            <a class="club-card extracurricular-card" href="{{ ($adminMode ?? false) ? route('admin.content.edit', ['extracurricular', $entry]) : route('extracurriculars.show', $entry->slug) }}" aria-label="{{ ($adminMode ?? false) ? 'Kelola' : 'Buka detail' }} ekstrakurikuler {{ $entry->title }}">
                                 @if($entry->image_path)<img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto ekstrakurikuler {{ $entry->title }}" loading="lazy" decoding="async">@else<div class="club-photo-placeholder" role="img" aria-label="Foto {{ $entry->title }} belum tersedia"><span aria-hidden="true">▧</span></div>@endif
-                                <h3>{{ $entry->title }}</h3><span class="extracurricular-card-arrow" aria-hidden="true">↗</span>
+                                <h3>{{ $entry->title }}</h3>
                             </a>
                         @endforeach
                     </div>

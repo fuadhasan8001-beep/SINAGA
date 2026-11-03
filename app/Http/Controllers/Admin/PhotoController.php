@@ -109,9 +109,7 @@ class PhotoController extends Controller
             MediaAsset::where('path', $oldManagedPath)->delete();
         }
 
-        return $placement === 'hero'
-            ? redirect()->route('admin.dashboard')->with('success', $details['label'].' berhasil diperbarui.')
-            : redirect()->route('admin.settings.edit',['section'=>'profile'])->with('success', $details['label'].' berhasil diperbarui.');
+        return redirect()->route('admin.settings.edit',['section'=>'hero'])->with('success', $details['label'].' berhasil diperbarui.');
     }
 
     private function placement(string $placement): array

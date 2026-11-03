@@ -6,6 +6,7 @@
     <nav>
         <span class="site-admin-label">MANAJEMEN KONTEN WEBSITE</span>
         <a class="{{ request()->routeIs('admin.settings.*') && request()->query('section', 'profile') === 'profile' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'profile','edit'=>1]) }}"><span class="site-admin-icon" aria-hidden="true">▣</span>Profil Sekolah</a>
+        @if(auth()->user()?->isAdmin())<a class="{{ request()->routeIs('admin.settings.*') && request()->query('section') === 'hero' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'hero']) }}"><span class="site-admin-icon" aria-hidden="true">▧</span>Kelola Hero</a>@endif
         <a class="{{ request()->routeIs('admin.settings.*') && request()->query('section') === 'academic' ? 'active' : '' }}" href="{{ route('admin.settings.edit',['section'=>'academic','edit'=>1]) }}"><span class="site-admin-icon" aria-hidden="true">◫</span>Akademik</a>
         <a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === 'announcement' ? 'active' : '' }}" href="{{ route('admin.content.index','announcement') }}"><span class="site-admin-icon" aria-hidden="true">◉</span>Kelola Pengumuman</a>
         <a class="{{ request()->routeIs('admin.content.*') && request()->route('type') === 'extracurricular' ? 'active' : '' }}" href="{{ route('admin.content.index','extracurricular') }}"><span class="site-admin-icon" aria-hidden="true">◇</span>Ekstrakurikuler</a>

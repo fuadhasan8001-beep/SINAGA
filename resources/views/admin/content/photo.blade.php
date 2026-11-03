@@ -23,7 +23,7 @@
         <p id="photoFileName" class="hint" role="status">Belum ada file dipilih. JPEG, PNG, atau WebP, maksimal 5 MB.</p>
         @error('image')<p class="error" role="alert">{{ $message }}</p>@enderror
         <div class="actions">
-            <a class="secondary" href="{{ $placement === 'hero' ? route('admin.dashboard') : route('admin.settings.edit',['section'=>'profile','edit'=>1]) }}">Batal</a>
+            <a class="secondary" href="{{ route('admin.settings.edit',['section'=>'hero']) }}">Batal</a>
             <button class="primary" type="submit">Simpan Foto</button>
         </div>
     </div>

@@ -66,28 +66,46 @@ const target=document.body.dataset.scrollTarget;
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.querySelectorAll('[data-activity-carousel]').forEach(carousel=>{
     const viewport=carousel.querySelector('.activity-carousel-viewport');
-    const slides=[...carousel.querySelectorAll('.activity-slide')];
+    let slides=[...carousel.querySelectorAll('.activity-slide')];
     const track=carousel.querySelector('[data-academic-track]');
     const controls=carousel.parentElement.querySelector('[data-academic-carousel-controls]');
     const previous=controls?.querySelector('[data-academic-prev]');
     const next=controls?.querySelector('[data-academic-next]');
     const status=controls?.querySelector('[data-academic-status]');
     if(!viewport||!track||!slides.length)return;
-    let currentIndex=0;
+    let currentPage=0,perView=0,pageCount=1;
     const updateControls=()=>{
-        currentIndex=Math.max(0,Math.min(slides.length-1,currentIndex));
-        track.style.transform=`translate3d(${-currentIndex*100}%,0,0)`;
-        if(previous)previous.disabled=currentIndex===0;
-        if(next)next.disabled=currentIndex===slides.length-1;
-        if(status)status.textContent=`${currentIndex+1} / ${slides.length}`;
+        slides=[...carousel.querySelectorAll('.activity-slide')];
+        if(!slides.length)return;
+        const nextPerView=window.matchMedia('(max-width: 650px)').matches?1:2;
+        if(nextPerView!==perView){
+            const firstVisibleIndex=currentPage*perView;
+            perView=nextPerView;
+            currentPage=Math.floor(firstVisibleIndex/perView);
+        }
+        pageCount=Math.max(1,Math.ceil(slides.length/perView));
+        currentPage=Math.max(0,Math.min(pageCount-1,currentPage));
+        const startIndex=currentPage*perView;
+        const visibleCount=Math.min(perView,slides.length-startIndex);
+        const centeredLastCard=perView===2&&visibleCount===1&&currentPage===pageCount-1;
+        const offset=currentPage*100-(centeredLastCard?25:0);
+        track.style.transform=`translate3d(${-offset}%,0,0)`;
+        if(previous)previous.disabled=currentPage===0;
+        if(next)next.disabled=currentPage===pageCount-1;
+        if(status){
+            const first=startIndex+1;
+            const last=startIndex+visibleCount;
+            status.textContent=visibleCount>1?`${first}–${last} / ${slides.length}`:`${first} / ${slides.length}`;
+        }
     };
-    const goTo=index=>{currentIndex=Math.max(0,Math.min(slides.length-1,index));updateControls();};
-    previous?.addEventListener('click',()=>goTo(currentIndex-1));
-    next?.addEventListener('click',()=>goTo(currentIndex+1));
+    const goTo=page=>{currentPage=Math.max(0,Math.min(pageCount-1,page));updateControls();};
+    previous?.addEventListener('click',()=>goTo(currentPage-1));
+    next?.addEventListener('click',()=>goTo(currentPage+1));
     viewport.addEventListener('keydown',event=>{
-        if(event.key==='ArrowLeft'){event.preventDefault();goTo(currentIndex-1);}
-        if(event.key==='ArrowRight'){event.preventDefault();goTo(currentIndex+1);}
+        if(event.key==='ArrowLeft'){event.preventDefault();goTo(currentPage-1);}
+        if(event.key==='ArrowRight'){event.preventDefault();goTo(currentPage+1);}
     });
+    window.addEventListener('resize',updateControls,{passive:true});
     updateControls();
 });
 document.querySelectorAll('[data-extracurricular-carousel]').forEach(carousel=>{

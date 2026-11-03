@@ -105,6 +105,24 @@ body{background:#edf8f0;color:#26372e}
 .photo-edit--logo .photo-preview-frame img{width:100%;height:100%;max-height:none;object-fit:cover}
 .photo-preview-empty{padding:30px;color:#5e7064;text-align:center}
 .profile-photos{margin-bottom:20px}.profile-photos .panel-head{align-items:flex-start}.profile-photos p{margin:5px 0 0;color:#5e7064}.profile-photo-actions{display:flex;flex-wrap:wrap;gap:10px}
+.hero-media-panel{padding-bottom:18px}
+.hero-media-panel>.panel-head{margin-bottom:16px}
+.hero-media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:0 18px}
+.hero-media-card{display:grid;min-width:0;align-content:start;gap:10px;padding:13px;border:1px solid #e0e9e2;border-radius:13px;background:#fbfdfb}
+.hero-media-card h3{min-height:2.6em;margin:0;color:#294b34;font-size:.86rem;line-height:1.4}
+.hero-media-card img,.hero-media-empty{display:grid;width:100%;height:auto;min-height:132px;max-height:170px;aspect-ratio:16/10;place-items:center;object-fit:cover;border:1px solid #e0e9e2;border-radius:10px;background:#f0f6f1;color:#77877a;font-size:.77rem;text-align:center}
+.hero-media-card--logo img{object-fit:contain;padding:14px;background:#fff}
+.hero-media-card .secondary{display:inline-flex;min-height:42px;align-items:center;justify-content:center;justify-self:start;padding:9px 12px;border:1px solid #d1e1d4;border-radius:10px;background:#fff;color:#315c40;font-size:.77rem;font-weight:750}
+.hero-media-card .secondary:hover{background:#f0f8f1}
+.hero-settings-form{align-items:start}
+.hero-settings-group{display:grid;grid-column:1/-1;gap:14px;min-width:0;margin:0;padding:20px;border:1px solid #dce9de;border-radius:14px;background:#f7fbf7}
+.hero-settings-group legend{padding:0 8px;color:#245437;font-family:"Epilogue","Plus Jakarta Sans",sans-serif;font-size:1rem;font-weight:800}
+.hero-settings-group>p{margin:0;color:#5e7064;font-size:.84rem;line-height:1.6}
+.hero-settings-group label{display:grid;gap:7px;color:#314b38;font-size:.88rem;font-weight:700}
+.hero-settings-group input,.hero-settings-group textarea,.hero-settings-group select{width:100%;min-width:0;padding:11px 12px;border:1px solid #cfddd1;border-radius:10px;background:#fff;color:#26372e}
+.hero-settings-group :focus-visible{outline:3px solid rgba(89,171,112,.28);outline-offset:2px}
+.hero-settings-form .actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;padding-top:17px;border-top:1px solid #e3ebe4}
+.hero-settings-form .actions .primary,.hero-settings-form .actions .secondary{min-height:44px;border-radius:10px}
 .admin-manage .profile-form,.admin-manage .content-form,.admin-manage .photo-edit{width:100%;max-width:none}.admin-manage .profile-form{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-manage .profile-form .actions,.admin-manage .profile-form .cover-preview{grid-column:1/-1}.admin-manage .profile-form input,.admin-manage .profile-form textarea,.admin-manage .content-form input,.admin-manage .content-form textarea{width:100%;min-width:0}@media(max-width:720px){.admin-manage .profile-form{grid-template-columns:1fr}.admin-manage .profile-form .actions,.admin-manage .profile-form .cover-preview{grid-column:auto}}
 .admin-manage .extracurricular-form{display:grid;grid-template-columns:minmax(0,840px);gap:20px;padding:24px}
 .extracurricular-form .extracurricular-image-field{display:grid;gap:10px}
@@ -151,6 +169,8 @@ body{background:#edf8f0;color:#26372e}
 @media(max-width:720px){.admin-manage .gallery-form{grid-template-columns:1fr;padding:18px}.gallery-upload-zone{align-items:flex-start;flex-direction:column}.gallery-upload-preview{width:100%;max-width:440px}.gallery-admin{padding:16px}.gallery-admin-head{align-items:flex-start;flex-direction:column}.gallery-admin-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gallery-admin-card-body{padding:10px}.gallery-admin-card-actions{gap:5px}.gallery-admin-card-actions .tiny{padding:5px 8px;font-size:.75rem}}
 @media(max-width:420px){.gallery-admin-grid{grid-template-columns:1fr}.gallery-admin-card-body h3{min-height:0}}
 @media(max-width:680px){.photo-edit{padding:16px}.photo-preview-frame{min-height:190px}}
+@media(max-width:1040px){.hero-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.hero-media-grid{grid-template-columns:minmax(0,1fr);padding-inline:16px}.hero-media-card{grid-template-columns:minmax(0,1fr) auto;align-items:center}.hero-media-card h3{grid-column:1/-1;min-height:0}.hero-media-card img,.hero-media-empty{grid-row:2/4;width:min(100%,250px);min-height:110px}.hero-media-card .secondary{grid-column:2;grid-row:2/4;justify-self:end}.hero-settings-group{padding:16px}.hero-settings-form .actions{grid-column:auto;display:grid;grid-template-columns:1fr}.hero-settings-form .actions .primary,.hero-settings-form .actions .secondary{width:100%}}
 
 /* Responsive content cards for activity lists and contact messages. */
 .admin-manage,.admin-manage .admin-content,.admin-manage .admin-content>section,.admin-manage .panel{min-width:0;max-width:100%}
