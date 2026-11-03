@@ -31,7 +31,7 @@ class UserController extends Controller
     }
     public function profile(Request $request): RedirectResponse
     {
-        $data=$request->validate(['name'=>['required','string','min:2','max:120'],'current_password'=>['required_with:new_password','current_password'],'new_password'=>['nullable','string','min:12','max:200','confirmed']]);
+        $data=$request->validate(['name'=>['required','string','min:2','max:120'],'current_password'=>['required_with:new_password','current_password'],'new_password'=>['nullable','string','min:8','max:200','confirmed']]);
         $user=$request->user();$user->name=$data['name'];if(!empty($data['new_password']))$user->password=Hash::make($data['new_password']);$user->save();
         return back()->with('success','Profil diperbarui.');
     }

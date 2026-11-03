@@ -1,4 +1,16 @@
 const sidebarToggle=document.querySelector('.sidebar-toggle,.site-admin-toggle'),sidebarCloses=document.querySelectorAll('[data-sidebar-close]');
+document.querySelectorAll('[data-password-toggle]').forEach(toggle=>{
+    const input=document.getElementById(toggle.getAttribute('aria-controls'));
+    if(!input)return;
+    toggle.addEventListener('click',()=>{
+        const showPassword=input.type==='password';
+        input.type=showPassword?'text':'password';
+        toggle.setAttribute('aria-pressed',String(showPassword));
+        toggle.setAttribute('aria-label',showPassword?'Sembunyikan kata sandi':'Tampilkan kata sandi');
+        toggle.querySelector('[data-eye-open]').hidden=showPassword;
+        toggle.querySelector('[data-eye-closed]').hidden=!showPassword;
+    });
+});
 const setSidebar=open=>{document.body.classList.toggle('sidebar-open',open);sidebarToggle?.setAttribute('aria-expanded',String(open));sidebarToggle?.setAttribute('aria-label',open?'Tutup menu pengelolaan':'Buka menu pengelolaan');};
 sidebarToggle?.addEventListener('click',()=>setSidebar(!document.body.classList.contains('sidebar-open')));
 sidebarCloses.forEach(button=>button.addEventListener('click',()=>{setSidebar(false);sidebarToggle?.focus()}));

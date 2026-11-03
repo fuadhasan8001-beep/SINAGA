@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\SiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,15 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showLogin(): View { return view('auth.login'); }
+    public function showLogin(): View
+    {
+        $storedLogoPath = SiteSetting::query()->whereKey('school_logo_path')->value('value');
+        $schoolLogoPath = json_decode((string) $storedLogoPath, true);
+
+        return view('auth.login', [
+            'schoolLogoPath' => is_string($schoolLogoPath) ? $schoolLogoPath : $storedLogoPath,
+        ]);
+    }
 
     public function login(Request $request): RedirectResponse
     {
