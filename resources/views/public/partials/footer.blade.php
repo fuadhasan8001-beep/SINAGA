@@ -1,3 +1,11 @@
+@php
+    $footerWhatsappNumber = preg_replace('/\D+/', '', (string) ($footerSettings['phone'] ?? ''));
+    if (str_starts_with($footerWhatsappNumber, '0')) {
+        $footerWhatsappNumber = '62'.substr($footerWhatsappNumber, 1);
+    } elseif (str_starts_with($footerWhatsappNumber, '8')) {
+        $footerWhatsappNumber = '62'.$footerWhatsappNumber;
+    }
+@endphp
 <footer class="footer">
     <div class="container">
         <div class="footer-grid">
@@ -24,8 +32,8 @@
                 <h2>Hubungi Kami</h2>
                 <div class="footer-contact-list">
                     @if(filled($footerSettings['address']))<p><span>Alamat</span>{{ $footerSettings['address'] }}</p>@endif
-                    @if(filled($footerSettings['email']))<p><span>Email</span><a href="mailto:{{ $footerSettings['email'] }}">{{ $footerSettings['email'] }}</a></p>@endif
-                    @if(filled($footerSettings['phone']))<p><span>Telepon</span><a href="tel:{{ preg_replace('/[^+0-9]/', '', $footerSettings['phone']) }}">{{ $footerSettings['phone'] }}</a></p>@endif
+                    @if(filled($footerSettings['email']))<p class="footer-contact-item footer-contact-item--email"><span class="footer-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><span class="footer-contact-copy"><span>Email</span><a href="mailto:{{ $footerSettings['email'] }}">{{ $footerSettings['email'] }}</a></span></p>@endif
+                    @if(filled($footerSettings['phone']))<p class="footer-contact-item footer-contact-item--whatsapp"><span class="footer-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 11.6a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.6Z"/><path d="M9 8.5c.3-.6.6-.6.9-.6h.4c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.5.6c-.2.2-.2.4 0 .6.6 1 1.4 1.7 2.4 2.2.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.5.7c.3.1.4.3.4.5 0 .5-.2 1-.6 1.3-.5.4-1.1.6-1.8.5-1.2-.2-2.5-.8-3.8-2-1.2-1.1-2-2.4-2.2-3.5-.1-.7.1-1.4.5-1.9Z"/></svg></span><span class="footer-contact-copy"><span>WhatsApp</span>@if(strlen($footerWhatsappNumber) >= 9 && strlen($footerWhatsappNumber) <= 15)<a class="footer-whatsapp-link" href="https://wa.me/{{ $footerWhatsappNumber }}" target="_blank" rel="noopener noreferrer"><span>{{ $footerSettings['phone'] }}</span><span class="footer-whatsapp-cta">Chat sekarang <span aria-hidden="true">↗</span></span></a>@else<a href="tel:{{ preg_replace('/[^+0-9]/', '', $footerSettings['phone']) }}">{{ $footerSettings['phone'] }}</a>@endif</span></p>@endif
                 </div>
                 @if(count($footerSettings['social']))
                 <div class="footer-social" aria-label="Media sosial">

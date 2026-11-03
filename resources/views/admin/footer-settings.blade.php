@@ -29,7 +29,7 @@
         <div class="footer-settings-grid footer-contact-social">
             <div class="footer-setting-fields">
                 <label>Email sekolah<input type="email" name="email" maxlength="254" value="{{ old('email', $settings->get('email', '')) }}">@error('email')<small class="error">{{ $message }}</small>@enderror</label>
-                <label>Nomor telepon<input name="phone" maxlength="50" value="{{ old('phone', $settings->get('phone', '')) }}">@error('phone')<small class="error">{{ $message }}</small>@enderror</label>
+                <label>Nomor WhatsApp<input name="phone" maxlength="50" value="{{ old('phone', $settings->get('phone', '')) }}">@error('phone')<small class="error">{{ $message }}</small>@enderror</label>
                 <p class="footer-address-note">Alamat yang tampil di bagian kontak menggunakan alamat sekolah di bagian Identitas Sekolah.</p>
             </div>
             <div>

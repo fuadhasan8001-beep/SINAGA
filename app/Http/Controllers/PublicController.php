@@ -24,6 +24,11 @@ class PublicController extends Controller
         return view('public.home', [...$this->publicViewData(),'scrollTarget'=>match($section){'pengumuman','ppdb'=>'pengumuman','galeri'=>'galeri','ekskul'=>'ekstrakurikuler','akademik'=>'akademik','kontak'=>'kontak',default=>$section}]);
     }
 
+    public function principalGreeting(): View
+    {
+        return view('public.principal-greeting', $this->publicData());
+    }
+
     public function article(string $slug): View
     {
         $article = Article::published()->with(['author', 'category'])->where('slug', $slug)->firstOrFail();

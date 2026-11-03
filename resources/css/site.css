@@ -251,6 +251,18 @@ h1,h2,h3{color:#25352d;letter-spacing:-.04em}
 .footer-contact-list p{display:grid;gap:1px;margin:0;font-size:.82rem;overflow-wrap:anywhere}
 .footer-contact-list p span{color:#a8c3af;font-size:.68rem;font-weight:750;letter-spacing:.07em;text-transform:uppercase}
 .footer-contact-list a{color:#e2ece5;overflow-wrap:anywhere}
+.footer-contact-list .footer-contact-item{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:11px;margin:0}
+.footer-contact-icon{display:grid;width:38px;height:38px;place-items:center;border:1px solid rgba(197,213,202,.24);border-radius:11px;background:rgba(255,255,255,.07);color:#d8e8dc}
+.footer-contact-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.footer-contact-copy{display:grid;gap:3px;min-width:0}
+.footer-contact-copy>span{color:#a8c3af;font-size:.68rem;font-weight:750;letter-spacing:.07em;text-transform:uppercase}
+.footer-contact-list .footer-contact-item--whatsapp{align-items:stretch;padding:11px;border:1px solid rgba(117,220,151,.48);border-radius:14px;background:linear-gradient(115deg,rgba(37,151,79,.22),rgba(37,151,79,.08));box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.footer-contact-item--whatsapp .footer-contact-icon{align-self:center;border-color:rgba(143,235,173,.36);background:#168348;color:#fff}
+.footer-contact-list .footer-whatsapp-link{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font-size:.9rem;font-weight:750;text-decoration:none}
+.footer-whatsapp-cta{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;padding:6px 9px;border:1px solid rgba(215,255,226,.38);border-radius:999px;background:#168348;color:#fff;font-size:.68rem;font-weight:800;letter-spacing:0;text-transform:none;transition:background .15s,transform .15s}
+.footer-whatsapp-cta span{color:inherit;font-size:.8rem}
+.footer-whatsapp-link:hover .footer-whatsapp-cta{background:#21a05a;transform:translateY(-1px)}
+.footer-contact-item--whatsapp:focus-within{outline:3px solid rgba(134,217,165,.55);outline-offset:3px}
 .footer-social{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}
 .footer-social a{padding:6px 10px;border:1px solid rgba(197,213,202,.32);border-radius:999px;color:#e2ece5;font-size:.72rem;font-weight:650;transition:background .15s,border-color .15s}
 .footer-social a:hover{border-color:#f1e58a;background:rgba(241,229,138,.1);color:#f1e58a}
@@ -373,6 +385,10 @@ h1,h2,h3{font-family:"Epilogue","Plus Jakarta Sans",system-ui,sans-serif;color:#
 #profil .greeting-card>.eyebrow{margin-bottom:8px;color:#38684a;font-size:.85rem;font-weight:800;letter-spacing:.075em}
 #profil .greeting-card>h3{display:none}
 #profil .greeting-card>p{margin:0;color:#435448;font-size:1rem;line-height:1.8}
+#profil .greeting-card>.greeting-excerpt{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+#profil .greeting-more{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin-top:14px;padding:8px 14px;border:1px solid #4f9b68;border-radius:8px;background:#4f9b68;color:#fff;font-size:.82rem;font-weight:750;transition:background .16s,border-color .16s,transform .16s}
+#profil .greeting-more:hover{transform:translateY(-1px);border-color:#397b50;background:#397b50}
+#profil .greeting-card--empty>p{color:#64746a;font-style:italic}
 @media(max-width:650px){#profil .person{margin-top:25px;padding-top:20px}#profil .person b{font-size:1.16rem}#profil .person small,#profil .greeting-card>p{font-size:.94rem}}
 @media(max-width:640px){.academic-content-entry{grid-template-columns:94px minmax(0,1fr);column-gap:15px}.academic-entry-image{width:94px;height:82px}.academic-entry-category{margin-bottom:7px}.academic-entry-copy h3{font-size:.98rem}.academic-entry-copy p{font-size:.88rem}}
 .gallery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(115px,auto);gap:15px;padding-top:20px;border-top:2px solid #d8e9dc}
@@ -384,6 +400,32 @@ h1,h2,h3{font-family:"Epilogue","Plus Jakarta Sans",system-ui,sans-serif;color:#
 .gallery-placeholder{position:relative;border:1px dashed #c7dfcd;border-radius:8px 30px 8px 30px;background:#f0faf3}
 .contact-panel{border-top-color:#86d9a5}
 .contact-row{border-bottom-color:#e2e9e3}
+.contact-row a{color:#166534;font-weight:650;text-decoration:underline;text-decoration-color:#a6c9ae;text-underline-offset:3px}
+.contact-row a:hover{color:#17442c;text-decoration-color:currentColor}
+
+/* Principal's welcome message detail */
+.principal-greeting-page{padding-block:clamp(38px,6vw,72px);background:radial-gradient(ellipse at 8% 12%,rgba(218,242,222,.55),transparent 34%),linear-gradient(145deg,#fbfcf8,#f3f8f1)}
+.principal-greeting-layout{max-width:1100px}
+.principal-greeting-back{display:inline-flex;align-items:center;min-height:42px;margin-bottom:18px;padding:8px 14px;border:1px solid #c8ddce;border-radius:999px;background:#fff;color:#315c40;font-size:.84rem;font-weight:700;transition:background .16s,color .16s}
+.principal-greeting-back:hover{background:#edf8f0;color:#17442c}
+.principal-greeting-card{overflow:hidden;padding:0;border:1px solid var(--color-border);border-radius:20px 20px 8px 20px;background:var(--color-surface);box-shadow:0 16px 42px rgba(27,69,43,.08)}
+.principal-greeting-banner{position:relative;height:clamp(260px,30vw,360px);overflow:hidden;background:linear-gradient(125deg,#d8efdc,#b5d9bd 48%,#edf5d7)}
+.principal-greeting-banner::after{position:absolute;inset:0;content:"";pointer-events:none;background:linear-gradient(to bottom,transparent 50%,var(--color-surface) 100%)}
+.principal-greeting-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.principal-greeting-banner-placeholder{display:grid;width:100%;height:100%;place-items:center;background:radial-gradient(circle at 78% 20%,rgba(255,255,255,.6),transparent 22%),linear-gradient(125deg,#d8efdc,#b5d9bd 48%,#edf5d7);color:#315c40;font-family:"Epilogue","Plus Jakarta Sans",sans-serif;font-size:clamp(1.2rem,3vw,2rem);font-weight:800}
+.principal-greeting-portrait{position:relative;z-index:1;display:grid;width:154px;height:154px;margin:-77px auto 0;place-items:center;overflow:hidden;border:6px solid var(--color-surface);border-radius:50%;background:#e5f3e8;box-shadow:0 8px 24px rgba(27,69,43,.18);color:#28563a;font-family:"Epilogue","Plus Jakarta Sans",sans-serif;font-size:2rem;font-weight:800}
+.principal-greeting-portrait img{display:block;width:100%;height:100%;object-fit:cover}
+.principal-greeting-header{padding:22px 24px 0;text-align:center}
+.principal-greeting-header .eyebrow{margin-bottom:8px}
+.principal-greeting-header h1{margin:0;color:#203b28;font-size:clamp(1.8rem,4vw,2.45rem);line-height:1.18}
+.principal-greeting-header>p{margin:9px 0 0;color:#526358;font-size:1rem;font-weight:700}
+.principal-greeting-body{max-width:790px;margin:24px auto 0;padding:25px clamp(12px,3vw,30px) 48px;border-top:1px solid var(--color-border);color:#435448;font-size:1.04rem;line-height:1.78;text-align:left}
+.principal-greeting-body p{margin:0 0 1.2em;overflow-wrap:anywhere}
+.principal-greeting-body p:last-child{margin-bottom:0}
+.principal-greeting-body .principal-greeting-empty{color:#64746a;font-style:italic}
+@media(max-width:800px){.principal-greeting-page{padding-block:clamp(34px,5vw,52px)}.principal-greeting-banner{height:clamp(230px,36vw,300px)}.principal-greeting-portrait{width:138px;height:138px;margin-top:-69px}}
+@media(max-width:650px){.principal-greeting-page{padding-block:30px 42px}.principal-greeting-back{margin-bottom:14px}.principal-greeting-card{border-radius:16px 16px 7px 16px}.principal-greeting-banner{height:clamp(175px,55vw,230px)}.principal-greeting-portrait{width:106px;height:106px;margin-top:-53px;border-width:5px;font-size:1.5rem}.principal-greeting-header{padding:16px 14px 0}.principal-greeting-header h1{font-size:clamp(1.45rem,7vw,1.9rem)}.principal-greeting-header>p{font-size:.94rem;overflow-wrap:anywhere}.principal-greeting-body{max-width:100%;margin-top:20px;padding:21px 18px 30px;font-size:.96rem;line-height:1.75}}
+@media(prefers-reduced-motion:reduce){.principal-greeting-back{transition:none}}
 .form-panel{border-top-color:#86d9a5;background:#f5f7f5}
 .field input:focus,.field textarea:focus{border-color:#75bf8e;box-shadow:0 0 0 3px rgba(134,217,165,.25)}
 .footer{background:#f0faf3;border-top:1px solid #dcebe0;color:#25352d}

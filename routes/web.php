@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',[PublicController::class,'home'])->name('home');
 Route::get('/profil',[PublicController::class,'section'])->defaults('section','profil')->name('profile');
+Route::get('/profil/sambutan-kepala-sekolah',[PublicController::class,'principalGreeting'])->name('principal-greeting');
 Route::get('/akademik',[PublicController::class,'section'])->defaults('section','akademik')->name('academics');
 Route::get('/berita',[PublicController::class,'home'])->name('news');
 Route::get('/berita/{slug}',[PublicController::class,'article'])->name('article.show');

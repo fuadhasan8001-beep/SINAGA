@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @php
     $groups = [
-        'profile' => ['title' => 'Kelola Profil', 'subtitle' => 'Kelola identitas visual dan informasi profil sekolah.', 'keys' => ['school_name','school_tagline','principal','history','vision','mission','principal_greeting']],
+        'profile' => ['title' => 'Kelola Profil', 'subtitle' => 'Kelola identitas visual dan informasi profil sekolah.', 'keys' => ['school_name','school_tagline','history','vision','mission']],
         'hero' => ['title' => 'Kelola Hero', 'subtitle' => 'Atur foto latar dan tampilan Hero Beranda.', 'keys' => ['hero_label','hero_title','hero_description','hero_photo_position']],
         'academic' => ['title' => 'Akademik', 'subtitle' => 'Kelola empat kelompok informasi akademik sekolah.', 'keys' => []],
         'contact' => ['title' => 'Kontak', 'subtitle' => 'Kelola informasi kontak yang tampil pada bagian kontak dan footer website.', 'keys' => ['address','phone','email','office_hours']],
@@ -48,7 +48,6 @@
     $profileMedia = [
         'logo' => ['label'=>'Logo Sekolah','path'=>$photoPaths['logo']],
         'profile' => ['label'=>'Foto Profil Sekolah','path'=>$photoPaths['profile']],
-        'principal' => ['label'=>'Foto Kepala Sekolah','path'=>$photoPaths['principal']],
     ];
 @endphp
 <section class="panel hero-media-panel profile-photos-panel">
@@ -64,17 +63,114 @@
     </div>
 </section>
 @endif
-@if(in_array($section,['profile','contact'],true))
-<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="{{ $section }}">
+@if($section === 'profile')
+@php
+    $principalPhotoPath = filled($photoPaths['principal'] ?? null) && Storage::disk('public')->exists($photoPaths['principal']) ? $photoPaths['principal'] : null;
+    $principalBannerPath = filled($photoPaths['hero'] ?? null) && Storage::disk('public')->exists($photoPaths['hero']) ? $photoPaths['hero'] : null;
+    $principalGreetingMedia = [
+        [
+            'title' => 'Foto Kepala Sekolah',
+            'path' => $principalPhotoPath,
+            'alt' => 'Pratinjau foto kepala sekolah',
+            'preview_class' => 'principal-greeting-media-preview--portrait',
+            'help' => 'Foto yang mendampingi sambutan kepala sekolah.',
+            'action' => 'Kelola Foto Kepala Sekolah',
+            'href' => route('admin.photos.edit','principal'),
+            'empty' => 'Foto belum tersedia',
+        ],
+        [
+            'title' => 'Gambar Sampul Sambutan',
+            'path' => $principalBannerPath,
+            'alt' => 'Pratinjau gambar sampul sambutan',
+            'preview_class' => 'principal-greeting-media-preview--banner',
+            'help' => 'Menggunakan foto Hero yang dikelola di Kelola Hero.',
+            'action' => 'Kelola Foto Hero',
+            'href' => route('admin.settings.edit',['section'=>'hero']),
+            'empty' => 'Foto Hero belum tersedia',
+        ],
+    ];
+@endphp
+<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form profile-settings-form">
+    @csrf
+    @method('PUT')
+    <input type="hidden" name="section" value="profile">
+
+    <section class="profile-settings-section">
+        <header class="profile-settings-heading">
+            <h2>Identitas Sekolah</h2>
+            <p>Nama dan ringkasan identitas yang tampil pada website.</p>
+        </header>
+        <div class="profile-settings-identity-grid">
+            <label>{{ $fields['school_name'] }}
+                <input name="settings[school_name]" value="{{ old('settings.school_name',$settings['school_name']??'') }}">
+            </label>
+            <label>{{ $fields['school_tagline'] }}
+                <input name="settings[school_tagline]" value="{{ old('settings.school_tagline',$settings['school_tagline']??'') }}">
+            </label>
+        </div>
+    </section>
+
+    <section class="profile-settings-section">
+        <header class="profile-settings-heading">
+            <h2>Profil, Visi, dan Misi</h2>
+            <p>Lengkapi informasi utama sekolah.</p>
+        </header>
+        <label>{{ $fields['history'] }}
+            <textarea name="settings[history]" rows="6">{{ old('settings.history',$settings['history']??'') }}</textarea>
+        </label>
+        <div class="profile-settings-vision-mission-grid">
+            <label>{{ $fields['vision'] }}
+                <textarea name="settings[vision]" rows="7">{{ old('settings.vision',$settings['vision']??'') }}</textarea>
+            </label>
+            <label>{{ $fields['mission'] }}
+                <textarea name="settings[mission]" rows="7" placeholder="Tulis tiap poin misi pada baris terpisah.">{{ old('settings.mission',is_array($settings['mission'] ?? null) ? implode("\n",$settings['mission']) : ($settings['mission'] ?? '')) }}</textarea>
+                <small class="profile-settings-hint">Setiap baris akan ditampilkan sebagai satu poin misi.</small>
+            </label>
+        </div>
+    </section>
+
+    <section class="profile-settings-section principal-greeting-settings" aria-labelledby="principalGreetingHeading">
+        <header class="profile-settings-heading">
+            <h2 id="principalGreetingHeading">Kepala Sekolah &amp; Sambutan</h2>
+            <p>Kelola nama kepala sekolah, foto, dan sambutan yang tampil pada halaman Profil.</p>
+        </header>
+        <label>{{ $fields['principal'] }}
+            <input name="settings[principal]" maxlength="3000" value="{{ old('settings.principal',$settings['principal']??'') }}">
+        </label>
+        <div class="principal-greeting-media-grid">
+            @foreach($principalGreetingMedia as $media)
+                <article class="principal-greeting-media-card">
+                    <h3>{{ $media['title'] }}</h3>
+                    <div class="principal-greeting-media-preview {{ $media['preview_class'] }}">
+                        @if($media['path'])
+                            <img src="{{ Storage::disk('public')->url($media['path']) }}" alt="{{ $media['alt'] }}">
+                        @else
+                            <span>{{ $media['empty'] }}</span>
+                        @endif
+                    </div>
+                    <p class="principal-greeting-media-help">{{ $media['help'] }}</p>
+                    <a class="secondary" href="{{ $media['href'] }}">{{ $media['action'] }}</a>
+                </article>
+            @endforeach
+        </div>
+        <label>{{ $fields['principal_greeting'] }}
+            <textarea name="settings[principal_greeting]" rows="10" maxlength="3000">{{ old('settings.principal_greeting',$settings['principal_greeting']??'') }}</textarea>
+            <small class="profile-settings-hint">Pisahkan paragraf dengan satu baris kosong. Maksimal 3.000 karakter.</small>
+        </label>
+    </section>
+
+    <div class="actions profile-settings-actions">
+        <a class="secondary" href="{{ route('admin.settings.edit',['section'=>'profile']) }}">Batal</a>
+        <button class="primary" type="submit">Simpan {{ strtolower($activeGroup['title']) }}</button>
+    </div>
+</form>
+@elseif($section === 'contact')
+<form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="contact">
 @foreach($activeGroup['keys'] as $key)
 @php $label = $fields[$key]; @endphp
-@if($key === 'mission')
-    <label>{{ $label }}<textarea name="settings[mission]" rows="5" placeholder="Tulis tiap poin misi pada baris terpisah agar tampil rapi di website.">{{ old('settings.mission',is_array($settings['mission'] ?? null) ? implode("\n",$settings['mission']) : ($settings['mission'] ?? '')) }}</textarea></label>
-@else
-<label>{{ $label }}@if(in_array($key,$textareaKeys,true))<textarea name="settings[{{ $key }}]" rows="{{ $key === 'principal_greeting' ? 7 : 3 }}">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
-@endif
+<label>{{ $label }}@if(in_array($key,$textareaKeys,true))<textarea name="settings[{{ $key }}]" rows="3">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
 @endforeach
-<div class="actions"><a class="secondary" href="{{ route('admin.settings.edit',['section'=>$section]) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
+<div class="actions"><a class="secondary" href="{{ route('admin.settings.edit',['section'=>'contact']) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
 @endif
 @if($section === 'academic')
 @php($academicGroups=['learning_activity'=>'Kegiatan Pembelajaran','education_calendar'=>'Kalender Pendidikan','academic_program'=>'Program Ekstrakurikuler','academic_assessment'=>'Asesmen Akademik'])

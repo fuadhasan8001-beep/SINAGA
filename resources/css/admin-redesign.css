@@ -309,3 +309,54 @@ body{background:#edf8f0;color:#26372e}
 .account-profile-actions{display:flex;align-items:center;gap:9px;margin-top:4px;padding-top:14px;border-top:1px solid #e5eee7}
 .account-profile-actions .primary,.account-profile-actions .secondary{display:inline-flex;min-height:42px;align-items:center;justify-content:center;padding:9px 15px;border-radius:7px;font-size:.82rem;font-weight:700}
 @media(max-width:520px){.account-profile-form{padding:20px 17px;gap:13px}.account-identity-fields,.account-new-password-fields{grid-template-columns:minmax(0,1fr)}.account-profile-actions{flex-wrap:wrap}.account-profile-actions .primary,.account-profile-actions .secondary{min-width:120px}}
+
+/* Principal greeting fields within Kelola Profil */
+.principal-greeting-settings{display:grid;gap:14px;min-width:0;margin:25px 0 4px;padding:20px;border:1px solid #dce9de;border-radius:12px;background:#fbfdfb}
+.principal-greeting-settings legend{padding:0 8px;color:#203b28;font-size:.98rem;font-weight:800}
+.principal-greeting-settings>p{margin:-5px 0 2px;color:#64746a;font-size:.82rem}
+.principal-greeting-settings>label{display:grid;gap:7px;min-width:0;color:#34483a;font-size:.85rem;font-weight:700}
+.principal-greeting-settings input,.principal-greeting-settings textarea{width:100%;min-width:0;border-radius:8px}
+.principal-greeting-settings textarea{min-height:230px;resize:vertical;line-height:1.65}
+.principal-greeting-hint{color:#64746a;font-size:.77rem;font-weight:500;line-height:1.5}
+.principal-greeting-media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
+.principal-greeting-media-card{display:grid;min-width:0;align-content:start;gap:10px;padding:14px;border:1px solid #e0e9e2;border-radius:10px;background:#fff}
+.principal-greeting-media-card h3{margin:0;color:#294b34;font-size:.87rem}
+.principal-greeting-media-card p{margin:0;color:#64746a;font-size:.76rem;line-height:1.5}
+.principal-greeting-media-card img,.principal-greeting-admin-placeholder{display:grid;width:100%;height:150px;place-items:center;object-fit:cover;border:1px solid #e0e9e2;border-radius:8px;background:#f0f6f1;color:#77877a;font-size:.78rem;text-align:center}
+.principal-greeting-media-card img.principal-greeting-admin-portrait{width:132px;height:132px;justify-self:center;border-radius:50%}
+.principal-greeting-media-card img.principal-greeting-admin-banner{height:150px}
+.principal-greeting-media-card .secondary{display:inline-flex;min-height:40px;align-items:center;justify-content:center;justify-self:start;padding:8px 12px;border-radius:8px;font-size:.77rem;font-weight:700}
+@media(max-width:720px){.principal-greeting-settings{padding:17px}.principal-greeting-media-grid{grid-template-columns:minmax(0,1fr)}.principal-greeting-settings textarea{min-height:210px}.principal-greeting-media-card img,.principal-greeting-admin-placeholder{height:170px}}
+
+/* Balanced Kelola Profil form */
+.hero-media-grid--profile{grid-template-columns:repeat(2,minmax(0,1fr))}
+.profile-settings-form{display:grid;grid-template-columns:minmax(0,1fr)!important;align-items:start;gap:0;padding:clamp(18px,2.6vw,30px)}
+.profile-settings-section{display:grid;gap:18px;min-width:0;padding:0 0 26px;margin:0 0 26px;border:0;border-bottom:1px solid #e2ebe3;background:transparent}
+.profile-settings-section:last-of-type{margin-bottom:0}
+.profile-settings-heading h2{margin:0 0 5px;color:#203b28;font-size:1.08rem}
+.profile-settings-heading p{margin:0;color:#687a6e;font-size:.82rem;line-height:1.55}
+.profile-settings-form label{display:grid;gap:7px;min-width:0;color:#334b39;font-size:.86rem;font-weight:700}
+.profile-settings-form input,.profile-settings-form textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;padding:11px 13px;border:1px solid #d4e0d6;border-radius:9px;background:#fff;color:#24392b;font:500 .9rem/1.55 inherit}
+.profile-settings-form input{min-height:46px}
+.profile-settings-form textarea{min-height:160px;resize:vertical;line-height:1.6}
+.profile-settings-form label>small{color:#64746a;font-size:.77rem;font-weight:500;line-height:1.5}
+.profile-settings-identity-grid,.profile-settings-vision-mission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;min-width:0}
+.profile-settings-vision-mission-grid textarea{min-height:180px}
+.profile-settings-vision-mission-grid label{align-content:start}
+.profile-settings-form .principal-greeting-settings{gap:18px;margin:0;padding:0 0 26px;border:0;border-bottom:1px solid #e2ebe3;border-radius:0;background:transparent}
+.profile-settings-form .principal-greeting-settings textarea{min-height:240px}
+.principal-greeting-media-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:16px}
+.principal-greeting-media-card{grid-template-rows:auto 170px minmax(40px,auto) auto;align-content:stretch;gap:12px;padding:16px}
+.principal-greeting-media-card h3{min-height:2.6em;display:flex;align-items:center}
+.principal-greeting-media-preview{display:grid;width:100%;height:170px;place-items:center;overflow:hidden;border:1px solid #e0e9e2;border-radius:9px;background:#f0f6f1;color:#77877a;font-size:.8rem;text-align:center}
+.principal-greeting-media-preview img{width:100%;height:100%;object-fit:cover}
+.principal-greeting-media-preview--portrait img{width:150px;height:150px;object-fit:contain;border-radius:50%;background:#fff}
+.principal-greeting-media-preview--banner img{object-fit:cover}
+.principal-greeting-media-help{align-self:start;min-height:2.8em}
+.principal-greeting-media-card .secondary{align-self:end;justify-self:stretch;width:100%;box-sizing:border-box}
+.profile-settings-hint{color:#64746a;font-size:.77rem;font-weight:500;line-height:1.5}
+.profile-settings-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding-top:22px}
+.profile-settings-actions .primary,.profile-settings-actions .secondary{display:inline-flex;min-height:44px;align-items:center;justify-content:center;padding:10px 16px}
+@media(max-width:900px){.profile-settings-identity-grid,.profile-settings-vision-mission-grid{gap:14px}.principal-greeting-media-card{padding:13px}}
+@media(max-width:720px){.profile-settings-identity-grid,.profile-settings-vision-mission-grid,.principal-greeting-media-grid{grid-template-columns:minmax(0,1fr)}.profile-settings-form{padding:18px}.profile-settings-section{gap:15px;padding-bottom:22px;margin-bottom:22px}.profile-settings-vision-mission-grid textarea{min-height:160px}.principal-greeting-media-card{grid-template-rows:auto 170px minmax(0,auto) auto}.principal-greeting-media-help{min-height:0}.profile-settings-actions{display:grid;grid-template-columns:minmax(0,1fr)}.profile-settings-actions .primary,.profile-settings-actions .secondary{width:100%}}
+@media(max-width:380px){.profile-settings-form{padding:15px}.principal-greeting-media-card{padding:12px}}

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -33,5 +34,13 @@ return new class extends Migration
     public function down(): void
     {
         // The sessions table is owned by the base users migration.
+        $baseUsersMigrationHasRun = Schema::hasTable('migrations')
+            && DB::table('migrations')->where('migration', '0001_01_01_000000_create_users_table')->exists();
+
+        if ($baseUsersMigrationHasRun) {
+            return;
+        }
+
+        Schema::dropIfExists('sessions');
     }
 };
