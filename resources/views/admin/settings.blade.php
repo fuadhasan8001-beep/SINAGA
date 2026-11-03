@@ -1,8 +1,8 @@
 @extends('layouts.admin')
 @php
     $groups = [
-        'profile' => ['title' => 'Kelola Profil', 'subtitle' => 'Kelola identitas dan informasi profil sekolah.', 'keys' => ['school_name','principal','history','vision','mission','principal_greeting']],
-        'hero' => ['title' => 'Kelola Hero', 'subtitle' => 'Atur tampilan Hero Beranda, foto latar, dan foto identitas sekolah.', 'keys' => ['hero_label','hero_title','hero_description','hero_photo_position']],
+        'profile' => ['title' => 'Kelola Profil', 'subtitle' => 'Kelola identitas visual dan informasi profil sekolah.', 'keys' => ['school_name','school_tagline','principal','history','vision','mission','principal_greeting']],
+        'hero' => ['title' => 'Kelola Hero', 'subtitle' => 'Atur foto latar dan tampilan Hero Beranda.', 'keys' => ['hero_label','hero_title','hero_description','hero_photo_position']],
         'academic' => ['title' => 'Akademik', 'subtitle' => 'Kelola empat kelompok informasi akademik sekolah.', 'keys' => []],
         'contact' => ['title' => 'Kontak', 'subtitle' => 'Kelola informasi kontak yang tampil pada bagian kontak dan footer website.', 'keys' => ['address','phone','email','office_hours']],
     ];
@@ -13,36 +13,61 @@
 @section('content')
 @if($section === 'hero')
 @php
-    $heroMedia = [
-        'hero' => ['label'=>'Foto latar Hero Beranda','path'=>$photoPaths['hero']],
-        'logo' => ['label'=>'Logo sekolah','path'=>$photoPaths['logo']],
-        'profile' => ['label'=>'Foto profil sekolah','path'=>$photoPaths['profile']],
-        'principal' => ['label'=>'Foto kepala sekolah','path'=>$photoPaths['principal']],
-    ];
+    $heroMedia = ['hero' => ['label'=>'Foto Latar Hero Beranda','path'=>$photoPaths['hero']]];
 @endphp
 <section class="panel hero-media-panel">
-    <div class="panel-head"><div><h2>Foto Hero dan Identitas Visual</h2><p>Pratinjau dan ganti foto yang dipakai di Beranda serta identitas visual sekolah.</p></div></div>
-    <div class="hero-media-grid">
+    <div class="panel-head"><div><h2>Foto Latar Hero Beranda</h2><p>Foto ini hanya digunakan sebagai latar bagian Hero Beranda.</p></div></div>
+    <div class="hero-media-grid hero-media-grid--hero">
         @foreach($heroMedia as $placement=>$media)
             <article class="hero-media-card hero-media-card--{{ $placement }}">
                 <h3>{{ $media['label'] }}</h3>
                 @if(filled($media['path']))<img src="{{ Storage::disk('public')->url($media['path']) }}" alt="Pratinjau {{ strtolower($media['label']) }}" loading="lazy">@else<div class="hero-media-empty">Belum ada foto</div>@endif
-                <a class="secondary" href="{{ route('admin.photos.edit',$placement) }}">{{ filled($media['path']) ? 'Ganti foto' : 'Pilih foto' }}</a>
+                <a class="secondary" href="{{ route('admin.photos.edit',$placement) }}">Ganti Foto</a>
             </article>
         @endforeach
     </div>
 </section>
 <form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form hero-settings-form">@csrf @method('PUT')<input type="hidden" name="section" value="hero">
 <fieldset class="hero-settings-group"><legend>Konten Hero Beranda</legend><p>Label, judul, deskripsi, dan posisi foto ini langsung digunakan pada halaman utama.</p>
-@foreach(['hero_label','hero_title','hero_description'] as $key) @php($label = $fields[$key])
-<label>{{ $label }}@if($key === 'hero_description')<textarea name="settings[{{ $key }}]" rows="3" maxlength="500">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@else<input name="settings[{{ $key }}]" maxlength="{{ $key === 'hero_title' ? 180 : 80 }}" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
+@foreach(['hero_label','hero_title','hero_description'] as $key)
+@php $label = $fields[$key]; @endphp
+<label>{{ $label }}
+    @if($key === 'hero_description')
+        <textarea name="settings[{{ $key }}]" rows="3" maxlength="500">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>
+    @else
+        <input name="settings[{{ $key }}]" maxlength="{{ $key === 'hero_title' ? 180 : 80 }}" value="{{ old('settings.'.$key,$settings[$key]??'') }}">
+    @endif
+</label>
 @endforeach
 <label>{{ $fields['hero_photo_position'] }}<select name="settings[hero_photo_position]">@foreach(['center'=>'Tengah','left'=>'Kiri','right'=>'Kanan','top'=>'Atas','bottom'=>'Bawah'] as $value=>$label)<option value="{{ $value }}" @selected(old('settings.hero_photo_position',$settings['hero_photo_position']??'center')===$value)>{{ $label }}</option>@endforeach</select></label>
 </fieldset>
 <div class="actions"><a class="secondary" href="{{ route('admin.settings.edit',['section'=>'hero']) }}">Batal</a><button class="primary">Simpan Pengaturan Hero</button></div></form>
-@elseif(in_array($section,['profile','contact'],true))
+@endif
+@if($section === 'profile')
+@php
+    $profileMedia = [
+        'logo' => ['label'=>'Logo Sekolah','path'=>$photoPaths['logo']],
+        'profile' => ['label'=>'Foto Profil Sekolah','path'=>$photoPaths['profile']],
+        'principal' => ['label'=>'Foto Kepala Sekolah','path'=>$photoPaths['principal']],
+    ];
+@endphp
+<section class="panel hero-media-panel profile-photos-panel">
+    <div class="panel-head"><div><h2>Identitas Visual Sekolah</h2><p>Setiap foto tersimpan terpisah dan digunakan hanya pada lokasi yang sesuai.</p></div></div>
+    <div class="hero-media-grid hero-media-grid--profile">
+        @foreach($profileMedia as $placement=>$media)
+            <article class="hero-media-card hero-media-card--{{ $placement }}">
+                <h3>{{ $media['label'] }}</h3>
+                @if(filled($media['path']))<img src="{{ Storage::disk('public')->url($media['path']) }}" alt="Pratinjau {{ strtolower($media['label']) }}" loading="lazy">@else<div class="hero-media-empty">Belum ada foto</div>@endif
+                <a class="secondary" href="{{ route('admin.photos.edit',$placement) }}">Ganti Foto</a>
+            </article>
+        @endforeach
+    </div>
+</section>
+@endif
+@if(in_array($section,['profile','contact'],true))
 <form method="post" action="{{ route('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="{{ $section }}">
-@foreach($activeGroup['keys'] as $key) @php($label = $fields[$key])
+@foreach($activeGroup['keys'] as $key)
+@php $label = $fields[$key]; @endphp
 @if($key === 'mission')
     <label>{{ $label }}<textarea name="settings[mission]" rows="5" placeholder="Tulis tiap poin misi pada baris terpisah agar tampil rapi di website.">{{ old('settings.mission',is_array($settings['mission'] ?? null) ? implode("\n",$settings['mission']) : ($settings['mission'] ?? '')) }}</textarea></label>
 @else

@@ -42,7 +42,18 @@ php artisan storage:link
 
 `public/storage` sengaja tidak disimpan di Git karena itu symbolic link yang bergantung pada lokasi proyek di setiap komputer. Perintah di atas membuat link `public/storage` ke `storage/app/public` pada komputer masing-masing. Jika link lama rusak, hapus hanya link `public/storage`, lalu jalankan kembali perintah tersebut.
 
-Path foto juga tersimpan di database (`content_entries.image_path`, `articles.cover_image`, `site_settings` untuk logo/foto sekolah, serta tabel SPMB). Karena file SQLite dan `.env` tidak di-version control, clone baru memerlukan salinan database yang sesuai dengan aset. Untuk SQLite, tutup aplikasi lalu salin backup `database/database.sqlite` dari anggota tim yang memiliki data; jangan menjalankan `migrate:fresh`. Untuk MySQL/MariaDB, ekspor dan impor database aplikasi yang sama atau ekspor tabel data terkait (`site_settings`, `media_assets`, `content_entries`, `articles`, `spmb_settings`, dan `spmb_photos`) ke database yang sudah ada. Gunakan kredensial melalui `.env` lokal—jangan commit `.env` atau dump yang berisi rahasia.
+Path foto juga tersimpan di database (`content_entries.image_path`, `articles.cover_image`, `site_settings` untuk logo/foto sekolah, serta tabel SPMB). File `sinaga-share.sqlite` di root repository adalah salinan SQLite untuk sinkronisasi tim. File ini memuat konten dan pengaturan publik beserta metadata migrasinya, tetapi tidak memuat akun, sesi, pesan kontak, cache, atau log aktivitas. Database kerja `database/database.sqlite` dan `.env` lokal tetap diabaikan Git.
+
+Untuk mengambil data terbaru di komputer anggota tim, hentikan aplikasi lalu jalankan dari root repository:
+
+```sh
+git pull
+cp database/database.sqlite database/database.sqlite.backup
+cp sinaga-share.sqlite database/database.sqlite
+php artisan storage:link
+```
+
+Perintah pertama `cp` membuat backup lokal; bila database lokal belum ada, lewati baris itu. File share tidak memiliki akun login, jadi buat akun Admin lokal melalui seeder dan nilai `ADMIN_NAME`, `ADMIN_EMAIL`, serta `ADMIN_PASSWORD` di `.env`. Jangan menjalankan `migrate:fresh`. Untuk MySQL/MariaDB, ekspor dan impor tabel data terkait (`site_settings`, `media_assets`, `content_entries`, `articles`, `spmb_settings`, dan `spmb_photos`) ke database yang sudah ada. Gunakan kredensial melalui `.env` lokal—jangan commit `.env` atau dump yang berisi rahasia.
 
 Saat menambahkan foto baru yang memang harus tersedia bagi tim, periksa lalu commit aset dan perubahan data yang diperlukan bersama-sama:
 

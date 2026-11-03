@@ -17,12 +17,21 @@ class FooterSettingsWorkflowTest extends TestCase
         $this->actingAs($admin)->get(route('admin.footer.edit'))
             ->assertOk()
             ->assertSee('Pengaturan Footer')
+            ->assertSee('Nama sekolah, slogan, dan logo dikelola di halaman Kelola Profil.')
+            ->assertDontSee('name="school_name"', false)
+            ->assertDontSee('school_logo_path')
             ->assertSee('data-footer-add="navigation"', false)
             ->assertSee('data-footer-add="social"', false);
 
+        $this->put(route('admin.settings.update'), [
+            'section' => 'profile',
+            'settings' => [
+                'school_name' => 'SMPN 1 Gondang Utama',
+                'school_tagline' => 'Belajar dan bertumbuh',
+            ],
+        ])->assertRedirect(route('admin.dashboard', ['section' => 'profil']));
+
         $this->put(route('admin.footer.update'), [
-            'school_name' => 'SMPN 1 Gondang Utama',
-            'school_tagline' => 'Belajar dan bertumbuh',
             'footer_description' => 'Sekolah yang ramah dan berprestasi.',
             'address' => 'Jl. Pendidikan No. 1',
             'email' => 'sekolah@example.sch.id',
@@ -41,6 +50,7 @@ class FooterSettingsWorkflowTest extends TestCase
         ])->assertRedirect(route('admin.footer.edit'));
 
         $this->assertSame('SMPN 1 Gondang Utama', json_decode(SiteSetting::whereKey('school_name')->value('value'), true));
+        $this->assertSame('Belajar dan bertumbuh', json_decode(SiteSetting::whereKey('school_tagline')->value('value'), true));
         $this->assertSame([
             ['label' => 'Beranda', 'url' => '/#beranda'],
             ['label' => 'Profil', 'url' => '/#profil'],
