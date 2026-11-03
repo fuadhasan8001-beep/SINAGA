@@ -11,6 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // The base users migration already creates this table. Keep this
+        // migration safe for databases where that migration has already run.
+        if (Schema::hasTable('sessions')) {
+            return;
+        }
+
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -26,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
+        // The sessions table is owned by the base users migration.
     }
 };

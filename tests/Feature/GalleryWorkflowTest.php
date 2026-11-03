@@ -27,6 +27,9 @@ class GalleryWorkflowTest extends TestCase
         $this->get(route('admin.content.index', 'gallery'))->assertOk()
             ->assertSee('Kelola Galeri')
             ->assertSee('Tambah Foto')
+            ->assertSee('Lihat Galeri')
+            ->assertSee(route('home').'#galeri', false)
+            ->assertSee('Urutan ini digunakan pada carousel publik.')
             ->assertSee('galleryAdminGrid', false)
             ->assertSee('Galeri belum memiliki foto');
     }
@@ -94,7 +97,11 @@ class GalleryWorkflowTest extends TestCase
 
         $response = $this->get(route('home'))->assertOk()
             ->assertSee('Galeri Sekolah')
+            ->assertSee('Dokumentasi Kegiatan Sekolah')
             ->assertSee('Foto dokumentasi yang telah diizinkan untuk dipublikasikan.')
+            ->assertSee('id="publicGalleryViewport"', false)
+            ->assertSee('data-gallery-carousel-prev', false)
+            ->assertSee('data-gallery-carousel-next', false)
             ->assertSee('data-gallery-prev', false)
             ->assertSee('data-gallery-next', false)
             ->assertSee('galleryLightboxTitle')
@@ -104,7 +111,9 @@ class GalleryWorkflowTest extends TestCase
         $this->assertLessThan(strpos($html, 'Foto Kedua'), strpos($html, 'Foto Pertama'));
 
         ContentEntry::where('type', 'gallery')->delete();
-        $this->get(route('home'))->assertOk()->assertSee('Foto dokumentasi akan ditampilkan setelah diunggah oleh administrator.')
+        $this->get(route('home'))->assertOk()->assertSee('Galeri belum memiliki dokumentasi')
+            ->assertDontSee('data-gallery-carousel-prev', false)
+            ->assertDontSee('data-gallery-carousel-next', false)
             ->assertDontSee('Tambah Foto');
     }
 }

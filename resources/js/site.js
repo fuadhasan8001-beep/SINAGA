@@ -209,6 +209,35 @@ contactForm?.addEventListener('submit',()=>{
     submit.textContent='Mengirim pesan…';
 });
 
+document.querySelectorAll('[data-gallery-carousel]').forEach(carousel=>{
+    const viewport=carousel.querySelector('.gallery-carousel-viewport');
+    const track=carousel.querySelector('.gallery-track');
+    const previous=carousel.querySelector('[data-gallery-carousel-prev]');
+    const next=carousel.querySelector('[data-gallery-carousel-next]');
+    const cards=[...carousel.querySelectorAll('[data-gallery-item]')];
+    if(!viewport||!track||!cards.length)return;
+    const updateButtons=()=>{
+        const end=viewport.scrollWidth-viewport.clientWidth;
+        if(previous)previous.disabled=viewport.scrollLeft<=2;
+        if(next)next.disabled=end<=2||viewport.scrollLeft>=end-2;
+    };
+    const move=direction=>{
+        const card=cards[0];
+        if(!card)return;
+        const gap=parseFloat(getComputedStyle(track).columnGap)||0;
+        viewport.scrollBy({left:direction*(card.getBoundingClientRect().width+gap),behavior:reduceMotion?'auto':'smooth'});
+    };
+    previous?.addEventListener('click',()=>move(-1));
+    next?.addEventListener('click',()=>move(1));
+    viewport.addEventListener('scroll',updateButtons,{passive:true});
+    viewport.addEventListener('keydown',event=>{
+        if(event.key==='ArrowLeft'){event.preventDefault();move(-1);}
+        if(event.key==='ArrowRight'){event.preventDefault();move(1);}
+    });
+    window.addEventListener('resize',updateButtons,{passive:true});
+    updateButtons();
+});
+
 const galleryLightbox=document.getElementById('galleryLightbox');
 if(galleryLightbox){
     const photos=[...document.querySelectorAll('[data-gallery-open]')],image=document.getElementById('galleryLightboxImage'),title=document.getElementById('galleryLightboxTitle');

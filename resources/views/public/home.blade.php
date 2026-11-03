@@ -166,9 +166,12 @@
     </div>
 </section>
 
-<section class="section" id="galeri"><div class="container"><div class="section-head"><span class="eyebrow">Dokumentasi</span><h2>Galeri Sekolah</h2><p>Foto dokumentasi yang telah diizinkan untuk dipublikasikan.</p></div>
+<section class="section" id="galeri"><div class="container"><div class="gallery-section-head"><div class="section-head"><span class="eyebrow">Galeri Sekolah</span><h2>Dokumentasi Kegiatan Sekolah</h2><p>Foto dokumentasi yang telah diizinkan untuk dipublikasikan.</p></div></div>
 @if($galleryPhotos->isNotEmpty())
-    <div class="gallery-grid" id="publicGalleryGrid">
+    <div class="gallery-carousel" data-gallery-carousel>
+        <button class="gallery-carousel-arrow gallery-carousel-prev" type="button" data-gallery-carousel-prev aria-label="Geser galeri ke kiri">←</button>
+        <div class="gallery-carousel-viewport" id="publicGalleryViewport" role="region" aria-label="Dokumentasi kegiatan sekolah" tabindex="0">
+        <div class="gallery-track" id="publicGalleryGrid">
         @foreach($galleryPhotos as $photo)
             <article class="gallery-item" data-gallery-item>
                 <button class="gallery-photo-button" type="button" data-gallery-open data-photo-src="{{ Storage::disk('public')->url($photo->image_path) }}" data-photo-title="{{ $photo->title }}" aria-label="Perbesar foto: {{ $photo->title }}">
@@ -177,6 +180,9 @@
                 <h3>{{ $photo->title }}</h3>
             </article>
         @endforeach
+        </div>
+        </div>
+        <button class="gallery-carousel-arrow gallery-carousel-next" type="button" data-gallery-carousel-next aria-label="Geser galeri ke kanan">→</button>
     </div>
     <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri foto">
         <button class="gallery-lightbox-close" type="button" data-gallery-close aria-label="Tutup galeri">×</button>
@@ -185,7 +191,7 @@
         <button class="gallery-lightbox-nav gallery-lightbox-next" type="button" data-gallery-next aria-label="Foto berikutnya">Berikutnya</button>
     </dialog>
 @else
-    <div class="gallery-placeholder"><div class="gallery-placeholder-icon" aria-hidden="true">▧</div><strong>Galeri sekolah</strong><p>Foto dokumentasi akan ditampilkan setelah diunggah oleh administrator.</p></div>
+    <div class="gallery-placeholder"><div class="gallery-placeholder-icon" aria-hidden="true">▧</div><strong>Galeri belum memiliki dokumentasi</strong><p>Foto kegiatan akan tampil di sini setelah diunggah oleh administrator.</p></div>
 @endif
 </div></section>
 

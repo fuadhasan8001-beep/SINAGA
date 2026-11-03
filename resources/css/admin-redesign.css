@@ -154,13 +154,14 @@ body{background:#edf8f0;color:#26372e}
 .gallery-upload-placeholder[hidden]{display:none}.gallery-upload-placeholder span{font-size:2.2rem;line-height:1}
 .gallery-upload-copy{display:grid;gap:5px;color:#245c36}.gallery-upload-copy small{color:#63756a;font-weight:400}
 .gallery-image-field input[type=file]{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
-.gallery-admin{padding:22px;border:1px solid #dce9df;border-radius:18px;background:linear-gradient(145deg,#f9fcf9,#f1f8f2)}
+.gallery-admin{padding:22px;border:1px solid #e6dfcf;border-radius:18px;background:#f8f5eb}
 .gallery-admin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:8px}
+.gallery-admin-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex:0 0 auto;flex-wrap:wrap}
 .gallery-admin-head h2{margin:0;color:#203b28;font-size:1.2rem}.gallery-admin-head p,.gallery-order-status{margin:5px 0 0;color:#64746a;font-size:.86rem}
 .gallery-order-status{min-height:1.4em;margin:10px 0 17px}
 .gallery-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
-.gallery-admin-card{min-width:0;overflow:hidden;border:1px solid #dce8de;border-radius:15px 8px 15px 8px;background:#fff;box-shadow:0 6px 18px rgba(27,69,43,.055);transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease}
-.gallery-admin-card:hover{transform:translateY(-2px);box-shadow:0 11px 24px rgba(27,69,43,.1)}
+.gallery-admin-card{min-width:0;overflow:hidden;border:1px solid #e7e1d3;border-radius:15px;background:#fff;box-shadow:0 7px 18px rgba(65,56,35,.075);transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease}
+.gallery-admin-card:hover{transform:translateY(-2px);box-shadow:0 11px 24px rgba(65,56,35,.13)}
 .gallery-admin-card.is-dragging{opacity:.42;transform:scale(.98);box-shadow:0 15px 32px rgba(27,69,43,.18)}
 .gallery-admin-photo{position:relative;overflow:hidden;aspect-ratio:4/3;background:#e7f0e8;cursor:grab;touch-action:pan-y;user-select:none}
 .gallery-admin-photo:active{cursor:grabbing}.gallery-admin-photo img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
@@ -172,7 +173,7 @@ body{background:#edf8f0;color:#26372e}
 .gallery-admin-empty-state{grid-column:1/-1;display:flex;min-height:220px;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1px dashed #bdd5c2;border-radius:15px;background:rgba(255,255,255,.65);color:#53765d;text-align:center}.gallery-admin-empty-state>span{font-size:2rem}.gallery-admin-empty-state strong{color:#294d33}.gallery-admin-empty-state p{margin:0;color:#64746a}
 .gallery-admin.is-saving-order .gallery-admin-card-actions{pointer-events:none;opacity:.55}
 @media(max-width:900px){.gallery-admin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){.admin-manage .gallery-form{grid-template-columns:1fr;padding:18px}.gallery-upload-zone{align-items:flex-start;flex-direction:column}.gallery-upload-preview{width:100%;max-width:440px}.gallery-admin{padding:16px}.gallery-admin-head{align-items:flex-start;flex-direction:column}.gallery-admin-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gallery-admin-card-body{padding:10px}.gallery-admin-card-actions{gap:5px}.gallery-admin-card-actions .tiny{padding:5px 8px;font-size:.75rem}}
+@media(max-width:720px){.admin-manage .gallery-form{grid-template-columns:1fr;padding:18px}.gallery-upload-zone{align-items:flex-start;flex-direction:column}.gallery-upload-preview{width:100%;max-width:440px}.gallery-admin{padding:16px}.gallery-admin-head{align-items:flex-start;flex-direction:column}.gallery-admin-head-actions{width:100%;justify-content:flex-start}.gallery-admin-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gallery-admin-card-body{padding:10px}.gallery-admin-card-actions{gap:5px}.gallery-admin-card-actions .tiny{padding:5px 8px;font-size:.75rem}}
 @media(max-width:420px){.gallery-admin-grid{grid-template-columns:1fr}.gallery-admin-card-body h3{min-height:0}}
 @media(max-width:680px){.photo-edit{padding:16px}.photo-preview-frame{min-height:190px}}
 @media(max-width:1040px){.hero-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -295,8 +296,7 @@ body{background:#edf8f0;color:#26372e}
 .account-profile-form{width:min(100%,560px);max-width:560px;margin:0;padding:24px;gap:14px;border-top:3px solid #4faf79;border-radius:10px;box-shadow:0 8px 24px rgba(27,69,43,.06)}
 .admin-manage .account-profile-form{grid-template-columns:minmax(0,1fr)}
 .account-profile-form .form-title{margin:0 0 2px;color:#203b28;font-size:1.08rem}
-.account-identity-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
-.account-new-password-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
+.account-identity-fields,.account-new-password-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
 .account-profile-form label{min-width:0;gap:7px;color:#33483a;font-size:.86rem;font-weight:700}
 .account-profile-form input{width:100%;min-width:0;height:46px;min-height:46px;border-radius:7px}
 .account-profile-form input:disabled{background:#f4f7f4;color:#64746a}

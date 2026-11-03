@@ -6,10 +6,13 @@
 @if($type === 'gallery')
     <section class="gallery-admin" id="galleryAdmin" data-order-url="{{ route('admin.content.gallery.reorder') }}">
         <header class="gallery-admin-head">
-            <div><h2>Foto Galeri ({{ $entries->count() }})</h2><p>Judul dan foto tetap bersama saat Anda mengubah posisi.</p></div>
-            <a class="primary" href="{{ route('admin.content.create',$type) }}">＋ Tambah Foto</a>
+            <div><h2>Foto Galeri ({{ $entries->count() }})</h2><p>Kelola foto, judul, dan urutan kartu yang tampil pada carousel Galeri Sekolah.</p></div>
+            <div class="gallery-admin-head-actions">
+                <a class="secondary" href="{{ route('home') }}#galeri" target="_blank" rel="noopener">Lihat Galeri</a>
+                <a class="primary" href="{{ route('admin.content.create',$type) }}">＋ Tambah Foto</a>
+            </div>
         </header>
-        <p class="gallery-order-status" id="galleryOrderStatus" role="status" aria-live="polite">Seret kartu untuk mengubah urutan. Pada layar sentuh, gunakan tombol panah.</p>
+        <p class="gallery-order-status" id="galleryOrderStatus" role="status" aria-live="polite">Urutan ini digunakan pada carousel publik. Seret kartu, atau gunakan tombol Naik/Turun pada layar sentuh.</p>
         <div class="gallery-admin-grid" id="galleryAdminGrid">
             @forelse($entries as $entry)
                 <article class="gallery-admin-card" draggable="true" data-gallery-card data-entry-id="{{ $entry->id }}">
