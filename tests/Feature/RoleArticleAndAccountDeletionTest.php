@@ -19,7 +19,11 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $adminDashboard = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
         $adminDashboard->assertSee(route('admin.articles.index'), false)
             ->assertSee(route('admin.content.index', 'gallery'), false)
-            ->assertSee(route('admin.content.index', 'announcement'), false);
+            ->assertSee(route('admin.content.index', 'announcement'), false)
+            ->assertSee('Mode pengunjung');
+        $this->get(route('home'))->assertOk()
+            ->assertSee(route('admin.dashboard'), false)
+            ->assertSee('Kembali ke Admin');
         $this->get(route('admin.articles.index'))->assertOk();
         $this->get(route('admin.content.index', 'gallery'))->assertOk();
         $this->get(route('admin.content.index', 'announcement'))->assertOk();
@@ -29,7 +33,11 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $guruDashboard = $this->actingAs($teacher)->get(route('guru.dashboard'))->assertOk()->assertViewIs('public.home');
         $guruDashboard->assertSee(route('guru.articles.index'), false)
             ->assertSee(route('guru.content.index', 'gallery'), false)
-            ->assertSee(route('guru.content.index', 'announcement'), false);
+            ->assertSee(route('guru.content.index', 'announcement'), false)
+            ->assertSee('Mode pengunjung');
+        $this->get(route('home'))->assertOk()
+            ->assertSee(route('guru.dashboard'), false)
+            ->assertSee('Kembali ke Guru');
         $this->get(route('guru.articles.index'))->assertOk();
         $this->get(route('guru.content.index', 'gallery'))->assertOk();
         $this->get(route('guru.content.index', 'announcement'))->assertOk();
@@ -71,7 +79,7 @@ class RoleArticleAndAccountDeletionTest extends TestCase
             ->assertDontSee(route('admin.footer.edit'), false);
         preg_match('/<aside[^>]*id="admin-sidebar"[^>]*>(.*?)<\/aside>/s', $dashboard->getContent(), $sidebar);
         $this->assertNotEmpty($sidebar);
-        $this->assertStringNotContainsString('Mode pengunjung', $sidebar[1]);
+        $this->assertStringContainsString('Mode pengunjung', $sidebar[1]);
 
         $this->get(route('guru.articles.index'))->assertOk();
         $this->get(route('guru.content.index', 'gallery'))->assertOk();

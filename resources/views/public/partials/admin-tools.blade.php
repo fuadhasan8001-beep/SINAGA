@@ -35,7 +35,7 @@
         @endif
     </nav>
     <div class="site-admin-foot">
-        @if($adminUser)<a href="{{ route('home') }}">Mode pengunjung</a>@endif
+        <a href="{{ route('home') }}">Mode pengunjung</a>
         <form id="logoutForm" method="post" action="{{ route('logout') }}">@csrf<button type="button" data-logout-open>Keluar</button></form>
     </div>
 </aside>

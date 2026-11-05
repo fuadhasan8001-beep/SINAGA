@@ -18,6 +18,10 @@
         @if(!($adminMode ?? false) || auth()->user()?->isAdmin())
             <a class="nav-spmb-cta {{ !($adminMode ?? false) && request()->routeIs('spmb.public','ppdb') ? 'active' : '' }}" href="{{ ($adminMode ?? false) ? $panelRoute('admin.spmb.dashboard') : route('spmb.public') }}" @if(!($adminMode ?? false) && request()->routeIs('spmb.public','ppdb')) aria-current="page" @endif>SPMB</a>
         @endif
+        @if(!($adminMode ?? false) && auth()->check())
+            @php($panelRoleLabel = auth()->user()->isAdmin() ? 'Admin' : 'Guru')
+            <a class="nav-spmb-cta nav-panel-return" href="{{ $panelRoute('admin.dashboard') }}" aria-label="Kembali ke mode {{ $panelRoleLabel }}">Kembali ke {{ $panelRoleLabel }}</a>
+        @endif
     </div>
     <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka menu" aria-controls="navLinks" aria-expanded="false"><span aria-hidden="true">☰</span></button>
 </nav></header>
