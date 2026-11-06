@@ -195,26 +195,25 @@ document.querySelectorAll('[data-extracurricular-carousel]').forEach(carousel=>{
     const next=controls?.querySelector('[data-extracurricular-next]');
     const status=controls?.querySelector('[data-extracurricular-status]');
     if(!viewport||!track||!cards.length)return;
-    let page=0,perView=1,pageCount=1,step=0;
+    let activeIndex=0,perView=1,maxStartIndex=0,step=0;
     const update=()=>{
         const trackStyle=getComputedStyle(track);
         const gap=parseFloat(trackStyle.columnGap||trackStyle.gap)||0;
         const cardWidth=cards[0].getBoundingClientRect().width;
         step=cardWidth+gap;
         perView=Math.max(1,Math.floor((viewport.clientWidth+gap+1)/Math.max(1,step)));
-        pageCount=Math.max(1,Math.ceil(cards.length/perView));
-        page=Math.max(0,Math.min(page,pageCount-1));
-        const start=Math.min(page*perView,Math.max(0,cards.length-perView));
-        track.style.transform=`translate3d(${-start*step}px,0,0)`;
-        if(previous)previous.disabled=page===0;
-        if(next)next.disabled=page===pageCount-1;
-        if(status)status.textContent=`${page+1} / ${pageCount}`;
+        maxStartIndex=Math.max(0,cards.length-perView);
+        activeIndex=Math.max(0,Math.min(activeIndex,maxStartIndex));
+        track.style.transform=`translate3d(${-activeIndex*step}px,0,0)`;
+        if(previous)previous.disabled=activeIndex===0;
+        if(next)next.disabled=activeIndex===maxStartIndex;
+        if(status)status.textContent=`${activeIndex+1} / ${cards.length}`;
     };
-    previous?.addEventListener('click',()=>{page--;update();});
-    next?.addEventListener('click',()=>{page++;update();});
+    previous?.addEventListener('click',()=>{activeIndex--;update();});
+    next?.addEventListener('click',()=>{activeIndex++;update();});
     viewport.addEventListener('keydown',event=>{
-        if(event.key==='ArrowLeft'){event.preventDefault();page--;update();}
-        if(event.key==='ArrowRight'){event.preventDefault();page++;update();}
+        if(event.key==='ArrowLeft'){event.preventDefault();activeIndex--;update();}
+        if(event.key==='ArrowRight'){event.preventDefault();activeIndex++;update();}
     });
     window.addEventListener('resize',update,{passive:true});
     update();

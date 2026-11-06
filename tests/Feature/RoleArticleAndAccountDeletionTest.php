@@ -185,6 +185,41 @@ class RoleArticleAndAccountDeletionTest extends TestCase
             ->assertSee('Kembali ke Informasi');
     }
 
+    public function test_public_articles_use_the_school_timezone_when_checking_publication_time(): void
+    {
+        $this->assertSame('Asia/Jakarta', config('app.timezone'));
+
+        $author = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $publishedAt = now()->subMinute();
+
+        $first = Article::create([
+            'author_id' => $author->id,
+            'author_name' => $author->name,
+            'title' => 'Artikel WIB Pertama',
+            'slug' => 'artikel-wib-pertama',
+            'body' => '<p>Isi artikel pertama.</p>',
+            'status' => 'published',
+            'published_at' => $publishedAt,
+        ]);
+        $second = Article::create([
+            'author_id' => $author->id,
+            'author_name' => $author->name,
+            'title' => 'Artikel WIB Kedua',
+            'slug' => 'artikel-wib-kedua',
+            'body' => '<p>Isi artikel kedua.</p>',
+            'status' => 'published',
+            'published_at' => $publishedAt->copy()->addSecond(),
+        ]);
+
+        $this->get(route('information.articles'))->assertOk()
+            ->assertSee($first->title)
+            ->assertSee($second->title)
+            ->assertSee(route('information.article', $first->slug), false)
+            ->assertSee(route('information.article', $second->slug), false);
+        $this->get(route('information.article', $first->slug))->assertOk()->assertSee('Isi artikel pertama.');
+        $this->get(route('information.article', $second->slug))->assertOk()->assertSee('Isi artikel kedua.');
+    }
+
     public function test_admin_can_delete_teacher_without_deleting_authored_content_or_other_locks(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
