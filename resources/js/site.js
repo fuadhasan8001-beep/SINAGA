@@ -118,6 +118,10 @@ if(backgroundMusic){
 }
 
 const navigationReduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// The public shell is also reused for the admin and teacher website preview.
+// Keep its section tracking and AJAX navigation strictly in visitor mode so
+// panel routes always use the browser's normal, role-aware navigation.
+const isVisitorMode=()=>!document.body.classList.contains('admin-preview');
 const isPublicNavigationUrl=url=>{
     if(url.origin!==window.location.origin)return false;
     return /^\/(?:|profil|akademik|berita(?:\/[^/]+)?|informasi(?:\/[^/]+)?|pengumuman|ekstrakurikuler(?:\/[^/]+)?|akademik\/kegiatan\/[^/]+|spmb|ppdb|galeri|kontak)$/.test(url.pathname);
@@ -255,7 +259,7 @@ if(!reduceMotion&&'IntersectionObserver'in window){
     });
 }
 if(target) document.getElementById(target)?.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
-const navAnchors=[...document.querySelectorAll('.nav-links [data-nav-section]')];
+const navAnchors=isVisitorMode()?[...document.querySelectorAll('.nav-links [data-nav-section]')]:[];
 const navSections=navAnchors.map(link=>document.getElementById(link.dataset.navSection)).filter(Boolean);
 if(navAnchors.length&&navSections.length){
     let ticking=false;
@@ -397,6 +401,7 @@ const replacePublicPage=async(url,{historyMode='push'}={})=>{
     }
 };
 document.addEventListener('click',event=>{
+    if(!isVisitorMode())return;
     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
     const link=event.target.closest?.('a[href]');
     if(!link||link.target||link.hasAttribute('download'))return;
@@ -406,6 +411,8 @@ document.addEventListener('click',event=>{
     event.preventDefault();
     replacePublicPage(url.href);
 });
-window.addEventListener('popstate',()=>replacePublicPage(window.location.href,{historyMode:'pop'}));
+window.addEventListener('popstate',()=>{
+    if(isVisitorMode())replacePublicPage(window.location.href,{historyMode:'pop'});
+});
 
 

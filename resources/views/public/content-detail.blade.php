@@ -25,7 +25,7 @@
             @if(filled($entry->excerpt))<p class="activity-detail-excerpt">{{ $entry->excerpt }}</p>@endif
             @if(filled(strip_tags($entry->body ?? '')))<div class="article-content">{!! $entry->body !!}</div>@elseif(!filled($entry->excerpt))<p class="activity-detail-empty">Informasi kegiatan belum ditambahkan.</p>@endif
         </div>
-        <a class="activity-back-link" href="{{ $backUrl }}">← Kembali ke {{ strtolower($sectionTitle) }}</a>
+        <a class="activity-back-link navigation-back-link" href="{{ $backUrl }}">Kembali ke {{ strtolower($sectionTitle) }}</a>
     </div>
 </article>
 @endsection

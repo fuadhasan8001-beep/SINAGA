@@ -19,4 +19,11 @@ class ArticleHtmlTest extends TestCase
         $this->assertStringNotContainsString('<script>',$clean);
         $this->assertStringNotContainsString('javascript:',$clean);
     }
+
+    public function test_laravel_style_uploaded_media_filename_is_preserved(): void
+    {
+        $clean=(new ArticleHtml())->clean('<p><img src="/storage/media/TZ55qH8vZNZMNyXi7HwUuQBtoGWPmZR8kGE2Ux0g.png" alt="Sampul"></p>');
+
+        $this->assertStringContainsString('/storage/media/TZ55qH8vZNZMNyXi7HwUuQBtoGWPmZR8kGE2Ux0g.png',$clean);
+    }
 }

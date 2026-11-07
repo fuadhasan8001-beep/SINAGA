@@ -403,3 +403,14 @@ body{background:#edf8f0;color:#26372e}
 @media(max-width:900px){.profile-settings-identity-grid,.profile-settings-vision-mission-grid{gap:14px}.principal-greeting-media-card{padding:13px}}
 @media(max-width:720px){.profile-settings-identity-grid,.profile-settings-vision-mission-grid,.principal-greeting-media-grid{grid-template-columns:minmax(0,1fr)}.profile-settings-form{padding:18px}.profile-settings-section{gap:15px;padding-bottom:22px;margin-bottom:22px}.profile-settings-vision-mission-grid textarea{min-height:160px}.principal-greeting-media-card{grid-template-rows:auto 170px minmax(0,auto) auto}.principal-greeting-media-help{min-height:0}.profile-settings-actions{display:grid;grid-template-columns:minmax(0,1fr)}.profile-settings-actions .primary,.profile-settings-actions .secondary{width:100%}}
 @media(max-width:380px){.profile-settings-form{padding:15px}.principal-greeting-media-card{padding:12px}}
+
+/* The admin shares the public navigation-arrow component. */
+.admin-manage .navigation-arrow{display:grid;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;place-items:center;padding:0!important;border:1px solid #b9d7c0!important;border-radius:50%!important;background:#fff!important;color:#245b37!important;box-shadow:none!important;font:800 .78rem/1 inherit;cursor:pointer;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+.admin-manage .navigation-arrow:hover:not(:disabled){border-color:#9fcbaa!important;background:#e8f5eb!important;color:#17452b!important;transform:translateY(-1px);box-shadow:none!important}
+.admin-manage .navigation-arrow:active:not(:disabled){background:#d9efde!important;transform:scale(.97)}
+.admin-manage .navigation-arrow:disabled{opacity:.42!important;cursor:not-allowed}
+.admin-manage .navigation-arrow:focus-visible{outline:3px solid rgba(74,151,94,.38);outline-offset:3px}
+.admin-manage .navigation-back-link{display:inline-flex;align-items:center;gap:9px}
+.admin-manage .navigation-back-link::before{display:grid;width:32px;height:32px;flex:0 0 32px;place-items:center;border:1px solid #b9d7c0;border-radius:50%;background:#fff;color:#245b37;content:"<<";font-size:.72rem;font-weight:800;line-height:1;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+.admin-manage .navigation-back-link:hover::before{border-color:#9fcbaa;background:#e8f5eb;color:#17452b;transform:translateX(-1px)}
+@media(prefers-reduced-motion:reduce){.admin-manage .navigation-arrow,.admin-manage .navigation-back-link::before{transition:none!important}}

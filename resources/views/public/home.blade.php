@@ -88,9 +88,9 @@
             <div><span class="eyebrow">Akademik</span><h2>Kegiatan Pembelajaran</h2><p>Berbagai kegiatan pembelajaran untuk mendukung potensi dan prestasi siswa.</p></div>
             @if($academicCarouselEntries->isNotEmpty())
                 <div class="activity-carousel-controls" data-academic-carousel-controls>
-                    <button type="button" data-academic-prev aria-label="Kategori akademik sebelumnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>←</button>
+                    <button class="navigation-arrow" type="button" data-academic-prev aria-label="Kategori akademik sebelumnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>&lt;&lt;</button>
                     <span data-academic-status aria-live="polite">1 / {{ $academicCarouselEntries->count() }}</span>
-                    <button type="button" data-academic-next aria-label="Kategori akademik berikutnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>→</button>
+                    <button class="navigation-arrow" type="button" data-academic-next aria-label="Kategori akademik berikutnya" aria-controls="academicCarousel" @disabled($academicCarouselEntries->count() < 2)>&gt;&gt;</button>
                 </div>
             @endif
         </div>
@@ -156,9 +156,9 @@
             <div><span class="eyebrow">Kegiatan siswa</span><h2>Ekstrakurikuler</h2><p>Beragam kegiatan untuk mengembangkan bakat, minat, kreativitas, dan karakter siswa.</p></div>
             @if($extracurriculars->isNotEmpty())
                 <div class="activity-carousel-controls extracurricular-carousel-controls" data-extracurricular-controls>
-                    <button type="button" data-extracurricular-prev aria-label="Ekstrakurikuler sebelumnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>←</button>
+                    <button class="navigation-arrow" type="button" data-extracurricular-prev aria-label="Ekstrakurikuler sebelumnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>&lt;&lt;</button>
                     <span data-extracurricular-status aria-live="polite">1 / {{ $extracurriculars->count() }}</span>
-                    <button type="button" data-extracurricular-next aria-label="Ekstrakurikuler berikutnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>→</button>
+                    <button class="navigation-arrow" type="button" data-extracurricular-next aria-label="Ekstrakurikuler berikutnya" aria-controls="extracurricularCarousel" @disabled($extracurriculars->count() < 2)>&gt;&gt;</button>
                 </div>
             @endif
         </div>
@@ -184,7 +184,7 @@
 <section class="section" id="galeri"><div class="container"><div class="gallery-section-head"><div class="section-head"><span class="eyebrow">Galeri Sekolah</span><h2>Dokumentasi Kegiatan Sekolah</h2><p>Foto dokumentasi yang telah diizinkan untuk dipublikasikan.</p></div></div>
 @if($galleryPhotos->isNotEmpty())
     <div class="gallery-carousel" data-gallery-carousel>
-        <button class="gallery-carousel-arrow gallery-carousel-prev" type="button" data-gallery-carousel-prev aria-label="Geser galeri ke kiri">←</button>
+        <button class="navigation-arrow gallery-carousel-arrow gallery-carousel-prev" type="button" data-gallery-carousel-prev aria-label="Geser galeri ke kiri">&lt;&lt;</button>
         <div class="gallery-carousel-viewport" id="publicGalleryViewport" role="region" aria-label="Dokumentasi kegiatan sekolah" tabindex="0">
         <div class="gallery-track" id="publicGalleryGrid">
         @foreach($galleryPhotos as $photo)
@@ -197,13 +197,13 @@
         @endforeach
         </div>
         </div>
-        <button class="gallery-carousel-arrow gallery-carousel-next" type="button" data-gallery-carousel-next aria-label="Geser galeri ke kanan">→</button>
+        <button class="navigation-arrow gallery-carousel-arrow gallery-carousel-next" type="button" data-gallery-carousel-next aria-label="Geser galeri ke kanan">&gt;&gt;</button>
     </div>
     <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri foto">
         <button class="gallery-lightbox-close" type="button" data-gallery-close aria-label="Tutup galeri">×</button>
-        <button class="gallery-lightbox-nav gallery-lightbox-prev" type="button" data-gallery-prev aria-label="Foto sebelumnya">Sebelumnya</button>
+        <button class="navigation-arrow gallery-lightbox-nav gallery-lightbox-prev" type="button" data-gallery-prev aria-label="Foto sebelumnya">&lt;&lt;</button>
         <figure><img id="galleryLightboxImage" alt=""><figcaption id="galleryLightboxTitle"></figcaption></figure>
-        <button class="gallery-lightbox-nav gallery-lightbox-next" type="button" data-gallery-next aria-label="Foto berikutnya">Berikutnya</button>
+        <button class="navigation-arrow gallery-lightbox-nav gallery-lightbox-next" type="button" data-gallery-next aria-label="Foto berikutnya">&gt;&gt;</button>
     </dialog>
 @else
     <div class="gallery-placeholder"><div class="gallery-placeholder-icon" aria-hidden="true">▧</div><strong>Galeri belum memiliki dokumentasi</strong><p>Foto kegiatan akan tampil di sini setelah diunggah oleh administrator.</p></div>

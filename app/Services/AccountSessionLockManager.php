@@ -9,11 +9,9 @@ class AccountSessionLockManager
     public function acquire(int $userId, string $sessionId): bool
     {
         $now = now();
-        $expiredBefore = $this->expiredBefore($now);
+        $this->pruneExpired();
 
-        return DB::transaction(function () use ($userId, $sessionId, $now, $expiredBefore): bool {
-            DB::table('account_session_locks')->where('last_seen_at', '<=', $expiredBefore)->delete();
-
+        return DB::transaction(function () use ($userId, $sessionId, $now): bool {
             $inserted = DB::table('account_session_locks')->insertOrIgnore([
                 'user_id' => $userId,
                 'session_id' => $sessionId,
@@ -66,8 +64,28 @@ class AccountSessionLockManager
 
     public function pruneExpired(): int
     {
-        return DB::table('account_session_locks')
-            ->where('last_seen_at', '<=', $this->expiredBefore(now()))
+        $now = now();
+        $deleted = DB::table('account_session_locks')
+            ->where('last_seen_at', '<=', $this->expiredBefore($now))
+            ->delete();
+
+        if (config('session.driver') !== 'database') {
+            return $deleted;
+        }
+
+        $sessionTable = (string) config('session.table', 'sessions');
+        $activeSince = $this->expiredBefore($now)->getTimestamp();
+
+        // A lock must represent a still-valid Laravel session. This prevents a
+        // closed or cleared browser session from blocking its account until the
+        // timeout while preserving the single-active-session guarantee.
+        return $deleted + DB::table('account_session_locks')
+            ->whereNotExists(function ($query) use ($sessionTable, $activeSince): void {
+                $query->selectRaw('1')
+                    ->from($sessionTable)
+                    ->whereColumn($sessionTable.'.user_id', 'account_session_locks.user_id')
+                    ->where('last_activity', '>', $activeSince);
+            })
             ->delete();
     }
 

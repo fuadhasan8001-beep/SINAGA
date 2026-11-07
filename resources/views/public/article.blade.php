@@ -4,16 +4,21 @@
 @section('content')
 <article class="article-page section">
     <div class="container article-shell">
-        <a class="back article-back" href="{{ ($adminMode ?? false) ? $panelRoute('admin.dashboard') : route('information.articles') }}">Kembali ke Informasi</a>
+        <a class="back article-back navigation-back-link" href="{{ ($adminMode ?? false) ? $panelRoute('admin.dashboard') : route('information.articles') }}">Kembali ke Informasi</a>
         <header class="article-header">
             <span class="eyebrow">{{ $article->category?->name ?? 'Berita sekolah' }}</span>
             <h1>{{ $article->title }}</h1>
             <p class="article-meta">{{ $article->published_at?->translatedFormat('d F Y') }} <span aria-hidden="true">·</span> {{ $article->category?->name ?? 'Informasi Sekolah' }} <span aria-hidden="true">·</span> {{ $article->author_display_name }}</p>
         </header>
-        @if($article->cover_image)
+        @if($article->cover_url)
             <figure class="article-cover">
-                <img src="{{ Storage::disk('public')->url($article->cover_image) }}" alt="Foto sampul: {{ $article->title }}">
+                <img src="{{ $article->cover_url }}" alt="Foto sampul: {{ $article->title }}">
             </figure>
+        @else
+            <div class="article-cover-placeholder" aria-hidden="true">
+                <span class="article-placeholder-mark">S</span>
+                <span>Informasi Sekolah</span>
+            </div>
         @endif
         @if($article->excerpt)<p class="article-excerpt">{{ $article->excerpt }}</p>@endif
         <div class="article-content">{!! $article->body !!}</div>

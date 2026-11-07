@@ -28,7 +28,7 @@
 @section('content')
     <section class="section principal-greeting-page" id="profil">
         <div class="container principal-greeting-layout">
-            <a class="principal-greeting-back" href="{{ ($adminMode ?? false) ? $panelRoute('admin.dashboard').'#profil' : route('profile') }}">← Kembali ke Profil</a>
+            <a class="principal-greeting-back navigation-back-link" href="{{ ($adminMode ?? false) ? $panelRoute('admin.dashboard').'#profil' : route('profile') }}">Kembali ke Profil</a>
 
             <article class="principal-greeting-card">
                 <div class="principal-greeting-banner">

@@ -26,7 +26,10 @@ class ArticleHtml
         $xpath=new \DOMXPath($doc);
         foreach($xpath->query('//img') as $image){
             $src=$image->getAttribute('src');
-            if(!preg_match('~^/storage/media/[a-f0-9-]+\.(?:png|jpe?g|webp|gif)$~i',$src)) $image->removeAttribute('src');
+            // Laravel's uploaded-file names are random base-62 strings, not UUIDs.
+            // Keep only a single filename below the public media directory so an editor
+            // image survives sanitisation without allowing arbitrary local paths.
+            if(!preg_match('~^/storage/media/[A-Za-z0-9_-]+\.(?:png|jpe?g|webp|gif)$~i',$src)) $image->removeAttribute('src');
         }
         $root=$doc->getElementById('article-root');
         $result='';

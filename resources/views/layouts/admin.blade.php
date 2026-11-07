@@ -21,7 +21,7 @@
                 <p>@yield('subtitle','Kelola konten website sekolah.')</p>
             </div>
             <div class="topbar-actions">
-                <a class="back-dashboard" href="{{ $panelRoute('admin.dashboard') }}">Kembali ke Website</a>
+                <a class="back-dashboard navigation-back-link" href="{{ $panelRoute('admin.dashboard') }}">Kembali ke Website</a>
                 <a class="view-site" href="{{ route('home') }}" target="_blank" rel="noopener">Mode pengunjung</a>
                 <span class="user-chip"><span class="user-initial">{{ Str::upper(Str::substr(auth()->user()->name,0,1)) }}</span><span>{{ auth()->user()->name }}<small>{{ auth()->user()->isAdmin()?'Administrator':'Guru' }}</small></span></span>
             </div>

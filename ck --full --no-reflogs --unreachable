@@ -1,0 +1,63 @@
+[33mcccaa35[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m worktrees/ring-birch/HEAD@{Fri Nov 6 18:59:31 2026}: checkout: moving from 554ce63eb4ede876228e02b53494f1fc7cd10a4f to cccaa35d56b656b03e84514f532ca8c8bbc4fafd
+[33mcccaa35[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/remotes/origin/main@{Fri Nov 6 17:42:08 2026}: update by push
+[33mcccaa35[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/main@{Fri Nov 6 16:57:09 2026}: commit: galeri ui ux
+[33mcccaa35[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Fri Nov 6 16:57:09 2026}: commit: galeri ui ux
+[33m554ce63[m refs/heads/main@{Thu Nov 5 20:45:47 2026}: pull origin main: Fast-forward
+[33m554ce63[m HEAD@{Thu Nov 5 20:45:47 2026}: pull origin main: Fast-forward
+[33m554ce63[m refs/remotes/origin/main@{Thu Nov 5 20:42:14 2026}: fetch --quiet --no-tags origin +refs/heads/main:refs/remotes/origin/main: fast-forward
+[33m554ce63[m worktrees/ring-birch/HEAD@{Thu Nov 5 20:42:14 2026}: checkout: moving from 563eec52748d01b1b7598dcc6a7514291b9e2139 to 554ce63eb4ede876228e02b53494f1fc7cd10a4f
+[33m78f10d5[m refs/remotes/origin/main@{Tue Nov 3 22:03:05 2026}: update by push
+[33m78f10d5[m refs/heads/main@{Tue Nov 3 22:02:41 2026}: commit: card kepsek, button + sound, watermark
+[33m78f10d5[m HEAD@{Tue Nov 3 22:02:41 2026}: commit: card kepsek, button + sound, watermark
+[33m168c2cc[m refs/heads/main@{Tue Nov 3 22:00:49 2026}: commit: Fix public navigation and footer watermark
+[33m168c2cc[m HEAD@{Tue Nov 3 22:00:49 2026}: commit: Fix public navigation and footer watermark
+[33m2545037[m refs/heads/main@{Tue Nov 3 17:42:37 2026}: pull origin main: Fast-forward
+[33m2545037[m refs/remotes/origin/main@{Tue Nov 3 17:42:37 2026}: pull origin main: fast-forward
+[33m2545037[m HEAD@{Tue Nov 3 17:42:37 2026}: pull origin main: Fast-forward
+[33mb6c555a[m refs/heads/main@{Tue Nov 3 17:28:22 2026}: reset: moving to origin/main
+[33mb6c555a[m HEAD@{Tue Nov 3 17:28:22 2026}: reset: moving to origin/main
+[33mb6c555a[m refs/remotes/origin/main@{Tue Nov 3 17:27:31 2026}: pull origin main: fast-forward
+[33ma6c9d41[m HEAD@{Tue Nov 3 17:27:19 2026}: reset: moving to HEAD
+[33m12eca6d[m refs/remotes/origin/main@{Tue Nov 3 12:11:02 2026}: pull origin main: fast-forward
+[33ma6c9d41[m refs/heads/main@{Tue Nov 3 12:10:46 2026}: commit: backup perubahan tampilan website sebelum pull
+[33ma6c9d41[m HEAD@{Tue Nov 3 12:10:46 2026}: commit: backup perubahan tampilan website sebelum pull
+[33m563eec5[m refs/heads/main@{Tue Nov 3 11:05:06 2026}: pull origin main: Fast-forward
+[33m563eec5[m HEAD@{Tue Nov 3 11:05:06 2026}: pull origin main: Fast-forward
+[33m61e5582[m[33m ([m[1;35mrefs/stash[m[33m)[m refs/stash@{Tue Nov 3 11:04:51 2026}: On main: backup percobaan sebelum pull
+[33me6b1e48[m HEAD@{Tue Nov 3 11:04:51 2026}: reset: moving to HEAD
+[33m563eec5[m worktrees/ring-birch/HEAD@{Tue Nov 3 11:00:26 2026}: checkout: moving from e6b1e48970e2b0b6d2217bb7c41f4d1bf7f1915c to 563eec52748d01b1b7598dcc6a7514291b9e2139
+[33m563eec5[m refs/remotes/origin/main@{Mon Nov 2 20:34:01 2026}: pull origin main: fast-forward
+[33me6b1e48[m worktrees/ring-birch/HEAD@{Mon Nov 2 17:34:31 2026}: checkout: moving from 13b15e51d2902e2f337b44a7b87d4871a23a45c6 to e6b1e48970e2b0b6d2217bb7c41f4d1bf7f1915c
+[33me6b1e48[m refs/remotes/origin/main@{Sun Nov 1 15:59:50 2026}: update by push
+[33me6b1e48[m refs/heads/main@{Sun Nov 1 15:59:39 2026}: commit: tambahkan foto profil dan media website
+[33me6b1e48[m HEAD@{Sun Nov 1 15:59:39 2026}: commit: tambahkan foto profil dan media website
+[33m535d470[m refs/remotes/origin/main@{Sun Nov 1 15:50:35 2026}: update by push
+[33m535d470[m refs/heads/main@{Sun Nov 1 15:50:33 2026}: commit: Track shared public media assets
+[33m535d470[m HEAD@{Sun Nov 1 15:50:33 2026}: commit: Track shared public media assets
+[33m08d0196[m refs/remotes/origin/main@{Sun Nov 1 15:45:28 2026}: update by push
+[33m08d0196[m refs/heads/main@{Sun Nov 1 15:45:15 2026}: commit: membetulkan UIUX
+[33m08d0196[m HEAD@{Sun Nov 1 15:45:15 2026}: commit: membetulkan UIUX
+[33m13b15e5[m HEAD@{Sun Nov 1 12:43:07 2026}: reset: moving to origin/main
+[33m8e02014[m[33m ([m[1;31morigin/TAMPIL[m[33m)[m refs/remotes/origin/TAMPIL@{Sun Nov 1 12:40:40 2026}: fetch --force origin: storing head
+[33m13b15e5[m HEAD@{Sun Nov 1 12:40:40 2026}: reset: moving to origin/main
+[33m13b15e5[m refs/heads/main@{Sun Nov 1 12:36:18 2026}: pull origin main: Fast-forward
+[33m13b15e5[m HEAD@{Sun Nov 1 12:36:18 2026}: pull origin main: Fast-forward
+[33m13b15e5[m refs/remotes/origin/main@{Sun Nov 1 12:35:41 2026}: fetch --quiet --no-tags origin +refs/heads/main:refs/remotes/origin/main: fast-forward
+[33m13b15e5[m worktrees/ring-birch/HEAD@{Sun Nov 1 12:35:41 2026}: 
+[33mf2557a5[m refs/remotes/origin/main@{Thu Oct 29 16:20:35 2026}: update by push
+[33mf2557a5[m refs/heads/main@{Thu Oct 29 16:20:16 2026}: rebase (finish): refs/heads/main onto 4d82ff2f5c2993405e7beaa4bd3006ce66148572
+[33mf2557a5[m HEAD@{Thu Oct 29 16:20:16 2026}: rebase (finish): returning to refs/heads/main
+[33mf2557a5[m HEAD@{Thu Oct 29 16:20:16 2026}: rebase (continue): implementasi admin & dashboard spmb sekolah
+[33m4d82ff2[m HEAD@{Thu Oct 29 15:57:45 2026}: pull --rebase origin main (start): checkout 4d82ff2f5c2993405e7beaa4bd3006ce66148572
+[33m0da5fac[m refs/heads/main@{Thu Oct 29 15:55:09 2026}: commit: implementasi admin & dashboard spmb sekolah
+[33m0da5fac[m HEAD@{Thu Oct 29 15:55:09 2026}: commit: implementasi admin & dashboard spmb sekolah
+[33m4d82ff2[m refs/remotes/origin/main@{Thu Oct 29 15:22:23 2026}: pull origin main: fast-forward
+[33m725d10a[m refs/remotes/origin/main@{Thu Oct 29 13:10:57 2026}: update by push
+[33m725d10a[m refs/heads/main@{Thu Oct 29 13:10:16 2026}: commit: Unify admin and public website experience
+[33m725d10a[m HEAD@{Thu Oct 29 13:10:16 2026}: commit: Unify admin and public website experience
+[33m505a9a8[m refs/heads/main@{Thu Oct 29 12:34:16 2026}: pull origin main: Fast-forward
+[33m505a9a8[m refs/remotes/origin/main@{Thu Oct 29 12:34:16 2026}: pull origin main: fast-forward
+[33m505a9a8[m HEAD@{Thu Oct 29 12:34:16 2026}: pull origin main: Fast-forward
+[33m07608d1[m refs/heads/main@{Thu Oct 29 11:58:27 2026}: clone: from https://github.com/fuadhasan8001-beep/SINAGA.git
+[33m07608d1[m refs/remotes/origin/HEAD@{Thu Oct 29 11:58:27 2026}: clone: from https://github.com/fuadhasan8001-beep/SINAGA.git
+[33m07608d1[m HEAD@{Thu Oct 29 11:58:27 2026}: clone: from https://github.com/fuadhasan8001-beep/SINAGA.git

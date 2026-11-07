@@ -19,8 +19,8 @@
                         <article class="article-card">
                             <a class="article-card-link" href="{{ route('information.article', $article->slug) }}" aria-label="Baca {{ $article->title }}">
                                 <div class="article-card-image">
-                                    @if($article->cover_image)
-                                        <img src="{{ Storage::disk('public')->url($article->cover_image) }}" alt="Foto: {{ $article->title }}" loading="lazy">
+                                    @if($article->cover_url)
+                                        <img src="{{ $article->cover_url }}" alt="Foto: {{ $article->title }}" loading="lazy">
                                     @else
                                         <div class="article-card-placeholder" aria-hidden="true"><span class="article-placeholder-mark">S</span><span>Informasi Sekolah</span></div>
                                     @endif
@@ -29,7 +29,7 @@
                                     <div class="article-card-meta"><time datetime="{{ $article->published_at?->toAtomString() }}">{{ $article->published_at?->translatedFormat('d F Y') }}</time><span>{{ $article->category?->name ?? 'Berita sekolah' }}</span></div>
                                     <h2>{{ $article->title }}</h2>
                                     @if($article->excerpt)<p>{{ $article->excerpt }}</p>@endif
-                                    <span class="article-card-read">Baca artikel <span aria-hidden="true">→</span></span>
+                                    <span class="article-card-read">Baca artikel <span aria-hidden="true">&gt;&gt;</span></span>
                                 </div>
                             </a>
                         </article>

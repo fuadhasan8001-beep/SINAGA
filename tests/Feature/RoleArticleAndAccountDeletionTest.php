@@ -220,6 +220,61 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $this->get(route('information.article', $second->slug))->assertOk()->assertSee('Isi artikel kedua.');
     }
 
+    public function test_admin_and_teacher_published_articles_keep_their_html_and_each_public_link_loads_its_own_record(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
+
+        $adminBody = '<h2>Judul Admin</h2><p>Paragraf khusus admin.</p><ul><li>Butir admin</li></ul><a href="https://example.test">Tautan admin</a><script>alert(1)</script>';
+        $teacherBody = '<h3>Judul Guru</h3><p>Paragraf khusus guru.</p><ol><li>Butir guru</li></ol><a href="mailto:guru@example.test">Tautan guru</a>';
+
+        $this->actingAs($admin)->post(route('admin.articles.store'), [
+            'title' => 'Artikel Khusus Admin',
+            'slug' => 'artikel-khusus-admin',
+            'excerpt' => 'Ringkasan admin.',
+            'body' => $adminBody,
+            'intent' => 'review',
+        ])->assertRedirect();
+
+        $this->actingAs($teacher)->post(route('guru.articles.store'), [
+            'title' => 'Artikel Khusus Guru',
+            'slug' => 'artikel-khusus-guru',
+            'excerpt' => 'Ringkasan guru.',
+            'body' => $teacherBody,
+            'intent' => 'review',
+        ])->assertRedirect();
+
+        $adminArticle = Article::where('slug', 'artikel-khusus-admin')->firstOrFail();
+        $teacherArticle = Article::where('slug', 'artikel-khusus-guru')->firstOrFail();
+
+        $this->assertSame('published', $adminArticle->status);
+        $this->assertSame('published', $teacherArticle->status);
+        $this->assertStringContainsString('<h2>Judul Admin</h2>', $adminArticle->body);
+        $this->assertStringContainsString('<h3>Judul Guru</h3>', $teacherArticle->body);
+        $this->assertStringNotContainsString('<script>', $adminArticle->body);
+
+        $listing = $this->get(route('information.articles'))->assertOk();
+        $listing->assertSee(route('information.article', $adminArticle->slug), false)
+            ->assertSee(route('information.article', $teacherArticle->slug), false);
+
+        $this->get(route('information.article', $adminArticle->slug))->assertOk()
+            ->assertSee('Judul Admin')
+            ->assertSee('Paragraf khusus admin.')
+            ->assertSee('Butir admin')
+            ->assertSee('Tautan admin')
+            ->assertDontSee('Paragraf khusus guru.')
+            ->assertDontSee('alert(1)');
+        $this->get(route('information.article', $teacherArticle->slug))->assertOk()
+            ->assertSee('Judul Guru')
+            ->assertSee('Paragraf khusus guru.')
+            ->assertSee('Butir guru')
+            ->assertSee('Tautan guru')
+            ->assertDontSee('Paragraf khusus admin.');
+
+        $this->actingAs($admin)->post(route('admin.articles.unpublish', $adminArticle))->assertRedirect();
+        $this->get(route('information.article', $adminArticle->slug))->assertNotFound();
+    }
+
     public function test_admin_can_delete_teacher_without_deleting_authored_content_or_other_locks(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
