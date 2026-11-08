@@ -290,7 +290,15 @@ class SpmbController extends Controller
 
     private function settings(): SpmbSetting
     {
-        return SpmbSetting::firstOrCreate(['id'=>1],['title'=>'Penerimaan Murid Baru','published'=>false]);
+        DB::table('spmb_settings')->insertOrIgnore([
+            'id' => 1,
+            'title' => 'Penerimaan Murid Baru',
+            'published' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return SpmbSetting::query()->findOrFail(1);
     }
 
     private function lines(string $text): array

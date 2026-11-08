@@ -34,6 +34,8 @@ class SpmbWorkflowTest extends TestCase
                 $response->assertSee('Kembali ke Dashboard SPMB');
             }
         }
+        $this->assertDatabaseCount('spmb_settings', 1);
+        $this->assertDatabaseHas('spmb_settings', ['id' => 1]);
         $this->get(route('admin.spmb.information.edit'))->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
         $this->get(route('admin.spmb.dashboard'))->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
 
@@ -72,12 +74,13 @@ class SpmbWorkflowTest extends TestCase
         ])->assertRedirect();
 
         Storage::fake('public');
-        $this->post(route('admin.spmb.poster.update'), ['poster' => UploadedFile::fake()->image('spmb.jpg', 600, 800)])->assertRedirect();
+        $this->post(route('admin.spmb.poster.update'), ['poster' => UploadedFile::fake()->image('spmb.jpg', 600, 800)])
+            ->assertRedirect()->assertSessionHasNoErrors();
         $oldPosterPath = SpmbSetting::firstOrFail()->poster_path;
         $this->post(route('admin.spmb.poster.update'), [
             'poster' => UploadedFile::fake()->image('spmb-baru.png', 720, 1000),
             'poster_caption' => 'Poster resmi tahun ajaran 2027/2028.',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
         $posterPath = SpmbSetting::firstOrFail()->poster_path;
         $this->assertNotSame($oldPosterPath, $posterPath);
         Storage::disk('public')->assertMissing($oldPosterPath);
