@@ -35,6 +35,7 @@ Route::post('/kontak',[PublicController::class,'contact'])->middleware('throttle
 
 Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'showLogin'])->name('login');Route::post('/login',[AuthController::class,'login'])->middleware('throttle:5,1')->name('login.store');});
 Route::post('/logout',[AuthController::class,'logout'])->middleware(['auth','account.session'])->name('logout');
+Route::post('/impersonation/return',[UserController::class,'stopImpersonation'])->middleware(['auth','account.session'])->name('impersonation.return');
 Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','role:admin'])->group(function(){
     Route::get('/', fn () => redirect()->route('admin.dashboard'))->name('root');
     Route::get('/dashboard',DashboardController::class)->name('dashboard');
@@ -65,43 +66,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
         Route::put('/photos/{placement}',[PhotoController::class,'update'])->name('photos.update');
         Route::prefix('spmb')->name('spmb.')->group(function(){
             Route::get('/',[SpmbController::class,'dashboard'])->name('dashboard');
-            Route::get('/information',[SpmbController::class,'information'])->name('information.edit');
-            Route::put('/information',[SpmbController::class,'updateInformation'])->name('information.update');
-            Route::get('/schedule',[SpmbController::class,'schedule'])->name('schedule.edit');
-            Route::put('/schedule',[SpmbController::class,'updateSchedule'])->name('schedule.update');
-            Route::get('/requirements',[SpmbController::class,'requirements'])->name('requirements.edit');
-            Route::put('/requirements',[SpmbController::class,'updateRequirements'])->name('requirements.update');
-            Route::get('/poster',[SpmbController::class,'poster'])->name('poster.edit');
-            Route::post('/poster',[SpmbController::class,'updatePoster'])->name('poster.update');
-            Route::delete('/poster',[SpmbController::class,'deletePoster'])->name('poster.destroy');
-            Route::get('/links',[SpmbController::class,'links'])->name('links.index');
-            Route::post('/links',[SpmbController::class,'storeLink'])->name('links.store');
-            Route::put('/links/{link}',[SpmbController::class,'updateLink'])->name('links.update');
-            Route::delete('/links/{link}',[SpmbController::class,'destroyLink'])->name('links.destroy');
-            Route::get('/photos',[SpmbController::class,'photos'])->name('photos.index');
-            Route::get('/photos/create',[SpmbController::class,'createPhoto'])->name('photos.create');
-            Route::post('/photos',[SpmbController::class,'storePhoto'])->name('photos.store');
-            Route::get('/photos/{photo}/edit',[SpmbController::class,'editPhoto'])->name('photos.edit');
-            Route::put('/photos/{photo}',[SpmbController::class,'updatePhoto'])->name('photos.update');
-            Route::delete('/photos/{photo}',[SpmbController::class,'destroyPhoto'])->name('photos.destroy');
-            Route::get('/contacts',[SpmbController::class,'contacts'])->name('contacts.index');
-            Route::get('/contacts/create',[SpmbController::class,'createContact'])->name('contacts.create');
-            Route::post('/contacts',[SpmbController::class,'storeContact'])->name('contacts.store');
-            Route::get('/contacts/{contact}/edit',[SpmbController::class,'editContact'])->name('contacts.edit');
-            Route::put('/contacts/{contact}',[SpmbController::class,'updateContact'])->name('contacts.update');
-            Route::delete('/contacts/{contact}',[SpmbController::class,'destroyContact'])->name('contacts.destroy');
-            Route::get('/announcements',[SpmbController::class,'announcements'])->name('announcements.index');
-            Route::get('/announcements/create',[SpmbController::class,'createAnnouncement'])->name('announcements.create');
-            Route::post('/announcements',[SpmbController::class,'storeAnnouncement'])->name('announcements.store');
-            Route::get('/announcements/{announcement}/edit',[SpmbController::class,'editAnnouncement'])->name('announcements.edit');
-            Route::put('/announcements/{announcement}',[SpmbController::class,'updateAnnouncement'])->name('announcements.update');
-            Route::delete('/announcements/{announcement}',[SpmbController::class,'destroyAnnouncement'])->name('announcements.destroy');
+            Route::put('/',[SpmbController::class,'updateDashboard'])->name('dashboard.update');
         });
         Route::get('/categories',[CategoryController::class,'index'])->name('categories.index');
         Route::post('/categories',[CategoryController::class,'store'])->name('categories.store');
         Route::put('/categories/{category}',[CategoryController::class,'update'])->name('categories.update');
         Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->name('categories.destroy');
         Route::get('/users',[UserController::class,'index'])->name('users.index');
+        Route::post('/users/{user}/impersonate',[UserController::class,'impersonate'])->name('users.impersonate');
         Route::post('/users',[UserController::class,'store'])->name('users.store');
         Route::put('/users/{user}',[UserController::class,'update'])->name('users.update');
         Route::delete('/users/{user}',[UserController::class,'destroy'])->name('users.destroy');

@@ -15,8 +15,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Throwable;
 
 class ContentEntryController extends Controller
 {
@@ -28,7 +30,6 @@ class ContentEntryController extends Controller
         $entries = $type === 'gallery'
             ? ContentEntry::with('author')->where('type', 'gallery')->orderBy('sort_order')->orderBy('id')->get()
             : ContentEntry::with('author')->where('type', $type)
-                ->when(request()->user()?->role === 'teacher' && $type === 'extracurricular', fn ($query) => $query->where('author_id', request()->user()->id))
                 ->orderBy('sort_order')->orderByDesc('starts_at')->orderByDesc('id')->paginate(20);
 
         return view('admin.content.index',['type'=>$type,'label'=>self::TYPES[$type],'entries'=>$entries]);
@@ -49,7 +50,7 @@ class ContentEntryController extends Controller
 
         return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]);
     }
-    public function edit(string $type,ContentEntry $entry): View { $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);$entry->load('photos');return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]); }
+    public function edit(string $type,ContentEntry $entry): View { $this->assertType($type);abort_unless($entry->type===$type,404);$entry->load('photos');return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]); }
 
     public function store(Request $request,string $type): RedirectResponse
     {
@@ -62,7 +63,7 @@ class ContentEntryController extends Controller
 
     public function update(Request $request,string $type,ContentEntry $entry): RedirectResponse
     {
-        $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);$data=$this->validateData($request,$type,$entry);
+        $this->assertType($type);abort_unless($entry->type===$type,404);$data=$this->validateData($request,$type,$entry);
         $entry->update($data);ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'perbarui '.$type,'detail'=>$entry->title]);
         $this->storeExtracurricularPhotos($request, $entry);
         return $this->afterSave($type, self::TYPES[$type].' diperbarui.');
@@ -70,7 +71,7 @@ class ContentEntryController extends Controller
 
     public function destroy(string $type,ContentEntry $entry): RedirectResponse
     {
-        $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);
+        $this->assertType($type);abort_unless($entry->type===$type,404);
         $extraPhotoPaths = $entry->photos()->pluck('path')->all();
         foreach([$entry->image_path,$entry->document_path] as $path)if($path)$this->deleteUploadIfUnused($path, $entry);
         $title=$entry->title;
@@ -86,7 +87,6 @@ class ContentEntryController extends Controller
     public function destroyPhoto(ContentEntry $entry, ContentEntryPhoto $photo): RedirectResponse
     {
         abort_unless($entry->type === 'extracurricular' && $photo->content_entry_id === $entry->id, 404);
-        $this->authorizeEntry($entry);
         $path = $photo->path;
         $photo->delete();
         $this->deleteUploadIfUnused($path);
@@ -293,21 +293,37 @@ class ContentEntryController extends Controller
         }
     }
 
-    private function authorizeEntry(ContentEntry $entry): void
-    {
-        if (request()->user()?->role === 'teacher' && $entry->type === 'extracurricular') {
-            abort_unless($entry->author_id === request()->user()->id, 403);
-        }
-    }
-
     private function storeExtracurricularPhotos(Request $request, ContentEntry $entry): void
     {
         if ($entry->type !== 'extracurricular' || ! $request->hasFile('photos')) return;
         $nextOrder = (int) $entry->photos()->max('sort_order') + 1;
-        foreach ($request->file('photos', []) as $file) {
-            $path = $file->storePublicly('media', 'public');
-            $entry->photos()->create(['path' => $path, 'sort_order' => $nextOrder++]);
-            MediaAsset::create(['uploaded_by' => $request->user()->id, 'path' => $path, 'mime_type' => $file->getMimeType(), 'size' => $file->getSize()]);
+        $storedPaths = [];
+
+        try {
+            DB::transaction(function () use ($request, $entry, &$nextOrder, &$storedPaths): void {
+                foreach ($request->file('photos', []) as $file) {
+                    $path = $file->storePublicly('media', 'public');
+                    if (! is_string($path) || $path === '') {
+                        throw ValidationException::withMessages(['photos' => 'Salah satu foto gagal disimpan. Silakan coba lagi.']);
+                    }
+
+                    $storedPaths[] = $path;
+                    $entry->photos()->create(['path' => $path, 'sort_order' => $nextOrder++]);
+                    MediaAsset::create([
+                        'uploaded_by' => $request->user()->id,
+                        'path' => $path,
+                        'mime_type' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            foreach ($storedPaths as $path) {
+                Storage::disk('public')->delete($path);
+                MediaAsset::where('path', $path)->delete();
+            }
+
+            throw $exception;
         }
     }
 }

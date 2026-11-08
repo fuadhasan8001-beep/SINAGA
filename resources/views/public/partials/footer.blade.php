@@ -34,7 +34,6 @@
                     @endif
                 </a>
                 @endif
-                @if(filled($footerSettings['address']))<p class="footer-address"><span aria-hidden="true">⌖</span>{{ $footerSettings['address'] }}</p>@endif
                 @if(filled($footerSettings['description']))<p>{{ $footerSettings['description'] }}</p>@endif
             </div>
             @endif
@@ -80,6 +79,13 @@
             <div class="footer-contact">
                 <h2>Hubungi Kami</h2>
                 <div class="footer-contact-list">
+                    @if(filled($footerSettings['address']))
+                        @if(filled($footerSettings['maps_url']))
+                            <a class="footer-contact-item footer-contact-item--card footer-contact-item--location" href="{{ $footerSettings['maps_url'] }}" target="_blank" rel="noopener noreferrer"><span class="footer-contact-icon" aria-hidden="true">⌖</span><span class="footer-contact-copy"><span>Lokasi Sekolah</span><span class="footer-contact-value">{{ $footerSettings['address'] }}</span></span></a>
+                        @else
+                            <p class="footer-contact-item footer-contact-item--card footer-contact-item--location"><span class="footer-contact-icon" aria-hidden="true">⌖</span><span class="footer-contact-copy"><span>Lokasi Sekolah</span><span class="footer-contact-value">{{ $footerSettings['address'] }}</span></span></p>
+                        @endif
+                    @endif
                     @if(filled($footerSettings['email']))<p class="footer-contact-item footer-contact-item--card footer-contact-item--email"><span class="footer-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><span class="footer-contact-copy"><span>Email</span><a href="mailto:{{ $footerSettings['email'] }}">{{ $footerSettings['email'] }}</a></span></p>@endif
                     @if(filled($footerSettings['phone']))<p class="footer-contact-item footer-contact-item--whatsapp"><span class="footer-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 11.6a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.6Z"/><path d="M9 8.5c.3-.6.6-.6.9-.6h.4c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.5.6c-.2.2-.2.4 0 .6.6 1 1.4 1.7 2.4 2.2.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.5.7c.3.1.4.3.4.5 0 .5-.2 1-.6 1.3-.5.4-1.1.6-1.8.5-1.2-.2-2.5-.8-3.8-2-1.2-1.1-2-2.4-2.2-3.5-.1-.7.1-1.4.5-1.9Z"/></svg></span><span class="footer-contact-copy"><span>WhatsApp</span>@if(strlen($footerWhatsappNumber) >= 9 && strlen($footerWhatsappNumber) <= 15)<a class="footer-whatsapp-link" href="https://wa.me/{{ $footerWhatsappNumber }}?text={{ $footerWhatsappMessage }}" target="_blank" rel="noopener noreferrer"><span>{{ $footerSettings['phone'] }}</span><span class="footer-whatsapp-cta">Chat sekarang <span aria-hidden="true">&gt;&gt;</span></span></a>@else<a href="tel:{{ preg_replace('/[^+0-9]/', '', $footerSettings['phone']) }}">{{ $footerSettings['phone'] }}</a>@endif</span></p>@endif
                     @if(filled($footerSettings['phone_alternative']))<p class="footer-contact-item footer-contact-item--card footer-contact-item--phone"><span class="footer-contact-icon" aria-hidden="true">☎</span><span class="footer-contact-copy"><span>Telepon</span><a href="tel:{{ preg_replace('/[^+0-9]/', '', $footerSettings['phone_alternative']) }}">{{ $footerSettings['phone_alternative'] }}</a></span></p>@endif

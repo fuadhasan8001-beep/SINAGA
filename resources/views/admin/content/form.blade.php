@@ -76,18 +76,12 @@
         </label>
         <label class="extracurricular-image-field" for="extracurricularPhotos">Foto kegiatan tambahan
             <input id="extracurricularPhotos" type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp">
-            <span class="hint">Pilih hingga 12 foto (JPG, JPEG, PNG, atau WebP; maksimal 5 MB per foto).</span>
+            <span class="hint">Pilih hingga 12 foto. Kamu dapat memilih lagi untuk menambahkan foto, atau menghapus foto dari preview sebelum menyimpan (JPG, JPEG, PNG, atau WebP; maksimal 5 MB per foto).</span>
+            <span class="hint" id="extracurricularPhotosCount" aria-live="polite">Belum ada foto baru dipilih.</span>
             <div class="extracurricular-upload-preview-list" id="extracurricularPhotosPreview" aria-live="polite"></div>
             @error('photos')<span class="error">{{ $message }}</span>@enderror
             @error('photos.*')<span class="error">{{ $message }}</span>@enderror
         </label>
-        @if($entry->exists && $entry->photos->isNotEmpty())
-            <div class="extracurricular-photo-list" aria-label="Foto kegiatan tersimpan">
-                @foreach($entry->photos as $photo)
-                    <figure><img src="{{ Storage::disk('public')->url($photo->path) }}" alt="Foto kegiatan {{ $entry->title }}"><form method="post" action="{{ $panelRoute('admin.content.photos.destroy',[$entry,$photo]) }}">@csrf @method('DELETE')<button class="tiny deny" type="submit">Hapus foto</button></form></figure>
-                @endforeach
-            </div>
-        @endif
         <label for="extracurricularOrder">Urutan Tampil
             <input id="extracurricularOrder" type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$entry->sort_order ?? 0) }}">
             @error('sort_order')<span class="error">{{ $message }}</span>@enderror
@@ -169,14 +163,65 @@
     <div class="actions"><a class="secondary" href="{{ $type === 'extracurricular' ? $panelRoute('admin.dashboard').'#ekstrakurikuler' : (in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? $panelRoute('admin.settings.edit',['section'=>'academic','edit'=>1]) : $panelRoute('admin.content.index',$type)) }}">{{ $type === 'extracurricular' ? 'Kembali ke Ekstrakurikuler' : 'Kembali' }}</a><button class="primary">Simpan</button></div>
 </form>
 @if($type === 'extracurricular')
+    @if($entry->exists && $entry->photos->isNotEmpty())
+        <div class="extracurricular-photo-list" aria-label="Foto kegiatan tersimpan">
+            @foreach($entry->photos as $photo)
+                <figure>
+                    <img src="{{ Storage::disk('public')->url($photo->path) }}" alt="Foto kegiatan {{ $entry->title }}">
+                    <form method="post" action="{{ $panelRoute('admin.content.photos.destroy',[$entry,$photo]) }}">
+                        @csrf @method('DELETE')
+                        <button class="tiny deny" type="submit" aria-label="Hapus foto kegiatan {{ $loop->iteration }}">Hapus foto</button>
+                    </form>
+                </figure>
+            @endforeach
+        </div>
+    @endif
 <script>
-document.getElementById('extracurricularPhotos')?.addEventListener('change', (event) => {
+(() => {
+    const input = document.getElementById('extracurricularPhotos');
     const preview = document.getElementById('extracurricularPhotosPreview');
-    preview.replaceChildren();
-    [...event.target.files].forEach((file) => {
-        const image = document.createElement('img'); image.src = URL.createObjectURL(file); image.alt = `Preview ${file.name}`; preview.append(image);
+    const count = document.getElementById('extracurricularPhotosCount');
+    if (!input || !preview || !count) return;
+
+    let selectedFiles = [];
+    const render = () => {
+        preview.querySelectorAll('img').forEach((image) => URL.revokeObjectURL(image.src));
+        preview.replaceChildren();
+        const transfer = new DataTransfer();
+        selectedFiles.forEach((file, index) => {
+            transfer.items.add(file);
+            const figure = document.createElement('figure');
+            const image = document.createElement('img');
+            const remove = document.createElement('button');
+            image.src = URL.createObjectURL(file);
+            image.alt = `Preview ${file.name}`;
+            remove.type = 'button';
+            remove.className = 'tiny deny';
+            remove.textContent = 'Hapus';
+            remove.setAttribute('aria-label', `Hapus ${file.name} dari pilihan`);
+            remove.addEventListener('click', () => {
+                selectedFiles.splice(index, 1);
+                render();
+            });
+            figure.append(image, remove);
+            preview.append(figure);
+        });
+        input.files = transfer.files;
+        count.textContent = selectedFiles.length
+            ? `${selectedFiles.length} foto dipilih.`
+            : 'Belum ada foto baru dipilih.';
+    };
+
+    input.addEventListener('change', () => {
+        const keys = new Set(selectedFiles.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+        for (const file of input.files) {
+            const key = `${file.name}:${file.size}:${file.lastModified}`;
+            if (!keys.has(key) && selectedFiles.length < 12) selectedFiles.push(file);
+            keys.add(key);
+        }
+        render();
     });
-});
+})();
 </script>
 @endif
 @endsection

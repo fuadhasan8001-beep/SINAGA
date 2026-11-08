@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -28,9 +29,62 @@ class UserController extends Controller
 
     public function index(): View
     {
+        $locks = app(AccountSessionLockManager::class);
+        $locks->pruneExpired();
         return view('admin.users.index', [
             'users' => User::where('role', 'teacher')->orderBy('name')->paginate(30),
+            'activeLocks' => DB::table('account_session_locks')->get()->keyBy('user_id'),
         ]);
+    }
+
+    public function impersonate(Request $request, User $user, AccountSessionLockManager $locks): RedirectResponse
+    {
+        abort_unless($request->user()?->isAdmin(), 403);
+        abort_unless($user->role === 'teacher', 404);
+        abort_unless($user->active, 422, 'Akun Guru tidak aktif.');
+
+        $admin = $request->user();
+        $adminLock = $request->session()->get('account_session_locks.'.$admin->id)
+            ?? $request->session()->get('account_session_lock');
+        abort_unless(is_string($adminLock), 401);
+        $sessionLockId = (string) $request->session()->getId();
+        // Tie both role locks to the same live Laravel browser session so
+        // pruning cannot mistake the paused Admin lock for an orphan.
+        DB::table('account_session_locks')->where('user_id', $admin->id)->where('session_id', $adminLock)
+            ->update(['session_id' => $sessionLockId, 'last_seen_at' => now(), 'updated_at' => now()]);
+        $adminLock = $sessionLockId;
+        $request->session()->put('account_session_lock', $adminLock);
+        $request->session()->put('account_session_locks.'.$admin->id, $adminLock);
+        $teacherLock = $sessionLockId;
+        if (! $locks->acquire($user->id, $teacherLock)) {
+            return back()->withErrors(['impersonation' => 'Akun Guru sedang digunakan. Pengambilalihan ditolak.']);
+        }
+
+        $request->session()->put('admin_impersonation', [
+            'admin_id' => $admin->id,
+            'admin_lock' => $adminLock,
+            'teacher_id' => $user->id,
+            'teacher_lock' => $teacherLock,
+        ]);
+        $request->session()->put('account_session_locks.'.$user->id, $teacherLock);
+        Auth::login($user, false);
+        ActivityLog::create(['user_id' => $admin->id, 'action' => 'mulai impersonasi guru', 'detail' => $user->name.' ('.$user->email.')']);
+        return redirect()->route('guru.dashboard')->with('success', 'Anda sedang masuk sebagai '.$user->name.'.');
+    }
+
+    public function stopImpersonation(Request $request, AccountSessionLockManager $locks): RedirectResponse
+    {
+        $impersonation = $request->session()->get('admin_impersonation');
+        abort_unless(is_array($impersonation), 403);
+        $admin = User::query()->whereKey($impersonation['admin_id'] ?? 0)->where('role', 'admin')->where('active', true)->firstOrFail();
+        $teacher = $request->user();
+        abort_unless($teacher && (int) $teacher->id === (int) ($impersonation['teacher_id'] ?? 0), 403);
+        $locks->release($teacher->id, (string) $impersonation['teacher_lock']);
+        $request->session()->forget(['admin_impersonation', 'account_session_locks.'.$teacher->id]);
+        $request->session()->put('account_session_locks.'.$admin->id, (string) $impersonation['admin_lock']);
+        Auth::login($admin, false);
+        ActivityLog::create(['user_id' => $admin->id, 'action' => 'akhiri impersonasi guru', 'detail' => $teacher->name.' ('.$teacher->email.')']);
+        return redirect()->route('admin.dashboard')->with('success', 'Anda kembali ke akun Admin.');
     }
 
     public function store(Request $request): RedirectResponse

@@ -56,10 +56,10 @@
                 <p>{{ $users->total() }} akun terdaftar</p>
             </div>
         </div>
-        <div class="table-wrap teacher-account-table-wrap" role="region" aria-label="Daftar akun Guru; geser tabel ke samping jika diperlukan" tabindex="0">
+        <div class="table-wrap teacher-account-table-wrap" role="region" aria-label="Daftar akun Guru">
             <table class="teacher-account-table">
                 <thead>
-                    <tr><th>Akun Guru</th><th>Status</th><th>Perbarui akun</th></tr>
+                    <tr><th>Akun Guru</th><th>Status sesi</th><th>Perbarui akun</th></tr>
                 </thead>
                 <tbody>
                     @forelse ($users as $teacher)
@@ -69,7 +69,18 @@
                                 <span class="subline">{{ $teacher->email }}</span>
                                 <span class="subline">{{ $teacher->username ? 'Username login: '.$teacher->username : 'Username belum diatur; login dengan email' }}</span>
                             </td>
-                            <td><span class="pill {{ $teacher->active ? 'published' : 'rejected' }}">{{ $teacher->active ? 'Aktif' : 'Nonaktif' }}</span></td>
+                            <td>
+                                @php($teacherSession = $activeLocks->get($teacher->id))
+                                @if($teacherSession)
+                                    <span class="pill rejected">Sedang Digunakan</span>
+                                    <span class="subline">Aktivitas terakhir {{ \Illuminate\Support\Carbon::parse($teacherSession->last_seen_at)->diffForHumans() }}</span>
+                                @else
+                                    <span class="pill {{ $teacher->active ? 'published' : 'rejected' }}">{{ $teacher->active ? 'Tidak Aktif' : 'Nonaktif' }}</span>
+                                @endif
+                                @if($teacher->active && !$teacherSession)
+                                    <form method="post" action="{{ route('admin.users.impersonate',$teacher) }}" class="teacher-account-session-action">@csrf<button class="tiny" type="submit">Masuk sebagai Guru</button></form>
+                                @endif
+                            </td>
                             <td>
                                 <form method="post" action="{{ $panelRoute('admin.users.update', $teacher) }}" class="teacher-account-edit">
                                     @csrf

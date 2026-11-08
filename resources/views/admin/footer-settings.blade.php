@@ -24,6 +24,7 @@
             <label>Kota / kabupaten<input name="address_city" maxlength="120" value="{{ old('address_city', $settings->get('footer_city', '')) }}">@error('address_city')<small class="error">{{ $message }}</small>@enderror</label>
             <label>Provinsi / wilayah<input name="address_region" maxlength="120" value="{{ old('address_region', $settings->get('footer_region', '')) }}">@error('address_region')<small class="error">{{ $message }}</small>@enderror</label>
             <label>Kode pos (opsional)<input name="address_postal_code" maxlength="20" value="{{ old('address_postal_code', $settings->get('footer_postal_code', '')) }}">@error('address_postal_code')<small class="error">{{ $message }}</small>@enderror</label>
+            <label>Tautan Google Maps (opsional)<input type="url" name="address_map_url" maxlength="2048" value="{{ old('address_map_url', $settings->get('address_map_url', '')) }}" placeholder="https://maps.google.com/">@error('address_map_url')<small class="error">{{ $message }}</small>@enderror</label>
         </div>
     </section>
 

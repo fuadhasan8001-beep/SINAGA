@@ -35,6 +35,28 @@ class PublicController extends Controller
     {
         $article = Article::published()->with(['author', 'category'])->where('slug', $slug)->firstOrFail();
         $adminMode = request()->routeIs('admin.website.article') && request()->user()?->isAdmin();
+        $articleBackUrl = match (request()->user()?->role) {
+            'admin' => route('admin.articles.index'),
+            'teacher' => route('guru.articles.index'),
+            default => route('information.articles'),
+        };
+        if (! request()->user()) {
+            $referer = request()->headers->get('referer');
+            $refererParts = $referer ? parse_url($referer) : false;
+            $articleListPath = parse_url(route('information.articles', [], false), PHP_URL_PATH);
+            $refererScheme = strtolower((string) ($refererParts['scheme'] ?? ''));
+            $currentScheme = strtolower(request()->getScheme());
+            $refererPort = (int) ($refererParts['port'] ?? ($refererScheme === 'https' ? 443 : 80));
+
+            if (is_array($refererParts)
+                && isset($refererParts['host'], $refererParts['path'])
+                && strtolower($refererParts['host']) === strtolower(request()->getHost())
+                && $refererScheme === $currentScheme
+                && $refererPort === (int) request()->getPort()
+                && rtrim($refererParts['path'], '/') === rtrim((string) $articleListPath, '/')) {
+                $articleBackUrl = $referer;
+            }
+        }
         $relatedArticles = Article::published()
             ->with(['author', 'category'])
             ->whereKeyNot($article->id)
@@ -48,9 +70,7 @@ class PublicController extends Controller
             'relatedArticles' => $relatedArticles,
             'settings' => $this->websiteSettings(),
             'adminMode' => $adminMode,
-            'articleBackUrl' => request()->user()
-                ? \App\Support\PanelRoute::name('admin.articles.index')
-                : route('information.articles'),
+            'articleBackUrl' => $articleBackUrl,
         ]);
     }
 

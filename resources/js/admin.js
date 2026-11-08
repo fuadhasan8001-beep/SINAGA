@@ -51,7 +51,8 @@ actionDialog?.addEventListener('close',()=>{
 });
 if(document.body.classList.contains('admin-preview')){
     const academicManagementUrl=document.querySelector('#admin-sidebar a[href*="section=academic"]')?.href;
-    const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],akademik:[academicManagementUrl,'Edit akademik'],pengumuman:['/admin/content/announcement/create','Tambah pengumuman'],ekstrakurikuler:['/admin/content/extracurricular/create','Tambah ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
+    const extracurricularManagementUrl=document.querySelector('#admin-sidebar a[href*="/content/"][href$="extracurricular"]')?.href||'/admin/content/extracurricular';
+    const contextualLinks={profil:['/admin/settings?section=profile&edit=1','Edit profil'],akademik:[academicManagementUrl,'Edit akademik'],pengumuman:['/admin/content/announcement/create','Tambah pengumuman'],ekstrakurikuler:[extracurricularManagementUrl,'Kelola ekstrakurikuler'],prestasi:['/admin/content/achievement/create','Tambah prestasi'],kontak:['/admin/settings?section=contact','Edit informasi kontak']};
     Object.entries(contextualLinks).forEach(([id,[href,label]])=>{const head=document.querySelector(`#${id} .section-head`);if(!head||!href)return;const link=document.createElement('a');link.className='admin-context-edit';link.href=href;link.textContent=label;head.append(link);});
     [...document.querySelectorAll('.section-head')].find(head=>head.querySelector('h2')?.textContent.trim()==='Galeri Sekolah')?.append(Object.assign(document.createElement('a'),{className:'admin-context-edit',href:'/admin/content/gallery',textContent:'Kelola Galeri'}));
 }

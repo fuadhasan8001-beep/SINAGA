@@ -23,7 +23,8 @@ class EnsureSingleActiveSession
             return $next($request);
         }
 
-        $lockId = $request->session()->get('account_session_lock');
+        $lockId = $request->session()->get('account_session_locks.'.$user->id)
+            ?? $request->session()->get('account_session_lock');
         if (! is_string($lockId) || ! $this->locks->heartbeat($user->id, $lockId)) {
             Auth::logout();
             $request->session()->invalidate();

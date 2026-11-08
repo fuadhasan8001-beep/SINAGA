@@ -76,7 +76,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         // Keep ownership attached to the authenticated session even if Laravel rotates its ID.
-        $sessionId = (string) Str::uuid();
+        $sessionId = (string) $request->session()->getId();
         $request->session()->put('account_session_lock', $sessionId);
         $locks = app(AccountSessionLockManager::class);
 
@@ -107,9 +107,14 @@ class AuthController extends Controller
         $user = $request->user();
         if ($user) {
             ActivityLog::create(['user_id' => $user->id, 'action' => 'logout', 'detail' => 'Keluar dari panel']);
-            $lockId = $request->session()->pull('account_session_lock');
+            $lockId = $request->session()->get('account_session_locks.'.$user->id)
+                ?? $request->session()->pull('account_session_lock');
             if (is_string($lockId)) {
                 app(AccountSessionLockManager::class)->release($user->id, $lockId);
+            }
+            $impersonation = $request->session()->get('admin_impersonation');
+            if (is_array($impersonation)) {
+                app(AccountSessionLockManager::class)->release((int) $impersonation['admin_id'], (string) $impersonation['admin_lock']);
             }
         }
 

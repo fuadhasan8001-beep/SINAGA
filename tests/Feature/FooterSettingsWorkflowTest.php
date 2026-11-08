@@ -31,6 +31,7 @@ class FooterSettingsWorkflowTest extends TestCase
             'address_city' => 'Tulungagung',
             'address_region' => 'Jawa Timur',
             'address_postal_code' => '66263',
+            'address_map_url' => 'https://maps.google.com/?q=SMPN+1+Gondang',
             'email' => 'sekolah@example.sch.id',
             'phone' => '+62 321 123456',
             'phone_alternative' => '(0355) 123456',
@@ -65,6 +66,8 @@ class FooterSettingsWorkflowTest extends TestCase
             ->assertSee('SMPN 1 Gondang Utama')
             ->assertSee('Sekolah yang ramah dan berprestasi.')
             ->assertSee('Jl. Pendidikan No. 1, Tulungagung, Jawa Timur, 66263')
+            ->assertSee('footer-contact-item--location', false)
+            ->assertSee('href="https://maps.google.com/?q=SMPN+1+Gondang"', false)
             ->assertSee('sekolah@example.sch.id')
             ->assertSee('instagram.com/smpn1gondang')
             ->assertSee('facebook.com/smpn1gondang')
@@ -98,7 +101,7 @@ class FooterSettingsWorkflowTest extends TestCase
     {
         foreach ([
             'school_name', 'school_tagline', 'school_logo_path', 'footer_description',
-            'address', 'address_city', 'address_region', 'address_postal_code',
+            'address', 'address_city', 'address_region', 'address_postal_code', 'address_map_url',
             'phone', 'phone_alternative', 'email', 'footer_copyright_year',
             'footer_copyright_name', 'footer_copyright_note',
         ] as $key) {
@@ -121,5 +124,21 @@ class FooterSettingsWorkflowTest extends TestCase
             $this->assertStringNotContainsString($emptyContent, $footer);
         }
         $this->assertStringContainsString('by ESEMKITA 2026', $footer);
+    }
+
+    public function test_footer_discards_invalid_social_urls_and_whitespace_values(): void
+    {
+        SiteSetting::updateOrCreate(['key' => 'school_name'], ['value' => json_encode('   ')]);
+        SiteSetting::updateOrCreate(['key' => 'address'], ['value' => json_encode('null')]);
+        SiteSetting::updateOrCreate(['key' => 'footer_social'], ['value' => json_encode([
+            ['label' => 'Instagram', 'url' => 'javascript:alert(1)'],
+            ['label' => 'YouTube', 'url' => ''],
+        ])]);
+
+        $response = $this->get(route('home'))->assertOk()->assertDontSee('footer-social-card')->assertDontSee('Hubungi Kami');
+        preg_match('/<footer class="footer">.*?<\/footer>/s', $response->getContent(), $matches);
+        $this->assertNotEmpty($matches);
+        $this->assertStringNotContainsString('>null<', $matches[0]);
+        $this->assertStringNotContainsString('>undefined<', $matches[0]);
     }
 }

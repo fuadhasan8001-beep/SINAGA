@@ -99,9 +99,32 @@ button:disabled,.primary:disabled{cursor:not-allowed;opacity:.58;box-shadow:none
 .teacher-account-delete .tiny{border-radius:10px}
 .gallery-admin-author{margin:4px 0 0;color:#718075;font-size:.72rem}
 .teacher-account-security-note{max-width:760px}
+@media(max-width:900px){
+  .teacher-account-list{overflow:hidden}
+  .teacher-account-table-wrap{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow:visible;padding:12px}
+  .teacher-account-table{display:block;width:100%;min-width:0;table-layout:auto;border-collapse:separate;border-spacing:0}
+  .teacher-account-table thead{display:none}
+  .teacher-account-table tbody{display:grid;gap:14px;width:100%;min-width:0}
+  .teacher-account-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;overflow:hidden;border:1px solid #e0ebe2;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(27,69,43,.045)}
+  .teacher-account-table tbody tr>td{display:block;box-sizing:border-box;width:100%;min-width:0;padding:14px;border:0;border-bottom:1px solid #edf1ed;overflow-wrap:anywhere}
+  .teacher-account-table tbody tr>td:last-child{border-bottom:0}
+  .teacher-account-identity strong{font-size:.98rem}
+  .teacher-account-identity .subline{overflow-wrap:anywhere;word-break:break-word}
+  .teacher-account-table tbody tr>td:nth-child(2){display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .teacher-account-edit{grid-template-columns:minmax(0,1fr);gap:12px;padding:0}
+  .teacher-account-edit>label{font-size:.8rem}
+  .teacher-account-edit input:not([type=checkbox]):not([type=hidden]){min-height:44px;padding:10px 12px;font-size:.9rem}
+  .teacher-account-edit .teacher-account-active{justify-self:stretch;min-height:42px;white-space:normal}
+  .teacher-account-edit .teacher-account-active input[type=checkbox]{flex:0 0 18px;width:18px;height:18px}
+  .teacher-account-edit .tiny,.teacher-account-delete .tiny,.teacher-account-session-action .tiny{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;white-space:normal;text-align:center;overflow-wrap:anywhere}
+  .teacher-account-session-action{width:100%;min-width:0;margin:0}
+  .teacher-account-delete{display:block;margin-top:10px}
+  .teacher-account-table .empty{text-align:center}
+}
 @media(max-width:1100px){.teacher-account-edit{grid-template-columns:repeat(2,minmax(140px,1fr))}.teacher-account-edit .teacher-account-active{justify-self:start}.teacher-account-table{min-width:850px}}
 @media(max-width:720px){.admin-manage .teacher-account-create{gap:16px;padding:18px}.teacher-account-form{grid-template-columns:minmax(0,1fr)}.teacher-account-form .teacher-password-field{grid-column:auto}.teacher-create-submit{width:100%;justify-self:stretch}.teacher-account-list__header{padding:15px 16px}.teacher-account-edit{grid-template-columns:repeat(2,minmax(125px,1fr))}.teacher-account-table{min-width:760px}}
 @media(max-width:420px){.teacher-account-edit{grid-template-columns:minmax(0,1fr)}.teacher-account-edit .tiny{width:100%}.teacher-account-create__header{align-items:flex-start}.teacher-account-create__icon{width:40px;height:40px;flex-basis:40px}}
+@media(max-width:900px){.teacher-account-table{min-width:0}.teacher-account-edit{grid-template-columns:minmax(0,1fr)}.teacher-account-edit .teacher-account-active{justify-self:stretch}}
 @media(max-width:680px){.sidebar .nav{display:grid;gap:2px;overflow-x:hidden;overflow-y:auto}.sidebar .nav-title,.sidebar .side-bottom{display:block}}
 
 /* Match the school brand to the fresh, warmer public palette. */
@@ -349,6 +372,9 @@ body{background:#edf8f0;color:#26372e}
 .extracurricular-photo-list,.extracurricular-upload-preview-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
 .extracurricular-photo-list{grid-column:1/-1}
 .extracurricular-photo-list figure{margin:0;display:grid;gap:6px}
+.extracurricular-photo-list figure form{margin:0}
+.extracurricular-upload-preview-list figure{display:grid;gap:6px;margin:0;min-width:0}
+.extracurricular-upload-preview-list button{justify-self:start}
 .extracurricular-photo-list img,.extracurricular-upload-preview-list img{display:block;width:100%;aspect-ratio:1.25;object-fit:cover;border-radius:10px;border:1px solid #d6e5d9}
 
 /* Account profile form */
@@ -426,6 +452,7 @@ body{background:#edf8f0;color:#26372e}
 .admin-manage .navigation-arrow:active:not(:disabled){background:#d9efde!important;transform:scale(.97)}
 .admin-manage .navigation-arrow:disabled{opacity:.42!important;cursor:not-allowed}
 .admin-manage .navigation-arrow:focus-visible{outline:3px solid rgba(74,151,94,.38);outline-offset:3px}
+.admin-manage .gallery-move-actions .navigation-arrow{box-sizing:border-box;display:inline-flex!important;align-items:center;justify-content:center;width:64px!important;min-width:64px!important;height:36px!important;min-height:36px!important;padding:0 8px!important;border-radius:9px!important;font-size:.72rem!important;line-height:1!important}
 .admin-manage .navigation-back-link{display:inline-flex;align-items:center;gap:9px}
 .admin-manage .navigation-back-link::before{display:grid;width:32px;height:32px;flex:0 0 32px;place-items:center;border:1px solid #b9d7c0;border-radius:50%;background:#fff;color:#245b37;content:"<<";font-size:.72rem;font-weight:800;line-height:1;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
 .admin-manage .navigation-back-link:hover::before{border-color:#9fcbaa;background:#e8f5eb;color:#17452b;transform:translateX(-1px)}

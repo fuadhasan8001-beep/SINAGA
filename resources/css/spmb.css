@@ -52,3 +52,21 @@
 @media(max-width:700px){.spmb-important-link{padding:17px}.spmb-facts article{padding:16px}}
 @media(prefers-reduced-motion:reduce){.spmb-hero-copy,.spmb-poster{animation:none}}
 .spmb-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:20px}.spmb-gallery figure{overflow:hidden;margin:0;border:1px solid #e1ebe3;background:#fff}.spmb-gallery img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.spmb-gallery figcaption{padding:13px 15px}.spmb-gallery figcaption p{margin:4px 0 0;color:#64746a;font-size:.88rem}
+.spmb-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.spmb-visitor{box-sizing:border-box;display:grid;gap:20px;width:min(100% - 32px,900px);min-width:0;margin:0 auto;padding-block:clamp(24px,5vw,56px)}.spmb-visitor-poster{display:grid;place-items:center;box-sizing:border-box;width:min(100%,680px);min-width:0;min-height:120px;margin:0 auto;overflow:hidden;border:1px solid #dce8de;border-radius:16px;background:#f8fbf8;box-shadow:0 10px 30px rgba(26,66,38,.07)}.spmb-visitor-poster img{display:block;width:100%;max-height:min(78vh,780px);object-fit:contain}.spmb-visitor-empty-poster{display:grid;justify-items:center;gap:12px;padding:36px 18px;color:#5e7363;text-align:center}.spmb-visitor-empty-poster span{font-size:2rem}.spmb-visitor-card{box-sizing:border-box;display:grid;gap:15px;min-width:0;padding:clamp(19px,3vw,28px);overflow:hidden;border:1px solid #dce8de;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(26,66,38,.055)}.spmb-visitor-card-heading{display:flex;align-items:center;gap:12px;min-width:0;padding-bottom:13px;border-bottom:1px solid #e8eee9}.spmb-visitor-card-heading h2{min-width:0;margin:0;color:#234b30;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.4;overflow-wrap:anywhere}.spmb-visitor-card-icon{display:grid;flex:0 0 38px;width:38px;height:38px;place-items:center;border-radius:11px;background:#eaf6ed;color:#21633a;font-size:1.15rem}.spmb-visitor-card-body{min-width:0;color:#43564a;font-size:1rem;line-height:1.8;white-space:pre-line;overflow-wrap:anywhere;word-break:break-word}.spmb-visitor-contact>p{margin:0;color:#56695d;line-height:1.65;overflow-wrap:anywhere}.spmb-visitor-contact-empty{color:#68796d!important}.spmb-whatsapp-button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:fit-content;max-width:100%;min-height:48px;padding:12px 18px;border-radius:11px;background:#16803c;color:#fff;text-align:center;text-decoration:none;font-weight:750;line-height:1.4;overflow-wrap:anywhere;transition:background .18s,transform .18s}.spmb-whatsapp-button:hover{transform:translateY(-1px);background:#126b32}.spmb-whatsapp-button:focus-visible{outline:3px solid #9dd7ac;outline-offset:3px}@media(max-width:600px){.spmb-visitor{width:min(100% - 22px,900px);gap:14px;padding-block:18px 28px}.spmb-visitor-poster,.spmb-visitor-card{border-radius:12px}.spmb-visitor-poster img{max-height:68vh}.spmb-visitor-card{gap:12px}.spmb-whatsapp-button{width:100%}}
+
+/* Public SPMB layout: keep each section inside a comfortable reading width. */
+main .spmb-visitor{width:min(100% - 36px,800px);gap:18px;padding-block:clamp(22px,4vw,42px)}
+main .spmb-visitor-poster{width:min(100%,620px);padding:10px}
+main .spmb-visitor-poster img{width:100%;height:auto;max-height:min(58vh,560px);object-fit:contain;object-position:center}
+main .spmb-visitor-card{width:100%;padding:clamp(18px,3vw,26px);overflow-wrap:anywhere}
+main .spmb-visitor-card-heading{display:block;padding-bottom:12px}
+main .spmb-visitor-card-heading h2{font-size:clamp(1.2rem,4vw,1.55rem);line-height:1.3}
+main .spmb-visitor-card-body,main .spmb-visitor-contact>p{font-size:clamp(.98rem,2.5vw,1.05rem);line-height:1.75}
+main .spmb-whatsapp-button{min-height:48px}
+@media(max-width:600px){
+    main .spmb-visitor{width:calc(100% - 28px);gap:14px;padding-block:16px 24px}
+    main .spmb-visitor-poster{width:100%;padding:7px;border-radius:12px}
+    main .spmb-visitor-poster img{max-height:min(52vh,440px)}
+    main .spmb-visitor-card{padding:18px;border-radius:12px}
+    main .spmb-whatsapp-button{width:100%}
+}

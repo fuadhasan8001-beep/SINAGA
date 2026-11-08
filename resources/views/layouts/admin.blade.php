@@ -14,6 +14,11 @@
 <body class="admin-manage">
     @include('public.partials.admin-tools')
     <main class="admin-content">
+        @if(session('admin_impersonation'))
+            <div class="notice" role="status">Anda sedang masuk sebagai {{ auth()->user()->name }}.
+                <form method="post" action="{{ route('impersonation.return') }}" style="display:inline;margin-left:12px">@csrf<button class="primary" type="submit">Kembali ke Akun Admin</button></form>
+            </div>
+        @endif
         <header class="topbar">
             <div>
                 <span class="eyebrow">Administrasi website</span>

@@ -83,7 +83,13 @@ class AccountSessionLockManager
             ->whereNotExists(function ($query) use ($sessionTable, $activeSince): void {
                 $query->selectRaw('1')
                     ->from($sessionTable)
-                    ->whereColumn($sessionTable.'.user_id', 'account_session_locks.user_id')
+                    ->where(function ($query) use ($sessionTable): void {
+                        // During Admin impersonation, Laravel's session row is
+                        // owned by the Guru while the original Admin lock must
+                        // remain tied to that same live browser session.
+                        $query->whereColumn($sessionTable.'.id', 'account_session_locks.session_id')
+                            ->orWhereColumn($sessionTable.'.user_id', 'account_session_locks.user_id');
+                    })
                     ->where('last_activity', '>', $activeSince);
             })
             ->delete();

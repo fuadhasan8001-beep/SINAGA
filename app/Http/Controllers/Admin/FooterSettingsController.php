@@ -30,6 +30,7 @@ class FooterSettingsController extends Controller
         $settings['footer_city'] = $settings->get('address_city', '');
         $settings['footer_region'] = $settings->get('address_region', '');
         $settings['footer_postal_code'] = $settings->get('address_postal_code', '');
+        $settings['address_map_url'] = $settings->get('address_map_url', '');
         $settings['phone_alternative'] = $settings->get('phone_alternative', '');
 
         return view('admin.footer-settings', compact('settings'));
@@ -45,6 +46,7 @@ class FooterSettingsController extends Controller
             'address_city' => ['nullable', 'string', 'max:120'],
             'address_region' => ['nullable', 'string', 'max:120'],
             'address_postal_code' => ['nullable', 'string', 'max:20'],
+            'address_map_url' => ['nullable', 'url:http,https', 'max:2048'],
             'email' => ['nullable', 'email', 'max:254'],
             'phone' => ['nullable', 'string', 'max:50', 'regex:/^(?=.*\d)[0-9+().\-\s]+$/'],
             'phone_alternative' => ['nullable', 'string', 'max:50', 'regex:/^(?=.*\d)[0-9+().\-\s]+$/'],
@@ -58,6 +60,7 @@ class FooterSettingsController extends Controller
             'footer_copyright_name' => ['required', 'string', 'max:180'],
             'footer_copyright_note' => ['nullable', 'string', 'max:240'],
         ]);
+        $data['address_map_url'] = $data['address_map_url'] ?? null;
 
         $data['footer_navigation'] = array_values(array_filter($data['footer_navigation'], fn ($item) => filled($item['label'] ?? null) && filled($item['url'] ?? null)));
         $data['footer_social'] = array_values(array_filter($data['footer_social'] ?? [], fn ($item) => filled($item['label'] ?? null) && filled($item['url'] ?? null)));
