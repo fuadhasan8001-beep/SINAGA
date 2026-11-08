@@ -4,7 +4,7 @@
 @section('content')
 <article class="article-page section">
     <div class="container article-shell">
-        <a class="back article-back navigation-back-link" href="{{ ($adminMode ?? false) ? $panelRoute('admin.dashboard') : route('information.articles') }}">Kembali ke Informasi</a>
+        <a class="back article-back navigation-back-link" href="{{ $articleBackUrl ?? (($adminMode ?? false) ? $panelRoute('admin.dashboard') : route('information.articles')) }}">Kembali ke Informasi</a>
         <header class="article-header">
             <span class="eyebrow">{{ $article->category?->name ?? 'Berita sekolah' }}</span>
             <h1>{{ $article->title }}</h1>

@@ -11,6 +11,20 @@ use Tests\TestCase;
 
 class PublicHomepageRefinementTest extends TestCase
 {
+    public function test_homepage_displays_school_service_hours_as_individual_days(): void
+    {
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('Senin – Kamis', $html);
+        $this->assertStringContainsString('07.30–13.30', $html);
+        $this->assertStringContainsString('Jumat', $html);
+        $this->assertStringContainsString('07.30–11.00', $html);
+        $this->assertStringContainsString('Sabtu', $html);
+        $this->assertStringContainsString('07.30–12.00', $html);
+        $this->assertStringContainsString('Minggu', $html);
+        $this->assertStringContainsString('Tutup', $html);
+    }
+
     public function test_homepage_shows_a_compact_empty_state_when_there_are_no_published_notices(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);

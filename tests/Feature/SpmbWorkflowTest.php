@@ -29,7 +29,10 @@ class SpmbWorkflowTest extends TestCase
             'admin.spmb.requirements.edit', 'admin.spmb.poster.edit', 'admin.spmb.contacts.index',
             'admin.spmb.announcements.index', 'admin.spmb.photos.index', 'admin.spmb.links.index',
         ] as $routeName) {
-            $this->get(route($routeName))->assertOk()->assertSee('id="admin-sidebar"', false);
+            $response = $this->get(route($routeName))->assertOk()->assertSee('id="admin-sidebar"', false);
+            if ($routeName !== 'admin.spmb.dashboard') {
+                $response->assertSee('Kembali ke Dashboard SPMB');
+            }
         }
         $this->get(route('admin.spmb.information.edit'))->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
         $this->get(route('admin.spmb.dashboard'))->assertSee(route('admin.dashboard'), false)->assertSee('Kembali ke Website');
@@ -80,6 +83,12 @@ class SpmbWorkflowTest extends TestCase
         Storage::disk('public')->assertMissing($oldPosterPath);
         $this->assertTrue(Storage::disk('public')->exists($posterPath));
         $this->assertDatabaseMissing('media_assets', ['path' => $oldPosterPath]);
+
+        $this->post(route('admin.spmb.poster.update'), [
+            'poster' => UploadedFile::fake()->create('bukan-gambar.txt', 20, 'text/plain'),
+        ])->assertSessionHasErrors('poster');
+        $this->assertSame($posterPath, SpmbSetting::firstOrFail()->poster_path);
+        Storage::disk('public')->assertExists($posterPath);
 
         $this->post(route('admin.spmb.photos.store'), [
             'title' => 'Pengenalan sekolah', 'caption' => 'Dokumentasi kegiatan pengenalan.', 'image' => UploadedFile::fake()->image('dokumentasi.jpg', 800, 600), 'published' => '1',

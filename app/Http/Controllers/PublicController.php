@@ -48,6 +48,9 @@ class PublicController extends Controller
             'relatedArticles' => $relatedArticles,
             'settings' => $this->websiteSettings(),
             'adminMode' => $adminMode,
+            'articleBackUrl' => request()->user()
+                ? \App\Support\PanelRoute::name('admin.articles.index')
+                : route('information.articles'),
         ]);
     }
 
@@ -65,12 +68,12 @@ class PublicController extends Controller
 
     public function extracurricular(string $slug): View
     {
-        return $this->contentDetail('extracurricular', $slug, 'Ekstrakurikuler', route('home').'#ekstrakurikuler');
+        return $this->contentDetail('extracurricular', $slug, 'Ekstrakurikuler', $this->sectionBackUrl('ekstrakurikuler'));
     }
 
     public function learningActivity(string $slug): View
     {
-        return $this->contentDetail('learning_activity', $slug, 'Kegiatan Pembelajaran', route('home').'#akademik');
+        return $this->contentDetail('learning_activity', $slug, 'Kegiatan Pembelajaran', $this->sectionBackUrl('akademik'));
     }
 
     public function contact(Request $request): RedirectResponse
@@ -120,6 +123,20 @@ class PublicController extends Controller
         return SiteSetting::query()->pluck('value', 'key')->map(fn ($value) => json_decode($value, true) ?? $value);
     }
 
+    private function sectionBackUrl(string $section): string
+    {
+        return $this->dashboardUrl().'#'.$section;
+    }
+
+    private function dashboardUrl(): string
+    {
+        return match (request()->user()?->role) {
+            'admin' => route('admin.dashboard'),
+            'teacher' => route('guru.dashboard'),
+            default => route('home'),
+        };
+    }
+
     private function contentDetail(string $type, string $slug, string $sectionTitle, string $backUrl): View
     {
         $entry = ContentEntry::visible()->where('type', $type)->where('slug', $slug)->firstOrFail();
@@ -131,6 +148,7 @@ class PublicController extends Controller
             'adminMode' => false,
             'sectionTitle' => $sectionTitle,
             'backUrl' => $backUrl,
+            'homeUrl' => $this->dashboardUrl(),
         ]);
     }
 }

@@ -81,6 +81,7 @@ class UserController extends Controller
             'active' => ['required', 'boolean'],
             'password' => ['nullable', 'string', 'min:8', 'max:200'],
         ]);
+        $wasActive = $user->active;
 
         DB::transaction(function () use ($data, $request, $user): void {
             $user->fill([
@@ -107,7 +108,11 @@ class UserController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Akun Guru diperbarui.');
+        $message = ! $user->active
+            ? 'Akun Guru berhasil dinonaktifkan.'
+            : ($wasActive ? 'Akun Guru diperbarui.' : 'Akun Guru berhasil diaktifkan.');
+
+        return back()->with('success', $message);
     }
 
     public function destroy(Request $request, User $user, AccountSessionLockManager $locks): RedirectResponse

@@ -152,14 +152,20 @@ class TeacherAccountManagementTest extends TestCase
             'email' => $teacher->email,
             'password' => '',
             'active' => '0',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHas('success', 'Akun Guru berhasil dinonaktifkan.');
+
+        $accountPage = $this->get(route('admin.users.index'))->assertOk()->getContent();
+        preg_match_all('/<tr>.*?<\/tr>/s', $accountPage, $accountRows);
+        $disabledAccountRow = collect($accountRows[0])->first(fn (string $row): bool => str_contains($row, 'teacher@example.test'));
+        $this->assertNotNull($disabledAccountRow);
+        $this->assertStringNotContainsString(' checked', $disabledAccountRow);
 
         $this->assertDatabaseMissing('account_session_locks', ['user_id' => $teacher->id]);
         $this->assertDatabaseHas('account_session_locks', ['user_id' => $otherTeacher->id, 'session_id' => 'other-teacher-session']);
 
         auth()->logout();
         $this->post(route('login.store'), ['username' => $teacher->email, 'password' => 'teacher123'])
-            ->assertSessionHasErrors('username');
+            ->assertSessionHasErrors(['username' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.']);
 
         $this->actingAs($admin);
         $this->put(route('admin.users.update', $teacher), [
@@ -167,7 +173,7 @@ class TeacherAccountManagementTest extends TestCase
             'email' => $teacher->email,
             'password' => '',
             'active' => '1',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHas('success', 'Akun Guru berhasil diaktifkan.');
 
         auth()->logout();
         $this->post(route('login.store'), ['username' => $teacher->email, 'password' => 'teacher123'])

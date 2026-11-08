@@ -81,9 +81,14 @@ class AcademicExtracurricularExperienceTest extends TestCase
         $adminHome->assertSee(route('admin.content.edit', ['extracurricular', $club]), false)
             ->assertSee(route('admin.dashboard').'#beranda', false);
         $adminPublicDetail = $this->get(route('extracurriculars.show', $club->slug))->assertOk();
-        $adminPublicDetail->assertSee(route('home').'#beranda', false)
-            ->assertSee(route('home').'#ekstrakurikuler', false)
+        $adminPublicDetail->assertSee(route('admin.dashboard').'#beranda', false)
+            ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
             ->assertDontSee('admin-sidebar');
+
+        $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
+        $this->actingAs($teacher)->get(route('extracurriculars.show', $club->slug))->assertOk()
+            ->assertSee(route('guru.dashboard').'#ekstrakurikuler', false)
+            ->assertDontSee(route('home').'#ekstrakurikuler', false);
     }
 
     public function test_admin_can_manage_learning_activity_detail_and_extracurricular_order_and_publication(): void

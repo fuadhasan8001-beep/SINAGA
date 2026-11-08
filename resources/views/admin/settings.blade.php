@@ -168,7 +168,7 @@
 <form method="post" action="{{ $panelRoute('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="contact">
 @foreach($activeGroup['keys'] as $key)
 @php $label = $fields[$key]; @endphp
-<label>{{ $label }}@if(in_array($key,$textareaKeys,true))<textarea name="settings[{{ $key }}]" rows="3">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
+<label>{{ $label }}@if(in_array($key,$textareaKeys,true) || $key === 'office_hours')<textarea name="settings[{{ $key }}]" rows="{{ $key === 'office_hours' ? 5 : 3 }}">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@if($key === 'office_hours')<small class="profile-settings-hint">Satu jadwal per baris, gunakan format Hari | Jam. Contoh: Senin – Kamis | 07.30–13.30.</small>@endif @else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
 @endforeach
 <div class="actions"><a class="secondary" href="{{ $panelRoute('admin.settings.edit',['section'=>'contact']) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
 @endif

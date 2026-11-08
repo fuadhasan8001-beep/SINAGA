@@ -36,14 +36,14 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'max:200'],
         ]);
         $identity = Str::lower(trim($credentials['username'] ?? $credentials['email'] ?? ''));
+        // Always read the account from the database at login time. Do not use
+        // cached account state or an active-only lookup that hides why login failed.
         $user = User::query()
-            ->where('active', true)
             ->where(fn ($query) => $query->whereRaw('LOWER(username) = ?', [$identity])->orWhereRaw('LOWER(email) = ?', [$identity]))
             ->first();
 
         if (! $user && ! str_contains($identity, '@')) {
             $legacyMatches = User::query()
-                ->where('active', true)
                 ->whereNull('username')
                 ->get()
                 ->filter(fn (User $candidate): bool => Str::lower(Str::before($candidate->email, '@')) === $identity);
@@ -55,7 +55,22 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'username' => 'Username/email atau kata sandi salah, atau akun sedang dinonaktifkan.',
+                'username' => 'Username/email atau kata sandi salah.',
+            ]);
+        }
+
+        if (! $user->active) {
+            throw ValidationException::withMessages([
+                'username' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.',
+            ]);
+        }
+
+        // Recheck immediately before creating a session so a status change made
+        // while the password is being verified cannot authorize a stale account.
+        $user = User::query()->find($user->id);
+        if (! $user || ! $user->active) {
+            throw ValidationException::withMessages([
+                'username' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.',
             ]);
         }
 

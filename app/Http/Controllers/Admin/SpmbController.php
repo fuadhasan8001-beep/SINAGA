@@ -93,6 +93,9 @@ class SpmbController extends Controller
         $oldPath=$settings->poster_path;
         $posterCaption=array_key_exists('poster_caption',$data)?$data['poster_caption']:$settings->poster_caption;
         $newPath=$request->hasFile('poster')?$request->file('poster')->storePublicly('spmb/posters','public'):null;
+        if ($request->hasFile('poster') && ! $newPath) {
+            throw ValidationException::withMessages(['poster' => 'Poster gagal disimpan. Silakan coba unggah kembali.']);
+        }
         try{
             DB::transaction(function()use($request,$settings,$posterCaption,$newPath){
                 $updates=['poster_caption'=>$posterCaption];

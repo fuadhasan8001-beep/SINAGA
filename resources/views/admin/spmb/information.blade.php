@@ -3,6 +3,7 @@
 @section('heading','Informasi SPMB')
 @section('subtitle','Isi hanya data penerimaan resmi yang telah dikonfirmasi sekolah.')
 @section('content')
+@include('admin.spmb._back-dashboard')
 <form class="panel profile-form spmb-form" method="post" action="{{ $panelRoute('admin.spmb.information.update') }}">@csrf @method('PUT')
 <label>Judul informasi<input name="title" maxlength="180" required value="{{ old('title',$settings->title) }}">@error('title')<small class="error">{{ $message }}</small>@enderror</label>
 <label>Tahun ajaran<input name="school_year" maxlength="30" value="{{ old('school_year',$settings->school_year) }}" placeholder="Isi setelah ditetapkan"></label>

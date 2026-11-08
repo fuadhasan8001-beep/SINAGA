@@ -6,7 +6,7 @@
 <article class="activity-detail section">
     <div class="container activity-detail-container">
         <nav class="activity-breadcrumb" aria-label="Breadcrumb">
-            <a href="{{ route('home') }}#beranda">Beranda</a><span aria-hidden="true">/</span><a href="{{ $backUrl }}">{{ $sectionTitle }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ $entry->title }}</span>
+            <a href="{{ ($homeUrl ?? route('home')) }}#beranda">Beranda</a><span aria-hidden="true">/</span><a href="{{ $backUrl }}">{{ $sectionTitle }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ $entry->title }}</span>
         </nav>
         <header class="activity-detail-header">
             <span class="eyebrow">{{ $sectionTitle }}</span>

@@ -3,6 +3,7 @@
 @section('heading','Poster dan Foto SPMB')
 @section('subtitle','Poster SPMB disimpan terpisah dari galeri dan foto website sekolah.')
 @section('content')
+@include('admin.spmb._back-dashboard')
 <div class="panel spmb-poster-panel"><div class="panel-head"><h2>Poster saat ini</h2></div>@if($settings->poster_path)<img class="spmb-poster-preview" src="{{ Storage::disk('public')->url($settings->poster_path) }}" alt="Poster SPMB saat ini">@if($settings->poster_caption)<p class="spmb-poster-caption">{{ $settings->poster_caption }}</p>@endif @else<div class="spmb-poster-empty">Poster belum diunggah</div>@endif</div>
 <form class="panel profile-form spmb-form" method="post" enctype="multipart/form-data" action="{{ $panelRoute('admin.spmb.poster.update') }}">@csrf
 <label>Pilih poster baru (JPG, PNG, WebP; maksimal 10 MB)<input id="spmbPoster" type="file" name="poster" accept="image/jpeg,image/png,image/webp" {{ $settings->poster_path?'':'required' }}>@error('poster')<small class="error">{{ $message }}</small>@enderror</label>

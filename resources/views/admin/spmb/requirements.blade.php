@@ -3,6 +3,7 @@
 @section('heading','Persyaratan dan Alur')
 @section('subtitle','Satu poin per baris. Bagian yang belum resmi dapat dibiarkan kosong.')
 @section('content')
+@include('admin.spmb._back-dashboard')
 <form class="panel profile-form spmb-form" method="post" action="{{ $panelRoute('admin.spmb.requirements.update') }}">@csrf @method('PUT')
 <label>Persyaratan<textarea name="requirements_text" rows="6">{{ old('requirements_text',implode("\n",$settings->requirements??[])) }}</textarea></label>
 <label>Tahapan pendaftaran<textarea name="steps_text" rows="6">{{ old('steps_text',implode("\n",$settings->steps??[])) }}</textarea></label>

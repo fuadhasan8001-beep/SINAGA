@@ -4,6 +4,7 @@
 @section('subtitle','Kelola tautan pendaftaran, panduan, hasil seleksi, dan informasi resmi lainnya.')
 @php($linkCategories=['registration'=>'Pendaftaran','form'=>'Formulir','results'=>'Hasil seleksi','guide'=>'Panduan','document'=>'Berkas','other'=>'Informasi lainnya'])
 @section('content')
+@include('admin.spmb._back-dashboard')
 <form class="panel profile-form spmb-form spmb-link-form" method="post" action="{{ $panelRoute('admin.spmb.links.store') }}">
     @csrf
     <div class="panel-head"><h2>Tambah tautan</h2></div>
