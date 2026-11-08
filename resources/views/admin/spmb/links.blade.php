@@ -39,5 +39,4 @@
         <div class="panel spmb-link-empty"><h2>Belum ada tautan</h2><p>Tambahkan tautan resmi agar pengunjung dapat menuju pendaftaran, panduan, atau informasi lain.</p></div>
     @endforelse
 </div>
-<a class="secondary" href="{{ $panelRoute('admin.spmb.dashboard') }}">Kembali ke Dashboard SPMB</a>
 @endsection

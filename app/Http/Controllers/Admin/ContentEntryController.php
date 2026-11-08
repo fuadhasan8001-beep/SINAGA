@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\ContentEntry;
+use App\Models\ContentEntryPhoto;
 use App\Models\MediaAsset;
 use App\Services\ArticleHtml;
 use App\Support\PanelRoute;
@@ -26,7 +27,9 @@ class ContentEntryController extends Controller
         $this->assertType($type);
         $entries = $type === 'gallery'
             ? ContentEntry::with('author')->where('type', 'gallery')->orderBy('sort_order')->orderBy('id')->get()
-            : ContentEntry::with('author')->where('type', $type)->orderBy('sort_order')->orderByDesc('starts_at')->orderByDesc('id')->paginate(20);
+            : ContentEntry::with('author')->where('type', $type)
+                ->when(request()->user()?->role === 'teacher' && $type === 'extracurricular', fn ($query) => $query->where('author_id', request()->user()->id))
+                ->orderBy('sort_order')->orderByDesc('starts_at')->orderByDesc('id')->paginate(20);
 
         return view('admin.content.index',['type'=>$type,'label'=>self::TYPES[$type],'entries'=>$entries]);
     }
@@ -46,29 +49,49 @@ class ContentEntryController extends Controller
 
         return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]);
     }
-    public function edit(string $type,ContentEntry $entry): View { $this->assertType($type);abort_unless($entry->type===$type,404);return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]); }
+    public function edit(string $type,ContentEntry $entry): View { $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);$entry->load('photos');return view('admin.content.form',['type'=>$type,'label'=>self::TYPES[$type],'entry'=>$entry]); }
 
     public function store(Request $request,string $type): RedirectResponse
     {
         $this->assertType($type);$data=$this->validateData($request,$type);
         $entry=ContentEntry::create([...$data,'type'=>$type,'author_id'=>$request->user()->id,'author_name'=>$request->user()->name,'slug'=>Str::slug($data['title']).'-'.Str::lower(Str::random(5))]);
+        $this->storeExtracurricularPhotos($request, $entry);
         ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'buat '.$type,'detail'=>$entry->title]);
         return $this->afterSave($type, self::TYPES[$type].' berhasil ditambahkan.');
     }
 
     public function update(Request $request,string $type,ContentEntry $entry): RedirectResponse
     {
-        $this->assertType($type);abort_unless($entry->type===$type,404);$data=$this->validateData($request,$type,$entry);
+        $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);$data=$this->validateData($request,$type,$entry);
         $entry->update($data);ActivityLog::create(['user_id'=>$request->user()->id,'action'=>'perbarui '.$type,'detail'=>$entry->title]);
+        $this->storeExtracurricularPhotos($request, $entry);
         return $this->afterSave($type, self::TYPES[$type].' diperbarui.');
     }
 
     public function destroy(string $type,ContentEntry $entry): RedirectResponse
     {
-        $this->assertType($type);abort_unless($entry->type===$type,404);
+        $this->assertType($type);abort_unless($entry->type===$type,404);$this->authorizeEntry($entry);
+        $extraPhotoPaths = $entry->photos()->pluck('path')->all();
         foreach([$entry->image_path,$entry->document_path] as $path)if($path)$this->deleteUploadIfUnused($path, $entry);
-        $title=$entry->title;$entry->delete();ActivityLog::create(['user_id'=>request()->user()->id,'action'=>'hapus '.$type,'detail'=>$title]);
+        $title=$entry->title;
+        // Delete related records explicitly before the entry so their files can
+        // be released too; the database cascade alone cannot clean storage.
+        $entry->photos()->delete();
+        $entry->delete();
+        foreach ($extraPhotoPaths as $path) $this->deleteUploadIfUnused($path);
+        ActivityLog::create(['user_id'=>request()->user()->id,'action'=>'hapus '.$type,'detail'=>$title]);
         return $this->afterSave($type, self::TYPES[$type].' dihapus.');
+    }
+
+    public function destroyPhoto(ContentEntry $entry, ContentEntryPhoto $photo): RedirectResponse
+    {
+        abort_unless($entry->type === 'extracurricular' && $photo->content_entry_id === $entry->id, 404);
+        $this->authorizeEntry($entry);
+        $path = $photo->path;
+        $photo->delete();
+        $this->deleteUploadIfUnused($path);
+
+        return back()->with('success', 'Foto ekstrakurikuler dihapus.');
     }
 
     public function reorderGallery(Request $request): JsonResponse
@@ -101,12 +124,14 @@ class ContentEntryController extends Controller
             $data = $request->validate([
                 'title' => ['required', 'string', 'min:2', 'max:180'],
                 'sort_order' => ['nullable', 'integer', 'min:0', 'max:99999'],
+                'starts_at' => ['nullable', 'date'],
                 'image' => [$entry ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             ]);
             $data['sort_order'] = filled($data['sort_order'] ?? null)
                 ? (int) $data['sort_order']
                 : ($entry?->sort_order ?? ((int) ContentEntry::where('type', 'gallery')->max('sort_order') + 1));
             $data['published'] = true;
+            $data['starts_at'] = $data['starts_at'] ?? ($entry?->starts_at ?? now()->startOfDay());
             $this->saveUpload($request, 'image', $data, $entry, 'image_path', 'media');
             unset($data['image']);
 
@@ -121,6 +146,8 @@ class ContentEntryController extends Controller
                 'sort_order' => ['nullable', 'integer', 'min:0', 'max:99999'],
                 'published' => ['nullable', 'boolean'],
                 'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+                'photos' => ['nullable', 'array', 'max:12'],
+                'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             ]);
             $data = [
                 'title' => $validated['title'],
@@ -183,7 +210,6 @@ class ContentEntryController extends Controller
                 'starts_at' => ['nullable', 'date'],
                 'sort_order' => ['nullable', 'integer', 'min:0', 'max:99999'],
                 'published' => ['nullable', 'boolean'],
-                'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             ]);
 
             $data = [
@@ -205,9 +231,6 @@ class ContentEntryController extends Controller
                 $data['excerpt'] = $validated['excerpt'] ?? '';
                 $data['body'] = app(ArticleHtml::class)->clean($validated['body'] ?? '');
             }
-
-            $this->saveUpload($request, 'image', $data, $entry, 'image_path', 'media');
-            unset($data['image']);
 
             return $data;
         }
@@ -246,8 +269,9 @@ class ContentEntryController extends Controller
             $query->where('image_path', $path)->orWhere('document_path', $path);
         })->when($except, fn ($query) => $query->whereKeyNot($except->getKey()))->exists();
         $usedByArticle = \App\Models\Article::where('cover_image', $path)->exists();
+        $usedByEntryPhoto = ContentEntryPhoto::where('path', $path)->exists();
 
-        if (!$usedByContent && !$usedByArticle) {
+        if (!$usedByContent && !$usedByArticle && !$usedByEntryPhoto) {
             Storage::disk('public')->delete($path);
             MediaAsset::where('path', $path)->delete();
         }
@@ -265,7 +289,25 @@ class ContentEntryController extends Controller
         abort_unless(array_key_exists($type, self::TYPES), 404);
 
         if (request()->user()?->role === 'teacher') {
-            abort_unless(in_array($type, ['announcement', 'gallery'], true), 403);
+            abort_unless(in_array($type, ['announcement', 'gallery', 'extracurricular'], true), 403);
+        }
+    }
+
+    private function authorizeEntry(ContentEntry $entry): void
+    {
+        if (request()->user()?->role === 'teacher' && $entry->type === 'extracurricular') {
+            abort_unless($entry->author_id === request()->user()->id, 403);
+        }
+    }
+
+    private function storeExtracurricularPhotos(Request $request, ContentEntry $entry): void
+    {
+        if ($entry->type !== 'extracurricular' || ! $request->hasFile('photos')) return;
+        $nextOrder = (int) $entry->photos()->max('sort_order') + 1;
+        foreach ($request->file('photos', []) as $file) {
+            $path = $file->storePublicly('media', 'public');
+            $entry->photos()->create(['path' => $path, 'sort_order' => $nextOrder++]);
+            MediaAsset::create(['uploaded_by' => $request->user()->id, 'path' => $path, 'mime_type' => $file->getMimeType(), 'size' => $file->getSize()]);
         }
     }
 }

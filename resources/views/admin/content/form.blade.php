@@ -39,6 +39,11 @@
             <span class="hint">Nomor yang lebih kecil ditampilkan lebih dahulu.</span>
             @error('sort_order')<span class="error">{{ $message }}</span>@enderror
         </label>
+        <label for="galleryPostedAt">Tanggal Posting
+            <input id="galleryPostedAt" type="date" name="starts_at" value="{{ old('starts_at',($entry->starts_at ?? $entry->created_at ?? now())->format('Y-m-d')) }}">
+            <span class="hint">Kosongkan untuk menggunakan tanggal penyimpanan hari ini.</span>
+            @error('starts_at')<span class="error">{{ $message }}</span>@enderror
+        </label>
     @elseif($type === 'extracurricular')
         <label class="extracurricular-title-field" for="extracurricularTitle">Nama Ekstrakurikuler
             <input id="extracurricularTitle" type="text" name="title" required minlength="2" maxlength="180" value="{{ old('title',$entry->title) }}" placeholder="Masukkan nama ekstrakurikuler">
@@ -69,6 +74,20 @@
             <input id="extracurricularImage" type="file" name="image" accept="image/jpeg,image/png,image/webp">
             @error('image')<span class="error">{{ $message }}</span>@enderror
         </label>
+        <label class="extracurricular-image-field" for="extracurricularPhotos">Foto kegiatan tambahan
+            <input id="extracurricularPhotos" type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp">
+            <span class="hint">Pilih hingga 12 foto (JPG, JPEG, PNG, atau WebP; maksimal 5 MB per foto).</span>
+            <div class="extracurricular-upload-preview-list" id="extracurricularPhotosPreview" aria-live="polite"></div>
+            @error('photos')<span class="error">{{ $message }}</span>@enderror
+            @error('photos.*')<span class="error">{{ $message }}</span>@enderror
+        </label>
+        @if($entry->exists && $entry->photos->isNotEmpty())
+            <div class="extracurricular-photo-list" aria-label="Foto kegiatan tersimpan">
+                @foreach($entry->photos as $photo)
+                    <figure><img src="{{ Storage::disk('public')->url($photo->path) }}" alt="Foto kegiatan {{ $entry->title }}"><form method="post" action="{{ $panelRoute('admin.content.photos.destroy',[$entry,$photo]) }}">@csrf @method('DELETE')<button class="tiny deny" type="submit">Hapus foto</button></form></figure>
+                @endforeach
+            </div>
+        @endif
         <label for="extracurricularOrder">Urutan Tampil
             <input id="extracurricularOrder" type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$entry->sort_order ?? 0) }}">
             @error('sort_order')<span class="error">{{ $message }}</span>@enderror
@@ -138,12 +157,6 @@
             <span class="hint">Nomor lebih kecil tampil lebih dahulu. Urutan saat ini: {{ $entry->exists ? $entry->sort_order : 'posisi berikutnya' }}.</span>
             @error('sort_order')<span class="error">{{ $message }}</span>@enderror
         </label>
-        <label for="announcementImage">Gambar (opsional)
-            <input id="announcementImage" type="file" name="image" accept="image/jpeg,image/png,image/webp">
-            <span class="hint">JPEG, PNG, atau WebP · maksimal 5 MB.</span>
-            @if($entry->image_path)<img class="spmb-photo-thumb" src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Gambar pengumuman saat ini">@endif
-            @error('image')<span class="error">{{ $message }}</span>@enderror
-        </label>
     @else
         @unless(in_array($type,$academicTypes,true))<label>Judul<input name="title" required maxlength="180" value="{{ old('title',$entry->title) }}"></label><label>Ringkasan<textarea name="excerpt" maxlength="500" rows="3">{{ old('excerpt',$entry->excerpt) }}</textarea></label>@endunless
         @if(!in_array($type,['teacher','document']))<label>Isi/keterangan<textarea name="body" rows="6">{{ old('body',$entry->body) }}</textarea></label>@endif
@@ -155,4 +168,15 @@
     @endif
     <div class="actions"><a class="secondary" href="{{ $type === 'extracurricular' ? $panelRoute('admin.dashboard').'#ekstrakurikuler' : (in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? $panelRoute('admin.settings.edit',['section'=>'academic','edit'=>1]) : $panelRoute('admin.content.index',$type)) }}">{{ $type === 'extracurricular' ? 'Kembali ke Ekstrakurikuler' : 'Kembali' }}</a><button class="primary">Simpan</button></div>
 </form>
+@if($type === 'extracurricular')
+<script>
+document.getElementById('extracurricularPhotos')?.addEventListener('change', (event) => {
+    const preview = document.getElementById('extracurricularPhotosPreview');
+    preview.replaceChildren();
+    [...event.target.files].forEach((file) => {
+        const image = document.createElement('img'); image.src = URL.createObjectURL(file); image.alt = `Preview ${file.name}`; preview.append(image);
+    });
+});
+</script>
+@endif
 @endsection

@@ -18,6 +18,7 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
         $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
 
+        $this->actingAs($admin)->get(route('admin.root'))->assertRedirect(route('admin.dashboard'));
         $adminDashboard = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
         $adminDashboard->assertSee(route('admin.articles.index'), false)
             ->assertSee(route('admin.content.index', 'gallery'), false)
@@ -32,6 +33,7 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $this->get(route('guru.dashboard'))->assertForbidden();
 
         auth()->logout();
+        $this->actingAs($teacher)->get(route('guru.root'))->assertRedirect(route('guru.dashboard'));
         $guruDashboard = $this->actingAs($teacher)->get(route('guru.dashboard'))->assertOk()->assertViewIs('public.home');
         $guruDashboard->assertSee(route('guru.articles.index'), false)
             ->assertSee(route('guru.content.index', 'gallery'), false)

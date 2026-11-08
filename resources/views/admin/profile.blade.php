@@ -13,7 +13,7 @@
         ];
     @endphp
 
-    <form method="post" action="{{ $panelRoute('admin.profile.update') }}" class="panel profile-form account-profile-form">
+    <form method="post" action="{{ $profileUpdateRoute }}" class="panel profile-form account-profile-form">
         @csrf
         @method('PUT')
 
@@ -24,6 +24,9 @@
             </label>
             <label for="profileEmail">Email
                 <input id="profileEmail" value="{{ auth()->user()->email }}" disabled>
+            </label>
+            <label for="profileRole">Role akun
+                <input id="profileRole" value="{{ auth()->user()->isAdmin() ? 'Administrator' : 'Guru' }} · {{ auth()->user()->active ? 'Aktif' : 'Nonaktif' }}" disabled>
             </label>
         </div>
 
@@ -46,7 +49,7 @@
         @endforeach
 
         <div class="actions account-profile-actions">
-            <a class="secondary" href="{{ $panelRoute('admin.dashboard') }}">Batal</a>
+            <a class="secondary" href="{{ $dashboardRoute }}">Batal</a>
             <button class="primary" type="submit">Simpan perubahan</button>
         </div>
     </form>

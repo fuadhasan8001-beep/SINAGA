@@ -57,6 +57,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
     Route::get('/content/{type}/{entry}/edit',[ContentEntryController::class,'edit'])->name('content.edit');
     Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
     Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
+    Route::delete('/content/{entry}/photos/{photo}',[ContentEntryController::class,'destroyPhoto'])->name('content.photos.destroy');
     Route::middleware('role:admin')->group(function(){
         Route::get('/website/sambutan-kepala-sekolah',[PublicController::class,'principalGreeting'])->name('principal-greeting');
         Route::get('/website/articles/{slug}',[PublicController::class,'article'])->name('website.article');
@@ -117,6 +118,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
 });
 
 Route::prefix('guru')->name('guru.')->middleware(['auth','account.session','role:teacher'])->group(function(){
+    // Keep the teacher panel reachable from its prefix, just like /admin.
+    // Sidebar and post-login links use /guru/dashboard, while this route
+    // preserves direct visits to /guru and prevents a framework 404.
+    Route::get('/', fn () => redirect()->route('guru.dashboard'))->name('root');
     Route::get('/dashboard',DashboardController::class)->name('dashboard');
     Route::get('/articles',[ArticleController::class,'index'])->name('articles.index');
     Route::get('/articles/create',[ArticleController::class,'create'])->name('articles.create');
@@ -133,4 +138,7 @@ Route::prefix('guru')->name('guru.')->middleware(['auth','account.session','role
     Route::get('/content/{type}/{entry}/edit',[ContentEntryController::class,'edit'])->name('content.edit');
     Route::put('/content/{type}/{entry}',[ContentEntryController::class,'update'])->name('content.update');
     Route::delete('/content/{type}/{entry}',[ContentEntryController::class,'destroy'])->name('content.destroy');
+    Route::delete('/content/{entry}/photos/{photo}',[ContentEntryController::class,'destroyPhoto'])->name('content.photos.destroy');
+    Route::get('/profile',[UserController::class,'editProfile'])->name('profile.edit');
+    Route::put('/profile',[UserController::class,'profile'])->name('profile.update');
 });
