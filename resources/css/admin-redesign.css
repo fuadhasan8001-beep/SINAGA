@@ -346,6 +346,10 @@ body{background:#edf8f0;color:#26372e}
   .footer-settings-actions{display:grid;grid-template-columns:1fr}
   .footer-settings-actions .primary,.footer-settings-actions .secondary{width:100%}
 }
+.extracurricular-photo-list,.extracurricular-upload-preview-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.extracurricular-photo-list{grid-column:1/-1}
+.extracurricular-photo-list figure{margin:0;display:grid;gap:6px}
+.extracurricular-photo-list img,.extracurricular-upload-preview-list img{display:block;width:100%;aspect-ratio:1.25;object-fit:cover;border-radius:10px;border:1px solid #d6e5d9}
 
 /* Account profile form */
 .account-profile-form{width:min(100%,560px);max-width:560px;margin:0;padding:24px;gap:14px;border-top:3px solid #4faf79;border-radius:10px;box-shadow:0 8px 24px rgba(27,69,43,.06)}

@@ -23,6 +23,7 @@
                     </div>
             <div class="gallery-admin-card-body">
                         <h3>{{ $entry->title }}</h3>
+                        <p class="gallery-admin-author">Diposting {{ ($entry->starts_at ?? $entry->created_at)?->translatedFormat('d F Y') }}</p>
                         @if(auth()->user()->isAdmin())<p class="gallery-admin-author">Diunggah oleh {{ $entry->author_display_name }}</p>@endif
                         <div class="gallery-admin-card-actions">
                             <div class="gallery-move-actions" aria-label="Atur posisi {{ $entry->title }}"><button class="navigation-arrow navigation-arrow--up" type="button" data-order-move="up" aria-label="Pindahkan {{ $entry->title }} ke atas">&lt;&lt;</button><button class="navigation-arrow navigation-arrow--down" type="button" data-order-move="down" aria-label="Pindahkan {{ $entry->title }} ke bawah">&gt;&gt;</button></div>

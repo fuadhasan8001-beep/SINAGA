@@ -21,10 +21,15 @@
         @if($entry->image_path)
             <figure class="activity-detail-image"><img src="{{ Storage::disk('public')->url($entry->image_path) }}" alt="Foto {{ strtolower($sectionTitle) }}: {{ $entry->title }}" fetchpriority="high" decoding="async"></figure>
         @endif
-        <div class="activity-detail-copy">
+        <div class="activity-detail-copy{{ $entry->type === 'extracurricular' ? ' activity-detail-copy--extracurricular' : '' }}">
             @if(filled($entry->excerpt))<p class="activity-detail-excerpt">{{ $entry->excerpt }}</p>@endif
             @if(filled(strip_tags($entry->body ?? '')))<div class="article-content">{!! $entry->body !!}</div>@elseif(!filled($entry->excerpt))<p class="activity-detail-empty">Informasi kegiatan belum ditambahkan.</p>@endif
         </div>
+        @if($entry->type === 'extracurricular' && $entry->photos->isNotEmpty())
+            <section class="extracurricular-detail-gallery" aria-label="Galeri kegiatan {{ $entry->title }}">
+                @foreach($entry->photos as $photo)<img src="{{ Storage::disk('public')->url($photo->path) }}" alt="Kegiatan {{ $entry->title }}" loading="lazy" decoding="async">@endforeach
+            </section>
+        @endif
         <a class="activity-back-link navigation-back-link" href="{{ $backUrl }}">Kembali ke {{ strtolower($sectionTitle) }}</a>
     </div>
 </article>

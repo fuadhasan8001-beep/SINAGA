@@ -31,6 +31,8 @@
             <a class="{{ request()->routeIs('guru.articles.*') ? 'active' : '' }}" href="{{ $panelRoute('admin.articles.index') }}"><span class="site-admin-icon" aria-hidden="true">▤</span>Kelola Artikel</a>
             <a class="{{ request()->routeIs('guru.content.*') && request()->route('type') === 'gallery' ? 'active' : '' }}" href="{{ $panelRoute('admin.content.index','gallery') }}"><span class="site-admin-icon" aria-hidden="true">▧</span>Kelola Galeri</a>
             <a class="{{ request()->routeIs('guru.content.*') && request()->route('type') === 'announcement' ? 'active' : '' }}" href="{{ $panelRoute('admin.content.index','announcement') }}"><span class="site-admin-icon" aria-hidden="true">◉</span>Kelola Pengumuman</a>
+            <a class="{{ request()->routeIs('guru.content.*') && request()->route('type') === 'extracurricular' ? 'active' : '' }}" href="{{ $panelRoute('admin.content.index','extracurricular') }}"><span class="site-admin-icon" aria-hidden="true">◇</span>Ekstrakurikuler</a>
+            <a class="{{ request()->routeIs('guru.profile.*') ? 'active' : '' }}" href="{{ $panelRoute('admin.profile.edit') }}"><span class="site-admin-icon" aria-hidden="true">◌</span>Profil Akun</a>
         @endif
     </nav>
     <div class="site-admin-foot">

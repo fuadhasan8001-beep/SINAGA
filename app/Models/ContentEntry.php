@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ContentEntry extends Model
 {
     protected $fillable = ['author_id','author_name','type','title','slug','excerpt','body','image_path','document_path','location','starts_at','metadata','published','sort_order'];
     protected function casts(): array { return ['metadata'=>'array','published'=>'boolean','starts_at'=>'datetime']; }
     public function author(): BelongsTo { return $this->belongsTo(User::class, 'author_id'); }
+    public function photos(): HasMany { return $this->hasMany(ContentEntryPhoto::class)->orderBy('sort_order')->orderBy('id'); }
     public function getAuthorDisplayNameAttribute(): string { return $this->author?->name ?? $this->author_name ?? 'Pengguna dihapus'; }
     public function scopeVisible($query) { return $query->where('published',true); }
 }

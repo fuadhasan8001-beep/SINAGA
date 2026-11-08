@@ -139,7 +139,7 @@ class PublicController extends Controller
 
     private function contentDetail(string $type, string $slug, string $sectionTitle, string $backUrl): View
     {
-        $entry = ContentEntry::visible()->where('type', $type)->where('slug', $slug)->firstOrFail();
+        $entry = ContentEntry::visible()->with('photos')->where('type', $type)->where('slug', $slug)->firstOrFail();
         $settings = SiteSetting::query()->pluck('value', 'key')->map(fn ($value) => json_decode($value, true) ?? $value);
 
         return view('public.content-detail', [

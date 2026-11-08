@@ -18,7 +18,12 @@ class UserController extends Controller
 {
     public function editProfile(): View
     {
-        return view('admin.profile');
+        $user = request()->user();
+
+        return view('admin.profile', [
+            'profileUpdateRoute' => $user->role === 'teacher' ? route('guru.profile.update') : route('admin.profile.update'),
+            'dashboardRoute' => $user->role === 'teacher' ? route('guru.dashboard') : route('admin.dashboard'),
+        ]);
     }
 
     public function index(): View
