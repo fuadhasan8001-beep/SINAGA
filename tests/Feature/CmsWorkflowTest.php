@@ -97,7 +97,7 @@ class CmsWorkflowTest extends TestCase
         $this->actingAs($inactive)->get(route('admin.dashboard'))->assertRedirect(route('login'));
     }
 
-    public function test_teacher_and_admin_share_article_workflow_while_author_identity_is_preserved(): void
+    public function test_teacher_article_workflow_enforces_ownership_and_admin_can_unpublish(): void
     {
         $admin=User::factory()->create(['role'=>'admin','active'=>true]);
         $teacher=User::factory()->create(['role'=>'teacher','active'=>true]);
@@ -110,16 +110,17 @@ class CmsWorkflowTest extends TestCase
         $this->assertSame('published',$article->status);
         $this->assertStringNotContainsString('<script>',$article->body);
         $foreign=Article::create(['author_id'=>$other->id,'title'=>'Punya Guru Lain','slug'=>'guru-lain','body'=>'<p>Pribadi.</p>','status'=>'draft']);
-        $this->put(route('guru.articles.update',$foreign),['title'=>'Diubah Guru','body'=>'<p>Diperbarui.</p>','intent'=>'review'])->assertRedirect();
+        $this->put(route('guru.articles.update',$foreign),['title'=>'Diubah Guru','body'=>'<p>Diperbarui.</p>','intent'=>'review'])->assertForbidden();
         $foreign->refresh();
         $this->assertSame($other->id,$foreign->author_id);
-        $this->assertSame($teacher->id,$foreign->updated_by);
+        $this->assertNull($foreign->updated_by);
+        $this->assertSame('Punya Guru Lain',$foreign->title);
         $this->put(route('guru.articles.update',$article),['title'=>'Artikel Diperbaiki','body'=>'<h2>Diperbaiki</h2><p>Isi lengkap.</p>','intent'=>'review'])->assertRedirect();
         $article->refresh();$this->assertSame('published',$article->status);
         $this->get(route('article.show',$article->slug))->assertOk()->assertSee('Diperbaiki');
         $this->actingAs($admin)->post(route('admin.articles.unpublish',$article))->assertRedirect();
         $article->refresh();$this->assertSame('draft',$article->status);
-        $this->assertGreaterThanOrEqual(4,ActivityLog::count());
+        $this->assertGreaterThanOrEqual(3,ActivityLog::count());
     }
 
     public function test_content_settings_contacts_and_media_are_database_backed(): void
@@ -216,7 +217,7 @@ class CmsWorkflowTest extends TestCase
             ->assertSee(route('admin.dashboard').'#kontak', false)
             ->assertSee(route('admin.settings.edit'), false)
             ->assertSee(route('admin.articles.index'), false)
-            ->assertSee(route('admin.articles.reviews'), false)
+            ->assertDontSee(route('admin.articles.reviews'), false)
             ->assertDontSee(route('admin.content.index', 'event'), false)
             ->assertSee(route('admin.content.index', 'announcement'), false)
             ->assertSee(route('admin.content.index', 'extracurricular'), false)

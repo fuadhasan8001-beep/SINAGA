@@ -104,7 +104,10 @@ class AcademicExtracurricularExperienceTest extends TestCase
         $this->get(route('learning-activities.show', $learning->slug))->assertNotFound();
 
         $this->get(route('admin.content.create', 'extracurricular'))->assertOk()
-            ->assertSee('name="body"', false)->assertSee('name="sort_order"', false)->assertSee('name="published"', false);
+            ->assertSee('name="body"', false)->assertSee('name="sort_order"', false)->assertSee('name="published"', false)
+            ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
+            ->assertSee('Kembali ke Ekstrakurikuler')
+            ->assertSee('id="extracurricularPreview"', false);
         $this->post(route('admin.content.store', 'extracurricular'), [
             'title' => 'Klub Seni', 'excerpt' => 'Ringkasan klub seni.',
             'body' => '<p>Deskripsi klub seni.</p>', 'sort_order' => 1, 'published' => 1,
@@ -112,6 +115,13 @@ class AcademicExtracurricularExperienceTest extends TestCase
 
         $club = ContentEntry::where('type', 'extracurricular')->where('title', 'Klub Seni')->firstOrFail();
         $this->assertStringContainsString('Deskripsi klub seni.', $club->body);
+        $this->get(route('admin.content.edit', ['extracurricular', $club]))->assertOk()
+            ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
+            ->assertSee('id="extracurricularPreview"', false);
         $this->get(route('extracurriculars.show', $club->slug))->assertOk()->assertSee('Deskripsi klub seni.');
+
+        $this->get(route('admin.content.create', 'announcement'))->assertOk()
+            ->assertSee('class="panel profile-form content-form announcement-form"', false)
+            ->assertSee('name="description"', false)->assertSee('rows="7"', false);
     }
 }

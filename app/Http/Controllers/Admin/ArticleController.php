@@ -18,13 +18,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Support\Carbon;
 use Throwable;
 
 class ArticleController extends Controller
 {
     public function index(): View
     {
-        $query=Article::with(['author','lastEditor','category'])->latest('updated_at');
+        $query=Article::with(['author','lastEditor','category'])
+            ->when(request()->user()->role === 'teacher', fn ($query) => $query->where('author_id', request()->user()->id))
+            ->latest('updated_at');
         return view('admin.articles.index',['articles'=>$query->paginate(20)]);
     }
     public function reviews(): View { return view('admin.articles.reviews',['articles'=>Article::with(['author','category'])->where('status','pending')->latest()->paginate(20)]); }
@@ -36,7 +39,7 @@ class ArticleController extends Controller
     {
         $data=$this->validated($request);$user=$request->user();$submit=$request->input('intent','draft');
         $status=$submit==='review'?'published':'draft';
-        $requestedPublication = $data['published_at'] ?? null;
+        $requestedPublication = $this->publicationTime($data['published_at'] ?? null);
         $article=Article::create([...$data,'author_id'=>$user->id,'author_name'=>$user->name,'slug'=>$this->uniqueSlug(filled($data['slug']??null)?$data['slug']:$data['title']),'status'=>$status,'published_at'=>$status==='published'?($requestedPublication??now()):$requestedPublication]);
         $this->log($article,$submit==='review'?'kirim artikel':'buat draf');
         $destination = PanelRoute::name($status === 'published' ? 'admin.dashboard' : 'admin.articles.edit');
@@ -47,7 +50,9 @@ class ArticleController extends Controller
     {
         Gate::authorize('update',$article);$data=$this->validated($request);$user=$request->user();$submit=$request->input('intent','draft');
         $status=$submit==='review'?'published':($request->input('status')==='published'?'published':'draft');
-        $requestedPublication = $data['published_at'] ?? $article->published_at;
+        $requestedPublication = array_key_exists('published_at', $data)
+            ? $this->publicationTime($data['published_at'])
+            : $article->published_at;
         $article->update([...$data,'slug'=>$this->uniqueSlug(filled($data['slug']??null)?$data['slug']:$data['title'],$article->id),'updated_by'=>$user->id,'updated_by_name'=>$user->name,'status'=>$status,'revision_note'=>null,'published_at'=>$status==='published'?($requestedPublication??now()):$requestedPublication]);
         $this->log($article,$status==='pending'?'kirim ulang artikel':($status==='published'?'perbarui artikel terbit':'perbarui artikel'));
         $destination = PanelRoute::name($status === 'published' ? 'admin.dashboard' : 'admin.articles.edit');
@@ -107,6 +112,14 @@ class ArticleController extends Controller
         if($request->hasFile('cover')){$file=$request->file('cover');$new=$file->storePublicly('media','public');MediaAsset::create(['uploaded_by'=>$request->user()->id,'path'=>$new,'mime_type'=>$file->getMimeType(),'size'=>$file->getSize(),'alt_text'=>$data['title']]);if($cover)$this->deleteUploadIfUnused($cover,$article instanceof Article?$article:null);$cover=$new;}
         unset($data['cover'],$data['remove_cover']);$data['cover_image']=$cover;
         return $data;
+    }
+
+    /** datetime-local values and Eloquent's SQLite timestamps use the application timezone (WIB). */
+    private function publicationTime(?string $value): ?Carbon
+    {
+        return $value === null
+            ? null
+            : Carbon::parse($value, 'Asia/Jakarta')->setTimezone(config('app.timezone'));
     }
 
     private function uniqueSlug(string $title, ?int $ignore=null): string

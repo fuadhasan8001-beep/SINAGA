@@ -11,7 +11,7 @@
         $announcementPublished = old('published', $entry->exists ? (int) $entry->published : 1);
     }
 @endphp
-<form class="panel profile-form content-form{{ $type === 'extracurricular' ? ' extracurricular-form' : '' }}{{ $type === 'gallery' ? ' gallery-form' : '' }}" method="post" enctype="multipart/form-data" action="{{ $entry->exists?$panelRoute('admin.content.update',[$type,$entry]):$panelRoute('admin.content.store',$type) }}">
+<form class="panel profile-form content-form{{ $type === 'extracurricular' ? ' extracurricular-form' : '' }}{{ $type === 'announcement' ? ' announcement-form' : '' }}{{ $type === 'gallery' ? ' gallery-form' : '' }}" method="post" enctype="multipart/form-data" action="{{ $entry->exists?$panelRoute('admin.content.update',[$type,$entry]):$panelRoute('admin.content.store',$type) }}">
     @csrf @if($entry->exists)@method('PUT')@endif
     @if($type === 'gallery')
         <label for="galleryTitle">Judul
@@ -40,6 +40,19 @@
             @error('sort_order')<span class="error">{{ $message }}</span>@enderror
         </label>
     @elseif($type === 'extracurricular')
+        <label class="extracurricular-title-field" for="extracurricularTitle">Nama Ekstrakurikuler
+            <input id="extracurricularTitle" type="text" name="title" required minlength="2" maxlength="180" value="{{ old('title',$entry->title) }}" placeholder="Masukkan nama ekstrakurikuler">
+            @error('title')<span class="error">{{ $message }}</span>@enderror
+        </label>
+        <label class="extracurricular-excerpt-field" for="extracurricularExcerpt">Ringkasan Ekstrakurikuler
+            <textarea id="extracurricularExcerpt" name="excerpt" required maxlength="240" rows="4" placeholder="Tuliskan ringkasan singkat mengenai kegiatan ekstrakurikuler ini">{{ old('excerpt',$entry->excerpt) }}</textarea>
+            <span class="hint">Maksimal 240 karakter agar tetap nyaman dibaca pada kartu website.</span>
+            @error('excerpt')<span class="error">{{ $message }}</span>@enderror
+        </label>
+        <label class="extracurricular-description-field" for="extracurricularDescription">Deskripsi Lengkap (opsional)
+            <textarea id="extracurricularDescription" name="body" rows="7" placeholder="Tambahkan informasi yang sudah terverifikasi tentang kegiatan ini">{{ old('body',$entry->body) }}</textarea>
+            @error('body')<span class="error">{{ $message }}</span>@enderror
+        </label>
         <label class="extracurricular-image-field" for="extracurricularImage">Foto Ekstrakurikuler
             <span class="extracurricular-upload">
                 <span class="extracurricular-preview" id="extracurricularPreviewWrap">
@@ -55,19 +68,6 @@
             </span>
             <input id="extracurricularImage" type="file" name="image" accept="image/jpeg,image/png,image/webp">
             @error('image')<span class="error">{{ $message }}</span>@enderror
-        </label>
-        <label for="extracurricularTitle">Nama Ekstrakurikuler
-            <input id="extracurricularTitle" type="text" name="title" required minlength="2" maxlength="180" value="{{ old('title',$entry->title) }}" placeholder="Masukkan nama ekstrakurikuler">
-            @error('title')<span class="error">{{ $message }}</span>@enderror
-        </label>
-        <label for="extracurricularExcerpt">Ringkasan Ekstrakurikuler
-            <textarea id="extracurricularExcerpt" name="excerpt" required maxlength="240" rows="4" placeholder="Tuliskan ringkasan singkat mengenai kegiatan ekstrakurikuler ini">{{ old('excerpt',$entry->excerpt) }}</textarea>
-            <span class="hint">Maksimal 240 karakter agar tetap nyaman dibaca pada kartu website.</span>
-            @error('excerpt')<span class="error">{{ $message }}</span>@enderror
-        </label>
-        <label for="extracurricularDescription">Deskripsi Lengkap (opsional)
-            <textarea id="extracurricularDescription" name="body" rows="7" placeholder="Tambahkan informasi yang sudah terverifikasi tentang kegiatan ini">{{ old('body',$entry->body) }}</textarea>
-            @error('body')<span class="error">{{ $message }}</span>@enderror
         </label>
         <label for="extracurricularOrder">Urutan Tampil
             <input id="extracurricularOrder" type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$entry->sort_order ?? 0) }}">
@@ -153,6 +153,6 @@
         @if($type==='document')<label>File dokumen (PDF, Word, Excel, PowerPoint · maksimal 10 MB)<input type="file" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"></label>@if($entry->document_path)<a href="{{ Storage::disk('public')->url($entry->document_path) }}" target="_blank" rel="noopener">Lihat dokumen saat ini</a>@endif @endif
         @unless(in_array($type,$academicTypes,true))<label>Urutan tampil<input type="number" name="sort_order" min="0" max="99999" value="{{ old('sort_order',$entry->sort_order??0) }}"></label><label>Metadata tambahan (JSON, opsional)<textarea name="metadata_json" rows="3" placeholder='{"alt":"Teks alternatif foto","kelas":"..."}'>{{ old('metadata_json',json_encode($entry->metadata??[],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea></label>@endunless @if($type !== 'announcement' && !in_array($type,$academicTypes,true))<label class="remember"><input type="checkbox" name="published" value="1" @checked(old('published',$entry->published))> Tayang di website</label>@endif
     @endif
-    <div class="actions"><a class="secondary" href="{{ in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? $panelRoute('admin.settings.edit',['section'=>'academic','edit'=>1]) : $panelRoute('admin.content.index',$type) }}">Kembali</a><button class="primary">Simpan</button></div>
+    <div class="actions"><a class="secondary" href="{{ $type === 'extracurricular' ? $panelRoute('admin.dashboard').'#ekstrakurikuler' : (in_array($type,['learning_activity','education_calendar','academic_program','academic_assessment'],true) ? $panelRoute('admin.settings.edit',['section'=>'academic','edit'=>1]) : $panelRoute('admin.content.index',$type)) }}">{{ $type === 'extracurricular' ? 'Kembali ke Ekstrakurikuler' : 'Kembali' }}</a><button class="primary">Simpan</button></div>
 </form>
 @endsection

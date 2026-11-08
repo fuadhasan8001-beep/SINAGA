@@ -26,7 +26,7 @@
                                     @endif
                                 </div>
                                 <div class="article-card-body">
-                                    <div class="article-card-meta"><time datetime="{{ $article->published_at?->toAtomString() }}">{{ $article->published_at?->translatedFormat('d F Y') }}</time><span>{{ $article->category?->name ?? 'Berita sekolah' }}</span></div>
+                                    <div class="article-card-meta"><time datetime="{{ $article->published_at?->toAtomString() }}">{{ $article->published_at?->timezone('Asia/Jakarta')->translatedFormat('d F Y') }}</time><span>{{ $article->category?->name ?? 'Berita sekolah' }}</span></div>
                                     <h2>{{ $article->title }}</h2>
                                     @if($article->excerpt)<p>{{ $article->excerpt }}</p>@endif
                                     <span class="article-card-read">Baca artikel <span aria-hidden="true">&gt;&gt;</span></span>

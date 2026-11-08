@@ -8,7 +8,7 @@
         <header class="article-header">
             <span class="eyebrow">{{ $article->category?->name ?? 'Berita sekolah' }}</span>
             <h1>{{ $article->title }}</h1>
-            <p class="article-meta">{{ $article->published_at?->translatedFormat('d F Y') }} <span aria-hidden="true">·</span> {{ $article->category?->name ?? 'Informasi Sekolah' }} <span aria-hidden="true">·</span> {{ $article->author_display_name }}</p>
+            <p class="article-meta"><time datetime="{{ $article->published_at?->toAtomString() }}">{{ $article->published_at?->timezone('Asia/Jakarta')->translatedFormat('d F Y') }}</time> <span aria-hidden="true">·</span> {{ $article->category?->name ?? 'Informasi Sekolah' }}</p>
         </header>
         @if($article->cover_url)
             <figure class="article-cover">

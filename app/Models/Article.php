@@ -24,5 +24,5 @@ class Article extends Model
         return Storage::disk('public')->url($this->cover_image);
     }
     public function scopePublished($query) { return $query->where('status','published')->whereNotNull('published_at')->where('published_at','<=',now()); }
-    public function editableBy(User $user): bool { return $user->isAdmin() || ($this->author_id===$user->id && in_array($this->status,['draft','revision','rejected'],true)); }
+    public function editableBy(User $user): bool { return $user->isAdmin() || ($user->active && $user->role === 'teacher' && $this->author_id === $user->id); }
 }

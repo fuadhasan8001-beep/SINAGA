@@ -73,6 +73,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','ro
             Route::get('/poster',[SpmbController::class,'poster'])->name('poster.edit');
             Route::post('/poster',[SpmbController::class,'updatePoster'])->name('poster.update');
             Route::delete('/poster',[SpmbController::class,'deletePoster'])->name('poster.destroy');
+            Route::get('/links',[SpmbController::class,'links'])->name('links.index');
+            Route::post('/links',[SpmbController::class,'storeLink'])->name('links.store');
+            Route::put('/links/{link}',[SpmbController::class,'updateLink'])->name('links.update');
+            Route::delete('/links/{link}',[SpmbController::class,'destroyLink'])->name('links.destroy');
             Route::get('/photos',[SpmbController::class,'photos'])->name('photos.index');
             Route::get('/photos/create',[SpmbController::class,'createPhoto'])->name('photos.create');
             Route::post('/photos',[SpmbController::class,'storePhoto'])->name('photos.store');

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SpmbSetting extends Model
 {
-    protected $fillable = ['title','school_year','introduction','status','schedule','requirements','steps','documents','quota','fee_information','registration_url','poster_path','published'];
+    protected $fillable = ['title','school_year','introduction','status','schedule','requirements','steps','documents','quota','fee_information','registration_url','poster_path','poster_caption','important_links','published'];
 
     protected function casts(): array
     {
@@ -15,6 +15,7 @@ class SpmbSetting extends Model
             'requirements' => 'array',
             'steps' => 'array',
             'documents' => 'array',
+            'important_links' => 'array',
             'quota' => 'integer',
             'published' => 'boolean',
         ];

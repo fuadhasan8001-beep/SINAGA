@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Models\Category;
 use App\Models\ContentEntry;
 use App\Models\User;
 use App\Services\AccountSessionLockManager;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -181,7 +183,7 @@ class RoleArticleAndAccountDeletionTest extends TestCase
 
         $this->get(route('information.article', $published->slug))->assertOk()
             ->assertSee('Isi informasi publik.')
-            ->assertSee('Guru Riwayat')
+            ->assertDontSee('Guru Riwayat')
             ->assertSee('Kembali ke Informasi');
     }
 
@@ -275,6 +277,113 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $this->get(route('information.article', $adminArticle->slug))->assertNotFound();
     }
 
+    public function test_article_author_metadata_is_hidden_from_visitors_and_visible_in_management_contexts(): void
+    {
+        $teacher = User::factory()->create(['role' => 'teacher', 'active' => true, 'name' => 'Guru Pemilik']);
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $category = Category::create(['name' => 'Berita', 'slug' => 'berita']);
+        $article = Article::create([
+            'author_id' => $teacher->id,
+            'author_name' => $teacher->name,
+            'category_id' => $category->id,
+            'title' => 'Artikel Metadata',
+            'slug' => 'artikel-metadata',
+            'body' => '<p>Isi artikel.</p>',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+        $legacyArticle = Article::create([
+            'author_id' => null,
+            'author_name' => 'Guru Artikel Lama',
+            'category_id' => $category->id,
+            'title' => 'Artikel Lama Metadata',
+            'slug' => 'artikel-lama-metadata',
+            'body' => '<p>Isi artikel lama.</p>',
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+        ]);
+
+        $publicDetail = $this->get(route('information.article', $article->slug))->assertOk()
+            ->assertSee('Berita')
+            ->assertDontSee('Guru Pemilik');
+        preg_match('/<p class="article-meta">(.*?)<\/p>/s', $publicDetail->getContent(), $metadata);
+        $this->assertNotEmpty($metadata);
+        $metadataText = trim(preg_replace('/\s+/', ' ', strip_tags($metadata[1])));
+        $this->assertSame($article->published_at->timezone('Asia/Jakarta')->translatedFormat('d F Y').' · Berita', $metadataText);
+
+        $this->actingAs($teacher)->get(route('guru.articles.index'))->assertOk()->assertSee('Guru Pemilik');
+        $this->get(route('information.article', $article->slug))->assertOk()->assertDontSee('Guru Pemilik');
+        $this->get(route('guru.articles.edit', $article))->assertOk()->assertSee('Diunggah oleh: Guru Pemilik');
+        $this->actingAs($admin)->get(route('admin.articles.index'))->assertOk()
+            ->assertSee('Guru Pemilik')->assertSee('Guru Artikel Lama');
+        $this->get(route('admin.website.article', $article->slug))->assertOk()->assertDontSee('Guru Pemilik');
+        $this->get(route('admin.articles.preview', $article))->assertOk()->assertSee('Guru Pemilik');
+        $this->get(route('admin.articles.edit', $legacyArticle))->assertOk()->assertSee('Diunggah oleh: Guru Artikel Lama');
+
+        auth()->logout();
+        $this->get(route('information.article', $legacyArticle->slug))->assertOk()
+            ->assertSee('Berita')->assertDontSee('Guru Artikel Lama');
+    }
+
+    public function test_scheduled_article_uses_wib_and_becomes_public_at_its_time_without_manual_action(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-06 01:00:00', 'UTC'));
+        $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
+        $this->actingAs($teacher)->post(route('guru.articles.store'), [
+            'title' => 'Artikel Terjadwal WIB',
+            'slug' => 'artikel-terjadwal-wib',
+            'body' => '<p>Isi terjadwal.</p>',
+            'published_at' => '2026-11-06T08:10',
+            'intent' => 'review',
+        ])->assertRedirect();
+
+        $article = Article::where('slug', 'artikel-terjadwal-wib')->firstOrFail();
+        $this->assertSame('2026-11-06 01:10:00', $article->published_at->copy()->utc()->format('Y-m-d H:i:s'));
+        $this->assertSame('08:10', $article->published_at->copy()->timezone('Asia/Jakarta')->format('H:i'));
+        $this->get(route('guru.articles.index'))->assertOk()->assertSee('Artikel Terjadwal WIB');
+        $this->get(route('information.articles'))->assertDontSee('Artikel Terjadwal WIB');
+        $this->get(route('information.article', $article->slug))->assertNotFound();
+
+        // The author can change the schedule while it remains in the future.
+        $this->put(route('guru.articles.update', $article), [
+            'title' => 'Artikel Terjadwal WIB',
+            'slug' => 'artikel-terjadwal-wib',
+            'body' => '<p>Isi terjadwal.</p>',
+            'published_at' => '2026-11-06T08:01',
+            'intent' => 'review',
+            'status' => 'published',
+        ])->assertRedirect();
+        $article->refresh();
+        $this->assertSame('2026-11-06 01:01:00', $article->published_at->copy()->utc()->format('Y-m-d H:i:s'));
+
+        Carbon::setTestNow(Carbon::parse('2026-11-06 01:00:59', 'UTC'));
+        $this->get(route('information.articles'))->assertDontSee('Artikel Terjadwal WIB');
+        Carbon::setTestNow(Carbon::parse('2026-11-06 01:01:00', 'UTC'));
+        $this->get(route('information.articles'))->assertSee('Artikel Terjadwal WIB');
+        $this->get(route('information.article', $article->slug))->assertOk()->assertSee('Isi terjadwal.');
+        Carbon::setTestNow();
+    }
+
+    public function test_article_scheduled_in_the_past_is_public_immediately(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-06 01:00:00', 'UTC'));
+        $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
+
+        $this->actingAs($teacher)->post(route('guru.articles.store'), [
+            'title' => 'Artikel Jadwal Lampau',
+            'slug' => 'artikel-jadwal-lampau',
+            'body' => '<p>Sudah waktunya terbit.</p>',
+            'published_at' => '2026-11-06T07:59',
+            'intent' => 'review',
+        ])->assertRedirect();
+
+        $article = Article::where('slug', 'artikel-jadwal-lampau')->firstOrFail();
+        $this->assertSame('published', $article->status);
+        $this->get(route('information.articles'))->assertSee($article->title);
+        $this->get(route('information.article', $article->slug))->assertOk()->assertSee('Sudah waktunya terbit.');
+        Carbon::setTestNow();
+    }
+
     public function test_admin_can_delete_teacher_without_deleting_authored_content_or_other_locks(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
@@ -319,35 +428,60 @@ class RoleArticleAndAccountDeletionTest extends TestCase
         $this->delete(route('admin.users.destroy', $admin))->assertNotFound();
     }
 
-    public function test_teacher_can_edit_and_delete_another_teachers_article_without_changing_original_author(): void
+    public function test_teacher_cannot_access_another_teachers_article_but_admin_can_manage_it(): void
     {
         $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
         $otherTeacher = User::factory()->create(['role' => 'teacher']);
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        Article::create([
+            'author_id' => $teacher->id,
+            'author_name' => $teacher->name,
+            'title' => 'Artikel Milik Guru A',
+            'slug' => 'artikel-guru-a',
+            'body' => '<p>Konten A.</p>',
+            'status' => 'draft',
+        ]);
         $article = Article::create([
             'author_id' => $otherTeacher->id,
             'author_name' => $otherTeacher->name,
             'title' => 'Artikel Milik Guru Lain',
             'slug' => 'artikel-guru-lain',
             'body' => '<p>Konten.</p>',
-            'status' => 'draft',
+            'status' => 'published',
+            'published_at' => now()->addDay(),
         ]);
 
         $this->actingAs($teacher);
         $this->delete(route('admin.users.destroy', $otherTeacher))->assertForbidden();
-        $this->get(route('guru.articles.edit', $article))->assertOk();
+        $this->get(route('guru.articles.index'))->assertOk()
+            ->assertSee('Artikel Milik Guru A')
+            ->assertDontSee('Artikel Milik Guru Lain');
+        $this->get(route('guru.articles.edit', $article))->assertForbidden();
         $this->put(route('guru.articles.update', $article), [
             'title' => 'Artikel Diperbarui Guru Lain',
             'slug' => 'artikel-diperbarui-guru-lain',
             'excerpt' => 'Diperbarui bersama.',
             'body' => '<p>Isi diperbarui.</p>',
+            'published_at' => now()->addDays(5)->format('Y-m-d H:i:s'),
             'intent' => 'review',
-        ])->assertRedirect();
+        ])->assertForbidden();
         $article->refresh();
         $this->assertSame($otherTeacher->id, $article->author_id);
         $this->assertSame($otherTeacher->name, $article->author_name);
-        $this->assertSame($teacher->id, $article->updated_by);
-        $this->delete(route('guru.articles.destroy', $article))->assertRedirect();
+        $this->assertNull($article->updated_by);
+        $this->assertSame('Artikel Milik Guru Lain', $article->title);
+        $this->delete(route('guru.articles.destroy', $article))->assertForbidden();
         $this->assertDatabaseHas('users', ['id' => $otherTeacher->id]);
-        $this->assertDatabaseMissing('articles', ['id' => $article->id]);
+        $this->assertDatabaseHas('articles', ['id' => $article->id, 'published_at' => $article->published_at->format('Y-m-d H:i:s')]);
+
+        $this->actingAs($admin)->get(route('admin.articles.edit', $article))->assertOk();
+        $this->put(route('admin.articles.update', $article), [
+            'title' => 'Artikel Dikelola Admin',
+            'slug' => 'artikel-dikelola-admin',
+            'body' => '<p>Isi diperbarui Admin.</p>',
+            'intent' => 'review',
+            'status' => 'published',
+        ])->assertRedirect();
+        $this->assertDatabaseHas('articles', ['id' => $article->id, 'title' => 'Artikel Dikelola Admin']);
     }
 }

@@ -13,7 +13,7 @@
                     @forelse($articles as $article)
                         <tr>
                             <td class="title-cell">{{ $article->title }}<span class="subline">{{ $article->category?->name ?? 'Tanpa kategori' }} @if($article->revision_note) · Catatan Admin: {{ $article->revision_note }} @endif</span></td>
-                            <td>{{ $article->published_at?->translatedFormat('d F Y') ?? 'Belum ditetapkan' }}</td>
+                            <td>{{ $article->published_at?->timezone('Asia/Jakarta')->translatedFormat('d F Y H:i') ?? 'Belum ditetapkan' }}</td>
                             <td>{{ $article->author_display_name }}@if($article->last_editor_display_name && $article->last_editor_display_name !== $article->author_display_name)<span class="subline">Terakhir diedit: {{ $article->last_editor_display_name }}</span>@endif</td>
                             <td><span class="pill {{ $article->status }}">{{ ['draft'=>'Draf','pending'=>'Menunggu persetujuan','revision'=>'Perlu revisi','published'=>'Diterbitkan','rejected'=>'Ditolak'][$article->status] }}</span></td>
                             <td>{{ $article->updated_at->translatedFormat('d M Y H:i') }}</td>

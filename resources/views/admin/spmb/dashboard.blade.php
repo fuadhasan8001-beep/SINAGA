@@ -1,10 +1,28 @@
 @extends('layouts.admin')
 @section('title','Dashboard SPMB')
 @section('heading','Dashboard SPMB')
-@section('subtitle','Kelola informasi penerimaan murid baru secara terpisah dari konten website sekolah.')
+@section('subtitle','Kelola informasi penerimaan murid baru website sekolah.')
 @section('content')
-<div class="dashboard-intro spmb-intro"><div><span class="eyebrow">Penerimaan murid baru</span><h2>{{ $settings->school_year ?: 'Tahun ajaran belum diisi' }}</h2><p>{{ $settings->title }}</p></div><div class="quick-actions"><a class="primary" href="{{ route('spmb.public') }}" target="_blank" rel="noopener">Lihat halaman publik</a><a class="secondary" href="{{ $panelRoute('admin.dashboard') }}">Kembali ke dashboard utama</a></div></div>
-<div class="cards"><div class="stat stat-feature"><span>Status informasi</span><strong class="spmb-status">{{ $settings->published?'Tayang':'Draf' }}</strong><small>{{ $settings->published?'Terlihat pada halaman publik':'Belum ditampilkan ke publik' }}</small></div><div class="stat"><span>Jadwal tersimpan</span><strong>{{ count($settings->schedule??[]) }}</strong><small>Tahapan pendaftaran</small></div><div class="stat"><span>Pengumuman SPMB</span><strong>{{ $publishedAnnouncements }}</strong><small>{{ $draftAnnouncements }} draf</small></div><div class="stat"><span>Contact person</span><strong>{{ $contacts->count() }}</strong><small>{{ $contacts->where('published',true)->count() }} ditampilkan</small></div></div>
-<nav class="spmb-shortcuts" aria-label="Pengelolaan SPMB"><a href="{{ $panelRoute('admin.spmb.information.edit') }}"><strong>Informasi umum</strong><span>Judul, tahun ajaran, kuota, dan status publikasi</span></a><a href="{{ $panelRoute('admin.spmb.schedule.edit') }}"><strong>Jadwal pendaftaran</strong><span>Atur tahapan dan tanggal sesuai informasi resmi</span></a><a href="{{ $panelRoute('admin.spmb.requirements.edit') }}"><strong>Persyaratan dan alur</strong><span>Kelola ketentuan serta daftar berkas</span></a><a href="{{ $panelRoute('admin.spmb.poster.edit') }}"><strong>Poster SPMB</strong><span>Unggah atau ganti poster secara terpisah</span></a><a href="{{ $panelRoute('admin.spmb.photos.index') }}"><strong>Dokumentasi foto</strong><span>Kelola foto dan keterangannya</span></a><a href="{{ $panelRoute('admin.spmb.announcements.index') }}"><strong>Pengumuman SPMB</strong><span>{{ $publishedAnnouncements }} pengumuman tayang</span></a><a href="{{ $panelRoute('admin.spmb.contacts.index') }}"><strong>Contact person</strong><span>Kelola kontak yang boleh dipublikasikan</span></a></nav>
-<div class="panel"><div class="panel-head"><h2>Pengumuman terbaru</h2><a class="secondary" href="{{ $panelRoute('admin.spmb.announcements.index') }}">Kelola pengumuman</a></div><div class="table-wrap"><table><thead><tr><th>Judul</th><th>Status</th><th>Tanggal</th><th></th></tr></thead><tbody>@forelse($announcements as $announcement)<tr><td class="title-cell">{{ $announcement->title }}</td><td><span class="pill {{ $announcement->published?'published':'draft' }}">{{ $announcement->published?'Tayang':'Draf' }}</span></td><td>{{ $announcement->starts_at?->format('d M Y H:i')??'Belum dijadwalkan' }}</td><td><a class="tiny" href="{{ $panelRoute('admin.spmb.announcements.edit',$announcement) }}">Edit</a></td></tr>@empty<tr><td colspan="4" class="empty">Belum ada pengumuman SPMB.</td></tr>@endforelse</tbody></table></div></div>
+<nav class="spmb-dashboard-cards" aria-label="Pengelolaan SPMB">
+    <a class="spmb-dashboard-card" href="{{ $panelRoute('admin.spmb.poster.edit') }}">
+        <span class="spmb-dashboard-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3.75h14a1.25 1.25 0 0 1 1.25 1.25v14A1.25 1.25 0 0 1 19 20.25H5A1.25 1.25 0 0 1 3.75 19V5A1.25 1.25 0 0 1 5 3.75Z"/><path d="M7.5 8h9m-9 4h9m-9 4h5"/></svg></span>
+        <span class="spmb-dashboard-card-copy"><strong>Poster SPMB</strong><span>Kelola poster informasi penerimaan murid baru.</span></span>
+        <span class="spmb-dashboard-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="spmb-dashboard-card" href="{{ $panelRoute('admin.spmb.announcements.index') }}">
+        <span class="spmb-dashboard-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l9 4V6l-9 4H4Z"/><path d="m7 14 1.5 5h3L10 15m9-6a4 4 0 0 1 0 6"/></svg></span>
+        <span class="spmb-dashboard-card-copy"><strong>Pengumuman SPMB</strong><span>Tambah, edit, dan kelola pengumuman SPMB.</span></span>
+        <span class="spmb-dashboard-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="spmb-dashboard-card" href="{{ $panelRoute('admin.spmb.links.index') }}">
+        <span class="spmb-dashboard-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 13.5 14 9.5m-6.5 7H6a4 4 0 0 1 0-8h4m4-1h4a4 4 0 0 1 0 8h-4"/></svg></span>
+        <span class="spmb-dashboard-card-copy"><strong>Tautan Penting</strong><span>Kelola link pendaftaran, panduan, dan informasi penting lainnya.</span></span>
+        <span class="spmb-dashboard-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="spmb-dashboard-card" href="{{ $panelRoute('admin.spmb.contacts.index') }}">
+        <span class="spmb-dashboard-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.25"/><path d="M3.75 19a5.25 5.25 0 0 1 10.5 0m3-8.5a3 3 0 0 1 0 5.8m.75 1.2a4 4 0 0 1 2.25 3.5"/></svg></span>
+        <span class="spmb-dashboard-card-copy"><strong>Contact Person</strong><span>Kelola informasi kontak dan WhatsApp petugas SPMB.</span></span>
+        <span class="spmb-dashboard-arrow" aria-hidden="true">→</span>
+    </a>
+</nav>
 @endsection

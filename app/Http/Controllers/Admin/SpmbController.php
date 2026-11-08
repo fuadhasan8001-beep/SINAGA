@@ -22,15 +22,7 @@ class SpmbController extends Controller
 {
     public function dashboard(): View
     {
-        $settings=$this->settings();
-        $announcementCounts=SpmbAnnouncement::selectRaw('published, count(*) as aggregate')->groupBy('published')->pluck('aggregate','published');
-        return view('admin.spmb.dashboard',[
-            'settings'=>$settings,
-            'contacts'=>SpmbContact::orderBy('sort_order')->orderBy('name')->get(),
-            'announcements'=>SpmbAnnouncement::latest()->limit(5)->get(),
-            'publishedAnnouncements'=>(int)($announcementCounts[1]??0),
-            'draftAnnouncements'=>(int)($announcementCounts[0]??0),
-        ]);
+        return view('admin.spmb.dashboard');
     }
 
     public function information(): View { return view('admin.spmb.information',['settings'=>$this->settings()]); }
@@ -44,7 +36,7 @@ class SpmbController extends Controller
             'status'=>['required','in:preparation,open,closed'],
             'quota'=>['nullable','integer','min:0','max:10000'],
             'fee_information'=>['nullable','string','max:2000'],
-            'registration_url'=>['nullable','url','max:2048'],
+            'registration_url'=>['nullable','url:http,https','max:2048'],
             'published'=>['nullable','boolean'],
         ]);
         $settings=$this->settings();
@@ -93,27 +85,79 @@ class SpmbController extends Controller
 
     public function updatePoster(Request $request): RedirectResponse
     {
-        $request->validate(['poster'=>['required','image','mimes:jpg,jpeg,png,webp','max:10240']]);
-        $settings=$this->settings();$oldPath=$settings->poster_path;
-        $path=$request->file('poster')->storePublicly('spmb/posters','public');
+        $settings=$this->settings();
+        $data=$request->validate([
+            'poster'=>[$settings->poster_path?'nullable':'required','image','mimes:jpg,jpeg,png,webp','max:10240'],
+            'poster_caption'=>['nullable','string','max:250'],
+        ]);
+        $oldPath=$settings->poster_path;
+        $posterCaption=array_key_exists('poster_caption',$data)?$data['poster_caption']:$settings->poster_caption;
+        $newPath=$request->hasFile('poster')?$request->file('poster')->storePublicly('spmb/posters','public'):null;
         try{
-            DB::transaction(function()use($request,$settings,$path){
-                $settings->update(['poster_path'=>$path]);
-                MediaAsset::create(['uploaded_by'=>$request->user()->id,'path'=>$path,'mime_type'=>$request->file('poster')->getMimeType(),'size'=>$request->file('poster')->getSize(),'alt_text'=>'Poster SPMB']);
+            DB::transaction(function()use($request,$settings,$posterCaption,$newPath){
+                $updates=['poster_caption'=>$posterCaption];
+                if($newPath){
+                    $updates['poster_path']=$newPath;
+                    MediaAsset::create(['uploaded_by'=>$request->user()->id,'path'=>$newPath,'mime_type'=>$request->file('poster')->getMimeType(),'size'=>$request->file('poster')->getSize(),'alt_text'=>$posterCaption??'Poster SPMB']);
+                }
+                $settings->update($updates);
             });
-        }catch(Throwable $exception){Storage::disk('public')->delete($path);throw $exception;}
-        if($oldPath){Storage::disk('public')->delete($oldPath);MediaAsset::where('path',$oldPath)->delete();}
-        $this->log('ganti poster SPMB',$path);
-        return back()->with('success','Poster SPMB diperbarui.');
+        }catch(Throwable $exception){if($newPath)Storage::disk('public')->delete($newPath);throw $exception;}
+        if($newPath&&$oldPath){Storage::disk('public')->delete($oldPath);MediaAsset::where('path',$oldPath)->delete();}
+        $this->log($newPath?'perbarui poster SPMB':'perbarui keterangan poster SPMB',$newPath??($posterCaption??''));
+        return back()->with('success',$newPath?'Poster SPMB diperbarui.':'Keterangan poster SPMB diperbarui.');
     }
 
     public function deletePoster(): RedirectResponse
     {
         $settings=$this->settings();$path=$settings->poster_path;
-        $settings->update(['poster_path'=>null]);
+        $settings->update(['poster_path'=>null,'poster_caption'=>null]);
         if($path){Storage::disk('public')->delete($path);MediaAsset::where('path',$path)->delete();}
         $this->log('hapus poster SPMB',$path??'');
         return back()->with('success','Poster SPMB dihapus.');
+    }
+
+    public function links(): View
+    {
+        return view('admin.spmb.links',['links'=>$this->settings()->important_links??[]]);
+    }
+
+    public function storeLink(Request $request): RedirectResponse
+    {
+        $link=$this->validatedLink($request);
+        $link['id']=(string) Str::uuid();
+        $settings=$this->settings();
+        $settings->important_links=[...($settings->important_links??[]),$link];
+        $settings->save();
+        $this->log('tambah tautan SPMB',$link['title']);
+        return back()->with('success','Tautan SPMB ditambahkan.');
+    }
+
+    public function updateLink(Request $request,string $link): RedirectResponse
+    {
+        $settings=$this->settings();
+        $links=$settings->important_links??[];
+        $index=collect($links)->search(fn($item)=>($item['id']??null)===$link);
+        abort_if($index===false,404);
+        $updated=$this->validatedLink($request);
+        $updated['id']=$link;
+        $links[$index]=$updated;
+        $settings->important_links=array_values($links);
+        $settings->save();
+        $this->log('perbarui tautan SPMB',$updated['title']);
+        return back()->with('success','Tautan SPMB diperbarui.');
+    }
+
+    public function destroyLink(string $link): RedirectResponse
+    {
+        $settings=$this->settings();
+        $links=$settings->important_links??[];
+        $remaining=array_values(array_filter($links,fn($item)=>($item['id']??null)!==$link));
+        abort_if(count($remaining)===count($links),404);
+        $settings->important_links=$remaining;
+        $settings->save();
+        $this->log('hapus tautan SPMB',$link);
+        return back()->with('success','Tautan SPMB dihapus.');
     }
 
     public function contacts(): View { return view('admin.spmb.contacts.index',['contacts'=>SpmbContact::orderBy('sort_order')->orderBy('name')->get()]); }
@@ -262,6 +306,13 @@ class SpmbController extends Controller
             'sort_order'=>['nullable','integer','min:0','max:99999'],
             'published'=>['nullable','boolean'],
         ]);
+        $normalizedPhone=preg_replace('/\D+/','',$data['phone']);
+        if(str_starts_with($normalizedPhone,'00'))$normalizedPhone=substr($normalizedPhone,2);
+        if(str_starts_with($normalizedPhone,'0'))$normalizedPhone='62'.substr($normalizedPhone,1);
+        elseif(str_starts_with($normalizedPhone,'8'))$normalizedPhone='62'.$normalizedPhone;
+        if(strlen($normalizedPhone)<9||strlen($normalizedPhone)>15){
+            throw ValidationException::withMessages(['phone'=>'Masukkan nomor WhatsApp dengan 9–15 digit, termasuk kode negara bila perlu.']);
+        }
         $data['published']=$request->boolean('published');$data['sort_order']=(int)($data['sort_order']??0);
         return $data;
     }
@@ -270,6 +321,21 @@ class SpmbController extends Controller
     {
         $data=$request->validate(['title'=>['required','string','min:3','max:180'],'body'=>['required','string','max:10000'],'starts_at'=>['nullable','date'],'published'=>['nullable','boolean']]);
         $data['published']=$request->boolean('published');
+        return $data;
+    }
+
+    private function validatedLink(Request $request): array
+    {
+        $data=$request->validate([
+            'title'=>['required','string','min:2','max:120'],
+            'url'=>['required','string','url:http,https','max:2048'],
+            'description'=>['nullable','string','max:300'],
+            'category'=>['required','in:registration,form,results,guide,document,other'],
+            'sort_order'=>['nullable','integer','min:0','max:99999'],
+            'published'=>['nullable','boolean'],
+        ]);
+        $data['published']=$request->boolean('published');
+        $data['sort_order']=(int)($data['sort_order']??0);
         return $data;
     }
 

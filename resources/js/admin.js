@@ -62,6 +62,20 @@ if(photoForm){
     fileInput?.addEventListener('change',()=>{const file=fileInput.files?.[0];if(!file)return;fileName.textContent=file.name;previewUrl&&URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);preview.src=previewUrl;preview.hidden=false;if(emptyPreview)emptyPreview.hidden=true;});
     photoForm.addEventListener('submit',()=>{const button=photoForm.querySelector('[type="submit"]');if(button){button.disabled=true;button.textContent='Menyimpan foto…';}});
 }
+const spmbPosterInput=document.getElementById('spmbPoster');
+if(spmbPosterInput){
+    const previewWrap=document.getElementById('spmbPosterPreview'),previewImage=previewWrap?.querySelector('img');
+    let previewUrl=null;
+    spmbPosterInput.addEventListener('change',()=>{
+        const file=spmbPosterInput.files?.[0];
+        if(!file){if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;if(previewWrap)previewWrap.hidden=true;return;}
+        if(previewUrl)URL.revokeObjectURL(previewUrl);
+        previewUrl=URL.createObjectURL(file);
+        if(previewImage)previewImage.src=previewUrl;
+        if(previewWrap)previewWrap.hidden=false;
+    });
+    window.addEventListener('pagehide',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl)});
+}
 const extracurricularImage=document.getElementById('extracurricularImage');
 if(extracurricularImage){
     const preview=document.getElementById('extracurricularPreview'),placeholder=document.getElementById('extracurricularPlaceholder');
