@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\SiteSetting;
+use App\Support\FooterDefaults;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Support\PanelRoute;
@@ -34,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
             $social = $settings->get('footer_social');
             $navigation = is_array($navigation) ? $navigation : [];
             $social = is_array($social) ? $social : [];
+            if (! (bool) $settings->get('footer_social_configured', false) && $social === []) {
+                $social = FooterDefaults::social();
+            }
             $cleanText = static function (mixed $value): ?string {
                 if (! is_string($value)) {
                     return filled($value) ? (string) $value : null;

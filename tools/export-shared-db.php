@@ -27,7 +27,18 @@ $quote = static function (mixed $value): string {
         return (string) $value;
     }
 
-    return "'".str_replace("'", "''", (string) $value)."'";
+    $parts = preg_split('/(\r\n|\r|\n)/', (string) $value, -1, PREG_SPLIT_DELIM_CAPTURE);
+    $expressions = [];
+    foreach ($parts as $part) {
+        $expressions[] = match ($part) {
+            "\r\n" => 'char(13)||char(10)',
+            "\r" => 'char(13)',
+            "\n" => 'char(10)',
+            default => "'".str_replace("'", "''", $part)."'",
+        };
+    }
+
+    return implode('||', $expressions);
 };
 
 $handle = fopen($destination, 'wb');

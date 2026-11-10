@@ -56,6 +56,7 @@ class FooterSettingsController extends Controller
             'footer_social' => ['nullable', 'array', 'max:20'],
             'footer_social.*.label' => ['nullable', 'string', 'max:80'],
             'footer_social.*.url' => ['nullable', 'url', 'max:500', 'regex:/^https?:\/\//i'],
+            'footer_social.*.username' => ['nullable', 'string', 'max:120'],
             'footer_copyright_year' => ['required', 'integer', 'min:2000', 'max:2200'],
             'footer_copyright_name' => ['required', 'string', 'max:180'],
             'footer_copyright_note' => ['nullable', 'string', 'max:240'],

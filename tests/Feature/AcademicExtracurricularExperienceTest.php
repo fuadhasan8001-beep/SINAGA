@@ -73,7 +73,11 @@ class AcademicExtracurricularExperienceTest extends TestCase
             ->assertSee('Kegiatan Literasi')->assertSee('Foto kegiatan pembelajaran', false)
             ->assertSee('Deskripsi literasi.');
         $this->get(route('extracurriculars.show', $club->slug))->assertOk()
-            ->assertSee('Pramuka')->assertSee('Deskripsi pramuka.');
+            ->assertSee('Pramuka')->assertSee('Deskripsi pramuka.')
+            ->assertSee('class="activity-back-link navigation-back-link" href="'.route('extracurriculars').'"', false)
+            ->assertSee('class="activity-breadcrumb"', false)
+            ->assertSee('href="'.route('home').'#beranda"', false)
+            ->assertDontSee(route('admin.dashboard'), false);
         $this->get(route('extracurriculars.show', 'ekstra-draf-test'))->assertNotFound();
         $this->get(route('learning-activities.show', 'slug-tidak-ada'))->assertNotFound();
 
@@ -81,14 +85,14 @@ class AcademicExtracurricularExperienceTest extends TestCase
         $adminHome->assertSee(route('admin.content.edit', ['extracurricular', $club]), false)
             ->assertSee(route('admin.dashboard').'#beranda', false);
         $adminPublicDetail = $this->get(route('extracurriculars.show', $club->slug))->assertOk();
-        $adminPublicDetail->assertSee(route('admin.dashboard').'#beranda', false)
-            ->assertSee(route('admin.dashboard').'#ekstrakurikuler', false)
+        $adminPublicDetail->assertSee(route('home').'#beranda', false)
+            ->assertSee(route('extracurriculars'), false)
             ->assertDontSee('admin-sidebar');
 
         $teacher = User::factory()->create(['role' => 'teacher', 'active' => true]);
         $this->actingAs($teacher)->get(route('extracurriculars.show', $club->slug))->assertOk()
-            ->assertSee(route('guru.dashboard').'#ekstrakurikuler', false)
-            ->assertDontSee(route('home').'#ekstrakurikuler', false);
+            ->assertSee(route('extracurriculars'), false)
+            ->assertSee('class="activity-back-link navigation-back-link" href="'.route('extracurriculars').'"', false);
     }
 
     public function test_admin_can_manage_learning_activity_detail_and_extracurricular_order_and_publication(): void

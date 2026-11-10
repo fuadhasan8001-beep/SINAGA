@@ -68,7 +68,7 @@
                                         @else<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6m-1-5-8 8m2-5h-4a5 5 0 0 0 0 10h2m3-2h4a5 5 0 0 0 0-10h-2"/>
                                         @endif
                                     </svg></span>
-                                    <span class="footer-social-copy"><strong>{{ $socialLabel }}</strong>@if(filled($socialHandle))<span>{{ $socialHandle }}</span>@endif</span>
+                                    <span class="footer-social-copy"><strong>{{ $socialLabel }}</strong>@if(filled($social['username'] ?? null))<span>{{ $social['username'] }}</span>@elseif(filled($socialHandle))<span>{{ $socialHandle }}</span>@endif</span>
                                 </a>
                         @endforeach
                     </nav>

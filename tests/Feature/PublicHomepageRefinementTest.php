@@ -25,6 +25,15 @@ class PublicHomepageRefinementTest extends TestCase
         $this->assertStringContainsString('Tutup', $html);
     }
 
+    public function test_homepage_displays_legacy_saved_school_hours_instead_of_replacing_them_with_defaults(): void
+    {
+        SiteSetting::updateOrCreate(['key' => 'office_hours'], ['value' => json_encode('07.00 - 13.00')]);
+
+        $this->get(route('home'))->assertOk()
+            ->assertSee('Jam pelajaran')
+            ->assertSee('07.00 - 13.00');
+    }
+
     public function test_homepage_shows_a_compact_empty_state_when_there_are_no_published_notices(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'active' => true]);

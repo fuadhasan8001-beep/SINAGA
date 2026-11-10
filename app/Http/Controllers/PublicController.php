@@ -145,15 +145,10 @@ class PublicController extends Controller
 
     private function sectionBackUrl(string $section): string
     {
-        return $this->dashboardUrl().'#'.$section;
-    }
-
-    private function dashboardUrl(): string
-    {
-        return match (request()->user()?->role) {
-            'admin' => route('admin.dashboard'),
-            'teacher' => route('guru.dashboard'),
-            default => route('home'),
+        return match ($section) {
+            'ekstrakurikuler' => route('extracurriculars'),
+            'akademik' => route('academics'),
+            default => route('home').'#'.$section,
         };
     }
 
@@ -168,7 +163,7 @@ class PublicController extends Controller
             'adminMode' => false,
             'sectionTitle' => $sectionTitle,
             'backUrl' => $backUrl,
-            'homeUrl' => $this->dashboardUrl(),
+            'homeUrl' => route('home'),
         ]);
     }
 }

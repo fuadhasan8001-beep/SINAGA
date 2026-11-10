@@ -22,6 +22,7 @@ class FooterSettingsWorkflowTest extends TestCase
             ->assertSee('name="phone_alternative"', false)
             ->assertSee('data-footer-add="navigation"', false)
             ->assertSee('data-footer-add="social"', false);
+        $this->get(route('admin.footer.edit'))->assertSee('name="footer_social[2][username]"', false);
 
         $this->put(route('admin.footer.update'), [
             'school_name' => 'SMPN 1 Gondang Utama',
@@ -41,7 +42,7 @@ class FooterSettingsWorkflowTest extends TestCase
             ],
             'footer_social' => [
                 ['label' => 'Instagram', 'url' => 'https://instagram.com/smpn1gondang'],
-                ['label' => 'Facebook', 'url' => 'https://facebook.com/smpn1gondang'],
+                ['label' => 'Facebook', 'username' => 'Sinaga Gondang', 'url' => 'https://facebook.com/smpn1gondang'],
                 ['label' => 'YouTube', 'url' => 'https://youtube.com/@smpn1gondang'],
                 ['label' => 'TikTok', 'url' => 'https://tiktok.com/@smpn1gondang'],
                 ['label' => 'Mastodon', 'url' => 'https://mastodon.social/@smpn1gondang'],
@@ -56,6 +57,7 @@ class FooterSettingsWorkflowTest extends TestCase
         $this->assertSame('Jawa Timur', json_decode(SiteSetting::whereKey('address_region')->value('value'), true));
         $this->assertSame('(0355) 123456', json_decode(SiteSetting::whereKey('phone_alternative')->value('value'), true));
         $this->assertTrue(json_decode(SiteSetting::whereKey('footer_social_configured')->value('value'), true));
+        $this->assertSame('Sinaga Gondang', json_decode(SiteSetting::whereKey('footer_social')->value('value'), true)[1]['username']);
         $this->assertSame([
             ['label' => 'Beranda', 'url' => '/#beranda'],
             ['label' => 'Profil', 'url' => '/#profil'],
@@ -75,6 +77,7 @@ class FooterSettingsWorkflowTest extends TestCase
             ->assertSee('tiktok.com/@smpn1gondang')
             ->assertSee('mastodon.social/@smpn1gondang')
             ->assertSee('footer-social-copy"><strong>Instagram</strong><span>@smpn1gondang</span>', false)
+            ->assertSee('footer-social-copy"><strong>Facebook</strong><span>Sinaga Gondang</span>', false)
             ->assertSee('footer-social-copy"><strong>YouTube</strong><span>@smpn1gondang</span>', false)
             ->assertSee('footer-social-copy"><strong>Mastodon</strong><span>@smpn1gondang</span>', false)
             ->assertDontSee('>instagram.com</span>', false)

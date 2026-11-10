@@ -22,8 +22,13 @@ class CmsWorkflowTest extends TestCase
         $this->actingAs($admin);
 
         $academicUrl = route('admin.settings.edit', ['section' => 'academic', 'edit' => 1]);
+        ContentEntry::create([
+            'author_id' => $admin->id, 'type' => 'learning_activity', 'title' => 'Foto kegiatan uji',
+            'slug' => 'foto-kegiatan-uji', 'image_path' => 'media/foto-kegiatan-uji.jpg', 'published' => true,
+        ]);
         $this->get($academicUrl)->assertOk()->assertViewIs('admin.settings')
             ->assertSee('Kegiatan Pembelajaran')
+            ->assertSee('class="spmb-photo-thumb"', false)
             ->assertSee('Kalender Pendidikan')
             ->assertSee('Program Ekstrakurikuler')
             ->assertSee('Asesmen Akademik')

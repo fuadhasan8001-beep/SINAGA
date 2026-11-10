@@ -41,7 +41,7 @@
         <div class="footer-settings-heading"><span>04</span><div><h2>Media Sosial</h2><p>Isi URL akun yang aktif. Baris yang dikosongkan tidak akan ditampilkan pada footer.</p></div></div>
         <div class="footer-repeat-list" data-footer-repeat="social">
             @foreach(old('footer_social', $settings->get('footer_social')) as $index => $link)
-            <div class="footer-repeat-row"><label>Platform<input name="footer_social[{{ $index }}][label]" maxlength="80" value="{{ $link['label'] ?? '' }}" placeholder="Instagram, Facebook, TikTok, lainnya"></label><label>URL akun<input type="url" name="footer_social[{{ $index }}][url]" maxlength="500" value="{{ $link['url'] ?? '' }}" placeholder="https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus media sosial">Hapus</button></div>
+            <div class="footer-repeat-row"><label>Platform<input name="footer_social[{{ $index }}][label]" maxlength="80" value="{{ $link['label'] ?? '' }}" placeholder="Instagram, Facebook, TikTok, lainnya"></label><label>Username/nama akun<input name="footer_social[{{ $index }}][username]" maxlength="120" value="{{ $link['username'] ?? '' }}" placeholder="Username atau nama akun"></label><label>URL akun<input type="url" name="footer_social[{{ $index }}][url]" maxlength="500" value="{{ $link['url'] ?? '' }}" placeholder="https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus media sosial">Hapus</button></div>
             @endforeach
         </div>
         <button type="button" class="footer-add-row" data-footer-add="social">＋ Tambah media sosial</button>
@@ -71,7 +71,7 @@
     <div class="footer-settings-actions"><a class="secondary" href="{{ $panelRoute('admin.dashboard') }}">Batal</a><button class="primary">Simpan Perubahan</button></div>
 </form>
 <template id="footer-navigation-template"><div class="footer-repeat-row"><label>Nama tautan<input data-name="label" required maxlength="80"></label><label>Alamat tautan<input data-name="url" required maxlength="500" placeholder="/#profil atau https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus tautan">Hapus</button></div></template>
-<template id="footer-social-template"><div class="footer-repeat-row"><label>Platform<input data-name="label" maxlength="80" placeholder="Instagram, Facebook, TikTok, lainnya"></label><label>URL akun<input type="url" data-name="url" maxlength="500" placeholder="https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus media sosial">Hapus</button></div></template>
+<template id="footer-social-template"><div class="footer-repeat-row"><label>Platform<input data-name="label" maxlength="80" placeholder="Instagram, Facebook, TikTok, lainnya"></label><label>Username/nama akun<input data-name="username" maxlength="120" placeholder="Username atau nama akun"></label><label>URL akun<input type="url" data-name="url" maxlength="500" placeholder="https://..."></label><button type="button" class="footer-remove-row" aria-label="Hapus media sosial">Hapus</button></div></template>
 <script>
 document.querySelectorAll('[data-footer-add]').forEach((button) => button.addEventListener('click', () => {
     const type = button.dataset.footerAdd;
