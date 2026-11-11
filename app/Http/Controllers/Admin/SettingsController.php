@@ -13,9 +13,14 @@ use Illuminate\View\View;
 class SettingsController extends Controller
 {
     private const FIELDS=['school_name'=>'Nama sekolah','school_tagline'=>'Ringkasan identitas sekolah','address'=>'Alamat','phone'=>'Nomor WhatsApp','email'=>'Email','office_hours'=>'Jam pelayanan','principal'=>'Nama kepala sekolah','history'=>'Deskripsi profil sekolah','vision'=>'Visi Sekolah','mission'=>'Misi Sekolah','principal_greeting'=>'Isi sambutan Kepala Sekolah','hero_label'=>'Label kecil Hero','hero_title'=>'Judul Hero','hero_description'=>'Deskripsi Hero','hero_photo_position'=>'Posisi fokus foto Hero','academic_intro'=>'Pengantar akademik','curriculum'=>'Nama kurikulum','curriculum_summary'=>'Ringkasan kurikulum','learning_program'=>'Program pembelajaran','learning_system'=>'Sistem pembelajaran','academic_excellence'=>'Program unggulan akademik','academic_support'=>'Informasi pendukung akademik','academic_calendar'=>'Kalender akademik','ppdb_summary'=>'Ringkasan PPDB','ppdb_url'=>'Tautan PPDB'];
+    private const DEFAULT_OFFICE_HOURS = "Senin–Kamis: 07.30–13.30\nJumat: 07.30–11.00\nSabtu: 07.30–12.00\nMinggu: Tutup";
+
     public function edit(): View
     {
         $settings=SiteSetting::all()->keyBy('key')->map(fn($item)=>json_decode($item->value,true)??$item->value);
+        if (! $settings->has('office_hours')) {
+            $settings['office_hours'] = self::DEFAULT_OFFICE_HOURS;
+        }
         $section = request()->query('section', 'profile');
         abort_unless(in_array($section, ['profile', 'hero', 'academic', 'contact'], true), 404);
         $photoPaths = [];
@@ -28,7 +33,6 @@ class SettingsController extends Controller
                 'logo' => $settings['school_logo_path'] ?? null,
                 'profile' => $settings['profile_photo_path'] ?? ContentEntry::visible()->where('type','teacher')->orderBy('sort_order')->orderBy('id')->value('image_path'),
                 'principal' => $settings['principal_photo_path'] ?? null,
-                'hero' => $settings['hero_photo_path'] ?? null,
             ];
         }
         $academicEntries = $section === 'academic'

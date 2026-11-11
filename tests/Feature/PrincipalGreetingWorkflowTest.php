@@ -81,7 +81,9 @@ class PrincipalGreetingWorkflowTest extends TestCase
             ->assertSee('Pisahkan paragraf dengan satu baris kosong.')
             ->assertSee(route('admin.photos.edit', 'principal'), false)
             ->assertSee(route('admin.settings.edit', ['section' => 'hero']), false)
-            ->assertSee(Storage::disk('public')->url('school-photos/banner.jpg'), false);
+            ->assertSee(Storage::disk('public')->url('school-photos/principal.jpg'), false)
+            ->assertDontSee('Gambar Sampul Sambutan')
+            ->assertDontSee(Storage::disk('public')->url('school-photos/banner.jpg'), false);
 
         $greeting = "Salam pembuka.\n\nIsi sambutan.\n\nSalam penutup.";
         $this->put(route('admin.settings.update'), ['section' => 'profile', 'settings' => [

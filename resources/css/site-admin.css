@@ -89,6 +89,13 @@
 .photo-admin-action{border-radius:14px;background:linear-gradient(120deg,#71c990,#a5e2b3);box-shadow:0 7px 18px rgba(15,40,23,.2);transition:transform .18s,box-shadow .18s,filter .18s}
 .photo-admin-action:hover{background:linear-gradient(120deg,#71c990,#a5e2b3);filter:saturate(1.08);transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,40,23,.24)}
 .admin-save-notice{border-radius:14px;box-shadow:0 10px 26px rgba(20,50,30,.14)}
+@media(max-width:650px){
+  .admin-manage .topbar-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:stretch;gap:8px}
+  .admin-manage .topbar-actions .back-dashboard,.admin-manage .topbar-actions .view-site{box-sizing:border-box;width:100%;min-width:0;height:58px;min-height:58px;max-height:58px;padding:8px 10px;gap:7px;font-size:.78rem;line-height:1.25;text-align:center;white-space:nowrap}
+  .admin-manage .topbar-actions .back-dashboard::before{width:26px;height:26px;flex-basis:26px;font-size:.64rem}
+  .admin-manage .topbar-actions .user-chip{margin:0;align-self:center}
+  .admin-manage .actions>a.secondary{display:inline-flex;min-height:44px;max-width:100%;align-items:center;justify-content:center;white-space:normal;text-align:center;overflow-wrap:anywhere}
+}
 .admin-manage .back-dashboard,.admin-manage .view-site{min-height:46px;padding:10px 15px;border-radius:14px;transition:transform .18s,box-shadow .18s,background .18s}
 .admin-manage .back-dashboard{background:linear-gradient(120deg,#68c389,#9fdfae);border-color:#68c389;color:#183e28;box-shadow:0 5px 14px rgba(49,125,75,.13)}
 .admin-manage .back-dashboard:hover{background:linear-gradient(120deg,#5ab67c,#90d8a1);transform:translateY(-1px);box-shadow:0 8px 18px rgba(49,125,75,.18)}
@@ -125,3 +132,29 @@
 .admin-preview .site-admin-toggle--header{position:static;z-index:auto;flex:0 0 auto;margin:0;white-space:nowrap}
 @media(max-width:650px){.admin-preview .site-admin-toggle--header{min-height:40px;padding:8px 10px;font-size:.8rem}.admin-preview .brand{gap:7px}.admin-preview .brand-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media(max-width:480px){.logout-dialog,.action-confirm-dialog{padding:24px 20px;border-radius:19px}.logout-dialog-actions{flex-direction:column-reverse}.logout-dialog-actions button{width:100%}}
+.profile-photos-panel .hero-media-grid--profile{grid-template-columns:repeat(2,minmax(0,1fr))}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card{height:auto;grid-template-columns:minmax(0,1fr);align-items:stretch}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card h3{grid-column:auto;grid-row:auto;min-height:0}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card img,.profile-photos-panel .hero-media-grid--profile .hero-media-empty{grid-column:auto;grid-row:auto;width:100%;max-width:100%;min-height:170px;max-height:210px}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card--logo img{width:min(100%,190px);height:190px;justify-self:center;object-fit:contain}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card--profile img{height:190px;object-fit:cover}
+.profile-photos-panel .hero-media-grid--profile .hero-media-card .secondary{grid-column:auto;grid-row:auto;justify-self:stretch;width:100%;min-height:42px}
+@media(max-width:520px){.profile-photos-panel .hero-media-grid--profile{grid-template-columns:minmax(0,1fr)}}
+
+/* Shared sizing for admin actions and navigation buttons. */
+.admin-manage :is(.primary,.secondary,.danger,.back-dashboard,.view-site,.tiny,.spmb-row-add,.spmb-row-remove,.teacher-password-toggle,.gallery-move-actions button,.footer-remove-row,.announcement-remove-row,.extracurricular-remove-row){box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:40px;padding:8px 13px;border-radius:8px;font:700 .84rem/1.25 "Plus Jakarta Sans",system-ui,sans-serif;text-align:center;text-decoration:none;vertical-align:middle;white-space:nowrap}
+.admin-manage .tiny{min-height:36px;padding:7px 10px;font-size:.78rem}
+.admin-manage :is(.back-dashboard,.view-site){min-height:44px;padding:9px 14px;font-size:.84rem}
+.admin-manage .topbar-actions .navigation-back-link{gap:0}
+.admin-manage .topbar-actions .back-dashboard::before{display:none;content:none}
+.admin-manage .actions,.admin-manage .row-actions,.admin-manage .quick-actions,.admin-manage .topbar-actions{min-width:0;align-items:center;gap:9px}
+.admin-manage .actions>*,.admin-manage .row-actions>*{min-width:0}
+.admin-manage .spmb-editor-actions .primary{min-height:44px;padding:10px 16px}
+@media(max-width:650px){
+  .admin-manage .topbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;justify-content:stretch;gap:8px}
+  .admin-manage .topbar-actions .back-dashboard,.admin-manage .topbar-actions .view-site{box-sizing:border-box;width:100%;min-width:0;height:auto;min-height:44px;max-height:none;padding:9px 8px;white-space:nowrap}
+  .admin-manage .topbar-actions .user-chip{grid-column:1/-1;justify-self:start;margin-left:0}
+  .admin-manage .actions,.admin-manage .row-actions{flex-wrap:wrap}
+  .admin-manage .actions>:is(.primary,.secondary,.danger),.admin-manage .profile-settings-actions>:is(.primary,.secondary),.admin-manage .footer-settings-actions>:is(.primary,.secondary),.admin-manage .spmb-editor-actions .primary{width:100%;min-height:44px}
+  .admin-manage .spmb-editor-actions{align-items:stretch}
+}

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <title>@yield('title','Panel Pengelola') — {{ config('app.name','SINAGA') }}</title>
-    @vite(['resources/css/admin.css','resources/css/admin-redesign.css','resources/css/site-admin.css','resources/css/spmb-admin.css','resources/js/admin.js'])
+    @vite(['resources/css/admin.css','resources/css/admin-redesign.css','resources/css/site-admin.css','resources/css/spmb-admin.css','resources/js/admin.js','resources/js/spmb-admin.js'])
 </head>
 <body class="admin-manage">
     @include('public.partials.admin-tools')
@@ -32,7 +32,7 @@
             </div>
         </header>
         @if(session('success'))<div class="notice success" role="status">{{ session('success') }}</div>@endif
-        @if($errors->any())<div class="notice error" role="alert">Periksa kembali data yang dimasukkan.</div>@endif
+        @if($errors->any())<div class="notice error" role="alert">{{ $errors->first() }}</div>@endif
         <section>@yield('content')</section>
     </main>
 </body>

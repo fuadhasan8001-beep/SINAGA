@@ -66,7 +66,6 @@
 @if($section === 'profile')
 @php
     $principalPhotoPath = filled($photoPaths['principal'] ?? null) && Storage::disk('public')->exists($photoPaths['principal']) ? $photoPaths['principal'] : null;
-    $principalBannerPath = filled($photoPaths['hero'] ?? null) && Storage::disk('public')->exists($photoPaths['hero']) ? $photoPaths['hero'] : null;
     $principalGreetingMedia = [
         [
             'title' => 'Foto Kepala Sekolah',
@@ -77,16 +76,6 @@
             'action' => 'Kelola Foto Kepala Sekolah',
             'href' => $panelRoute('admin.photos.edit','principal'),
             'empty' => 'Foto belum tersedia',
-        ],
-        [
-            'title' => 'Gambar Sampul Sambutan',
-            'path' => $principalBannerPath,
-            'alt' => 'Pratinjau gambar sampul sambutan',
-            'preview_class' => 'principal-greeting-media-preview--banner',
-            'help' => 'Menggunakan foto Hero yang dikelola di Kelola Hero.',
-            'action' => 'Kelola Foto Hero',
-            'href' => $panelRoute('admin.settings.edit',['section'=>'hero']),
-            'empty' => 'Foto Hero belum tersedia',
         ],
     ];
 @endphp
@@ -168,7 +157,7 @@
 <form method="post" action="{{ $panelRoute('admin.settings.update') }}" class="panel profile-form">@csrf @method('PUT')<input type="hidden" name="section" value="contact">
 @foreach($activeGroup['keys'] as $key)
 @php $label = $fields[$key]; @endphp
-<label>{{ $label }}@if(in_array($key,$textareaKeys,true) || $key === 'office_hours')<textarea name="settings[{{ $key }}]" rows="{{ $key === 'office_hours' ? 5 : 3 }}">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@if($key === 'office_hours')<small class="profile-settings-hint">Satu jadwal per baris, gunakan format Hari | Jam. Contoh: Senin – Kamis | 07.30–13.30.</small>@endif @else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
+<label>{{ $label }}@if(in_array($key,$textareaKeys,true) || $key === 'office_hours')<textarea name="settings[{{ $key }}]" rows="{{ $key === 'office_hours' ? 5 : 3 }}">{{ old('settings.'.$key,$settings[$key]??'') }}</textarea>@if($key === 'office_hours')<small class="profile-settings-hint">Tulis jam pelayanan dengan bebas, misalnya “Senin–Kamis: 07.30–13.30”. Teks ini akan ditampilkan di website.</small>@endif @else<input name="settings[{{ $key }}]" value="{{ old('settings.'.$key,$settings[$key]??'') }}">@endif</label>
 @endforeach
 <div class="actions"><a class="secondary" href="{{ $panelRoute('admin.settings.edit',['section'=>'contact']) }}">Batal</a><button class="primary">Simpan {{ strtolower($activeGroup['title']) }}</button></div></form>
 @endif

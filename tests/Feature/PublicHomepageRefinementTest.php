@@ -30,7 +30,8 @@ class PublicHomepageRefinementTest extends TestCase
         SiteSetting::updateOrCreate(['key' => 'office_hours'], ['value' => json_encode('07.00 - 13.00')]);
 
         $this->get(route('home'))->assertOk()
-            ->assertSee('Jam pelajaran')
+            ->assertSee('office-hours-custom', false)
+            ->assertDontSee('Jam pelajaran')
             ->assertSee('07.00 - 13.00');
     }
 
