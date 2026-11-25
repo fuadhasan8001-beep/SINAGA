@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The local development server is reached through ngrok's reverse proxy.
+        $middleware->trustProxies(at: '*');
         $middleware->alias([
             'role' => EnsureRole::class,
             'account.session' => EnsureSingleActiveSession::class,

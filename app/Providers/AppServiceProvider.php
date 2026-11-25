@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
             ])->map($cleanText)->filter()->join(', ');
             $mapsUrl = $cleanText($settings->get('address_map_url'));
             if (! $mapsUrl || ! filter_var($mapsUrl, FILTER_VALIDATE_URL) || ! in_array(strtolower((string) parse_url($mapsUrl, PHP_URL_SCHEME)), ['http', 'https'], true)) {
-                $mapsUrl = null;
+                $mapsUrl = FooterDefaults::MAPS_URL;
             }
             $view->with('footerSettings', [
                 'school_name' => $cleanText($settings->get('school_name')),

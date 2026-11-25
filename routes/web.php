@@ -36,8 +36,12 @@ Route::post('/kontak',[PublicController::class,'contact'])->middleware('throttle
 Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'showLogin'])->name('login');Route::post('/login',[AuthController::class,'login'])->middleware('throttle:5,1')->name('login.store');});
 Route::post('/logout',[AuthController::class,'logout'])->middleware(['auth','account.session'])->name('logout');
 Route::post('/impersonation/return',[UserController::class,'stopImpersonation'])->middleware(['auth','account.session'])->name('impersonation.return');
+// `/admin` is a common bookmark for either panel account. Send teachers to
+// their panel while keeping every Admin management route admin-only.
+Route::get('/admin', fn (\Illuminate\Http\Request $request) => redirect()->route(
+    $request->user()->role === 'teacher' ? 'guru.dashboard' : 'admin.dashboard'
+))->middleware(['auth','account.session','role:admin,teacher'])->name('admin.root');
 Route::prefix('admin')->name('admin.')->middleware(['auth','account.session','role:admin'])->group(function(){
-    Route::get('/', fn () => redirect()->route('admin.dashboard'))->name('root');
     Route::get('/dashboard',DashboardController::class)->name('dashboard');
     Route::get('/articles',[ArticleController::class,'index'])->name('articles.index');
     Route::get('/articles/create',[ArticleController::class,'create'])->name('articles.create');

@@ -30,7 +30,7 @@ class FooterSettingsController extends Controller
         $settings['footer_city'] = $settings->get('address_city', '');
         $settings['footer_region'] = $settings->get('address_region', '');
         $settings['footer_postal_code'] = $settings->get('address_postal_code', '');
-        $settings['address_map_url'] = $settings->get('address_map_url', '');
+        $settings['address_map_url'] = $settings->get('address_map_url') ?: FooterDefaults::MAPS_URL;
         $settings['phone_alternative'] = $settings->get('phone_alternative', '');
 
         return view('admin.footer-settings', compact('settings'));

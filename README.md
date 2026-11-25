@@ -27,6 +27,16 @@ bash tools/serve
 
 Gunakan `bash tools/serve` untuk menjalankan server lokal dengan batas unggah poster SPMB yang sesuai. Deployment PHP-FPM membaca batas serupa dari `public/.user.ini`.
 
+## Akses melalui ngrok
+
+Untuk membagikan seluruh website (halaman publik, login/admin, dan file unggahan), pasang ngrok, sambungkan authtoken akun ngrok (`ngrok config add-authtoken ...`), lalu jalankan dari root project:
+
+```sh
+bash tools/ngrok
+```
+
+Buka URL HTTPS yang ditampilkan ngrok. Perintah ini menyalakan server Laravel pada port 8000 dan tunnel ngrok; tekan `Ctrl+C` untuk menghentikan keduanya. Port dapat diubah dengan `SINAGA_PORT=8080 bash tools/ngrok`. Pastikan `npm run build` sudah dijalankan dan akun ngrok sudah dikonfigurasi. Jangan bagikan URL tunnel ke pihak yang tidak boleh mengakses panel admin.
+
 Buka `http://127.0.0.1:8000` untuk website dan `/login` untuk panel. Seeder menambahkan lima akun Guru (`guru1`–`guru5`) dan dua akun Admin (`admin1`, `admin2`), seluruhnya dengan kata sandi awal `sinagajaya`. Menjalankan seeder ulang tidak mengganti kata sandi akun yang sudah ada. Setiap akun hanya dapat memiliki satu sesi aktif; sesi idle dilepas setelah masa berlaku session berakhir.
 
 SQLite berada di `database/database.sqlite`; unggahan berada di `storage/app/public`. Backup database dan direktori storage sebelum deployment atau perubahan skema. Migrasi tambahan mempertahankan tabel pengguna Laravel yang sudah ada.

@@ -158,3 +158,26 @@ main .spmb-visitor-contact .spmb-whatsapp-button svg{width:19px;height:19px;flex
   main .spmb-visitor-contact .spmb-visitor-card-heading,main .spmb-visitor-contact>p{grid-column:auto}
   main .spmb-visitor-contact .spmb-whatsapp-button{grid-column:auto;grid-row:auto;width:100%;min-width:0}
 }
+
+/* Match the centered, single-column card rhythm used by the article page on phones. */
+@media(max-width:650px){
+  main .spmb-visitor{
+    grid-template-columns:minmax(0,1fr);
+    width:min(calc(100% - 32px),520px);
+    gap:16px;
+    padding:22px 0 36px;
+    border-radius:0;
+    background:transparent;
+  }
+  main .spmb-visitor-main{grid-template-columns:minmax(0,1fr);gap:16px}
+  main .spmb-visitor-card{
+    width:100%;
+    max-width:520px;
+    margin-inline:auto;
+    padding:16px;
+    border-radius:18px 18px 7px 18px;
+    box-shadow:0 9px 24px rgba(27,69,43,.07);
+  }
+  main .spmb-visitor-poster-card{padding:12px}
+  main .spmb-visitor-announcement .spmb-visitor-card-heading h1{font-size:clamp(1.25rem,6vw,1.6rem)}
+}

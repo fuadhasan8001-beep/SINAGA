@@ -4,6 +4,8 @@ namespace App\Support;
 
 final class FooterDefaults
 {
+    public const MAPS_URL = 'https://maps.app.goo.gl/mMJutD1bVUich6iC6?g_st=aw';
+
     public static function navigation(): array
     {
         return [

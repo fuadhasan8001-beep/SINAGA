@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SINAGA_HOST="${SINAGA_HOST:-127.0.0.1}"
+SINAGA_PORT="${SINAGA_PORT:-8000}"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+if ! command -v ngrok >/dev/null 2>&1; then
+    echo "ngrok belum terpasang. Pasang ngrok dan siapkan authtoken terlebih dahulu." >&2
+    exit 1
+fi
+
+cd "$PROJECT_ROOT"
+php artisan storage:link >/dev/null
+
+bash tools/serve --host="$SINAGA_HOST" --port="$SINAGA_PORT" &
+SERVER_PID=$!
+cleanup() {
+    kill "$SERVER_PID" 2>/dev/null || true
+    wait "$SERVER_PID" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+for _ in {1..30}; do
+    if curl --silent --fail "http://${SINAGA_HOST}:${SINAGA_PORT}/up" >/dev/null; then
+        break
+    fi
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        echo "Server Laravel gagal dijalankan." >&2
+        exit 1
+    fi
+    sleep 1
+done
+
+echo "SINAGA tersedia melalui URL HTTPS yang ditampilkan ngrok. Tekan Ctrl+C untuk berhenti."
+ngrok http "${SINAGA_PORT}" "$@"

@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Keep public storage URLs relative so they work through forwarded hosts
+            // such as ngrok, whose public hostname may change between runs.
+            'url' => env('ASSET_URL'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
