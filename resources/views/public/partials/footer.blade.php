@@ -93,7 +93,7 @@
             </div>
             @endif
         </div>
-        <div class="copyright"><div class="copyright-primary">@if(filled($footerCopyright))<span>© {{ $footerCopyright }}</span>@endif<span class="footer-watermark" aria-label="by ESEMKITA 2026">by ESEMKITA 2026</span></div>@if(filled($footerSettings['copyright_note']))<span>{{ $footerSettings['copyright_note'] }}</span>@endif</div>
+        <div class="copyright"><div class="copyright-primary">@if(filled($footerCopyright))<span>© {{ $footerCopyright }}</span>@endif<a class="footer-watermark" href="https://boundless.biz.id" aria-label="Kunjungi boundless.biz.id">boundless.biz.id</a></div>@if(filled($footerSettings['copyright_note']))<span>{{ $footerSettings['copyright_note'] }}</span>@endif</div>
     </div>
 </footer>
 <button class="up" id="upBtn" aria-label="Kembali ke atas">Atas</button>
